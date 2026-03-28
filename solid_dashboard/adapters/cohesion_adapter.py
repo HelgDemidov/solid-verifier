@@ -1,0 +1,515 @@
+import ast
+import os
+from dataclasses import dataclass, field  # Структуры данных для классов/методов
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set
+from solid_dashboard.interfaces.analyzer import IAnalyzer  # явный импорт интерфейса
+
+
+# ================================
+# ВСПОМОГАТЕЛЬНЫЕ СТРУКТУРЫ ДАННЫХ
+# ================================
+
+@dataclass
+class MethodInfo:
+    """Информация о методе внутри класса."""
+    name: str                     # Имя метода (get_user, create, ...)
+    lineno: int                   # Номер строки начала метода
+    is_async: bool                # Является ли метод async def
+    decorator_kinds: List[str] = field(default_factory=list)
+    # decorator_kinds: ["property", "classmethod", "staticmethod"]
+
+    # Какие атрибуты класса/экземпляра использует метод
+    used_attributes: Set[str] = field(default_factory=set)
+    # Какие методы этого же класса он вызывает (по имени)
+    called_methods: Set[str] = field(default_factory=set)
+
+
+@dataclass
+class ClassInfo:
+    """Информация о классе: основа для расчёта LCOM4."""
+    name: str                          # Имя класса (UserService, ArticleRepository, ...)
+    filepath: str                      # Абсолютный путь к файлу, где объявлен класс
+    lineno: int                        # Строка объявления class
+    methods: List[MethodInfo] = field(default_factory=list)
+    attributes: Set[str] = field(default_factory=set)
+    # attributes: множество имён полей класса/экземпляра
+    # (уровень класса + self.xxx из __init__)
+
+
+# ================================
+# ОСНОВНОЙ АДАПТЕР
+# ================================
+
+class CohesionAdapter(IAnalyzer):
+    @property
+    def name(self) -> str:
+        return "cohesion"
+
+    def run(self, target_dir: str, context: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        AST-базированный адаптер для оценки связности классов (LCOM4).
+
+        Итог:
+        - для каждого класса считаем LCOM4 как число связных компонент графа методов,
+          где вершины = методы (кроме __init__), рёбра = общие атрибуты или вызовы;
+        - формируем агрегированные и помодульные метрики.
+        """
+        target_path = Path(target_dir).resolve()
+
+        # Собираем информацию о классах проекта (методы + атрибуты + использования)
+        classes_info: List[ClassInfo] = self._collect_classes(target_path)
+
+        # Считаем LCOM4 для каждого класса и формируем результирующий список
+        class_results: List[Dict[str, Any]] = []
+
+        # Сырые значения LCOM4 по всем классам, где methods_count > 0
+        cohesion_values_all: List[float] = []
+
+        # Значения LCOM4 только по классам с methods_count >= 2
+        cohesion_values_multi_method: List[float] = []
+        analyzed_classes_multi_method = 0
+
+        low_cohesion_count = 0  # по-прежнему считаем по всем классам с methods_count > 0
+
+        for class_info in classes_info:
+            lcom4, methods_count = self._compute_lcom4(class_info)
+            if methods_count == 0:
+                # Классы без методов для метрики не интересны
+                continue
+
+            cohesion_score = float(lcom4)
+
+            class_results.append({
+                "name": class_info.name,
+                "methods_count": methods_count,
+                "cohesion_score": cohesion_score,
+                "filepath": class_info.filepath,
+                "lineno": class_info.lineno,
+            })
+
+            # 1) Добавляем в "сырую" выборку всех классов с методами
+            cohesion_values_all.append(cohesion_score)
+
+            # 2) Отдельно собираем многометодные классы (methods_count >= 2)
+            if methods_count >= 2:
+                cohesion_values_multi_method.append(cohesion_score)
+                analyzed_classes_multi_method += 1
+
+            # low_cohesion_count считаем по всем классам с methods_count > 0
+            if lcom4 > 1:
+                low_cohesion_count += 1
+
+        total_classes_analyzed = len(class_results)
+
+        if cohesion_values_all:
+            mean_cohesion_all = float(sum(cohesion_values_all) / len(cohesion_values_all))
+        else:
+            mean_cohesion_all = 0.0
+
+        if cohesion_values_multi_method:
+            mean_cohesion_multi = float(sum(cohesion_values_multi_method) / len(cohesion_values_multi_method))
+        else:
+            mean_cohesion_multi = 0.0
+
+        return {
+            "total_classes_analyzed": total_classes_analyzed,
+            # Среднее по всем классам с хотя бы одним методом
+            "mean_cohesion_all": round(mean_cohesion_all, 2),
+            # Среднее только по классам с methods_count >= 2
+            "mean_cohesion_multi_method": round(mean_cohesion_multi, 2),
+            # Сколько классов реально попало во второе среднее
+            "analyzed_classes_count": analyzed_classes_multi_method,
+            "low_cohesion_count": low_cohesion_count,
+            "classes": class_results,
+        }
+
+    # ================================
+    # СБОР КЛАССОВ, МЕТОДОВ И АТРИБУТОВ
+    # ================================
+
+    def _collect_classes(self, target_path: Path) -> List[ClassInfo]:
+        """
+        Обходит все .py файлы в target_path и собирает информацию о классах:
+        - имя, файл, строка
+        - методы (включая async/property/classmethod/staticmethod)
+        - атрибуты класса (включая pydantic-/dataclass-поля и self.xxx в __init__)
+        - used_attributes и called_methods для каждого метода
+        """
+        classes: List[ClassInfo] = []
+
+        for root, _, files in os.walk(target_path):
+            for filename in files:
+                if not filename.endswith(".py"):
+                    continue
+
+                file_path = Path(root) / filename
+                try:
+                    source = file_path.read_text(encoding="utf-8")
+                except OSError:
+                    continue
+
+                try:
+                    tree = ast.parse(source, filename=str(file_path))
+                except SyntaxError:
+                    # Пропускаем файлы с синтаксическими ошибками
+                    continue
+
+                # Проходим по всем классам в файле
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        class_info = self._build_class_info(node, file_path)
+                        # Сначала соберём self.xxx из __init__, чтобы добавить в attributes
+                        self._collect_instance_attributes_from_init(class_info, node)
+                        # Затем наполним used_attributes / called_methods
+                        self._populate_method_usage(class_info, node)
+                        classes.append(class_info)
+
+        return classes
+
+    def _build_class_info(self, class_node: ast.ClassDef, file_path: Path) -> ClassInfo:
+        """
+        Строит ClassInfo для одного ast.ClassDef:
+        - имя класса
+        - путь к файлу
+        - строка объявления
+        - список методов
+        - множество атрибутов класса (уровень class body)
+        """
+        class_info = ClassInfo(
+            name=class_node.name,
+            filepath=str(file_path.resolve()),
+            lineno=class_node.lineno,
+            methods=[],
+            attributes=set(),
+        )
+
+        # Проходим только по прямым потомкам class_node.body:
+        for node in class_node.body:
+            # 1) Методы класса (обычные и async)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                method_info = self._build_method_info(node)
+                class_info.methods.append(method_info)
+
+            # 2) Присваивания на уровне класса (атрибуты)
+            if isinstance(node, ast.Assign):
+                attr_names = self._extract_names_from_assign(node)
+                class_info.attributes.update(attr_names)
+
+            # 3) Аннотированные присваивания (Pydantic/BaseModel, dataclasses)
+            if isinstance(node, ast.AnnAssign):
+                attr_name = self._extract_name_from_ann_assign(node)
+                if attr_name is not None:
+                    class_info.attributes.add(attr_name)
+
+        return class_info
+
+    def _build_method_info(self, func_node: ast.AST) -> MethodInfo:
+        """
+        Строит MethodInfo для ast.FunctionDef или ast.AsyncFunctionDef.
+        Определяет:
+        - имя метода
+        - async / sync
+        - типы декораторов: property, classmethod, staticmethod.
+        """
+        is_async = isinstance(func_node, ast.AsyncFunctionDef)
+        name = getattr(func_node, "name", "<unknown>")
+        lineno = getattr(func_node, "lineno", 0)
+
+        decorator_kinds: List[str] = []
+
+        # Разбираем список декораторов: @property, @classmethod, @staticmethod
+        for dec in getattr(func_node, "decorator_list", []):
+            kind = self._classify_decorator(dec)
+            if kind is not None:
+                decorator_kinds.append(kind)
+
+        return MethodInfo(
+            name=name,
+            lineno=lineno,
+            is_async=is_async,
+            decorator_kinds=decorator_kinds,
+            used_attributes=set(),
+            called_methods=set(),
+        )
+
+    def _classify_decorator(self, dec: ast.AST) -> Optional[str]:
+        """
+        Классифицирует декоратор в одно из значений:
+        - "property"
+        - "classmethod"
+        - "staticmethod"
+        Если это другой декоратор, возвращает None.
+        """
+        # @property
+        if isinstance(dec, ast.Name) and dec.id == "property":
+            return "property"
+
+        # @classmethod / @staticmethod в виде @classmethod / @staticmethod
+        if isinstance(dec, ast.Name) and dec.id in ("classmethod", "staticmethod"):
+            return dec.id
+
+        # Варианты вида @something.classmethod
+        if isinstance(dec, ast.Attribute) and isinstance(dec.value, ast.Name):
+            full_name = f"{dec.value.id}.{dec.attr}"
+            if full_name.endswith(".classmethod"):
+                return "classmethod"
+            if full_name.endswith(".staticmethod"):
+                return "staticmethod"
+
+        return None
+
+    # ================================
+    # ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ДЛЯ АТРИБУТОВ
+    # ================================
+
+    def _extract_names_from_assign(self, node: ast.Assign) -> List[str]:
+        """
+        Извлекает имена атрибутов из простого присваивания на уровне класса.
+        Примеры:
+          foo = 1              -> ["foo"]
+          x, y = 1, 2          -> ["x", "y"]
+        Всё, что не является простым Name, игнорируется.
+        """
+        names: List[str] = []
+
+        for target in node.targets:
+            # Простое имя: foo = 1
+            if isinstance(target, ast.Name):
+                names.append(target.id)
+            # Список имён: x, y = 1, 2
+            elif isinstance(target, ast.Tuple):
+                for elt in target.elts:
+                    if isinstance(elt, ast.Name):
+                        names.append(elt.id)
+
+        return names
+
+    def _extract_name_from_ann_assign(self, node: ast.AnnAssign) -> Optional[str]:
+        """
+        Извлекает имя атрибута из аннотированного присваивания на уровне класса.
+        Примеры:
+          name: str              -> "name"
+          age: int = 0           -> "age"
+          score: int = Field()   -> "score"
+        Если target не является ast.Name (например, self.x), возвращаем None.
+        """
+        target = node.target
+
+        if isinstance(target, ast.Name):
+            return target.id
+
+        return None
+
+    # ================================
+    # СБОР self.xxx ИЗ __init__
+    # ================================
+
+    def _collect_instance_attributes_from_init(self, class_info: ClassInfo, class_node: ast.ClassDef) -> None:
+        """
+        Находит в __init__ присваивания вида self.xxx = ... и добавляет имена xxx
+        в class_info.attributes, чтобы их можно было учитывать как поля экземпляра.
+        """
+        for node in class_node.body:
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            if node.name != "__init__":
+                continue
+
+            # Ищем в теле __init__ присваивания self.xxx = ...
+            for stmt in ast.walk(node):
+                if isinstance(stmt, ast.Assign):
+                    for target in stmt.targets:
+                        attr_name = self._extract_instance_attr_from_target(target)
+                        if attr_name is not None:
+                            class_info.attributes.add(attr_name)
+                elif isinstance(stmt, ast.AnnAssign):
+                    # Случаи вроде self.xxx: Type = value
+                    attr_name = self._extract_instance_attr_from_target(stmt.target)
+                    if attr_name is not None:
+                        class_info.attributes.add(attr_name)
+
+    def _extract_instance_attr_from_target(self, target: ast.AST) -> Optional[str]:
+        """
+        Извлекает имя атрибута экземпляра из левой части присваивания:
+          self.xxx = ...
+          self.xxx: Type = ...
+        Возвращает 'xxx' или None, если это не self.xxx/cls.xxx.
+        """
+        # self.xxx или cls.xxx
+        if isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
+            if target.value.id in ("self", "cls"):
+                return target.attr
+        return None
+
+    # ================================
+    # ЗАПОЛНЕНИЕ used_attributes И called_methods
+    # ================================
+
+    def _populate_method_usage(self, class_info: ClassInfo, class_node: ast.ClassDef) -> None:
+        """
+        Для каждого метода класса:
+        - обходит тело метода;
+        - заполняет used_attributes (какие атрибуты класса/экземпляра используются);
+        - заполняет called_methods (какие методы данного класса вызываются).
+        """
+        methods_by_name: Dict[str, MethodInfo] = {m.name: m for m in class_info.methods}
+        method_names: Set[str] = set(methods_by_name.keys())
+
+        for node in class_node.body:
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+
+            method_name = node.name
+            method_info = methods_by_name.get(method_name)
+            if method_info is None:
+                continue
+
+            visitor = _MethodUsageVisitor(
+                class_attributes=class_info.attributes,
+                method_names=method_names,
+            )
+            visitor.visit(node)
+
+            method_info.used_attributes = visitor.used_attributes
+            method_info.called_methods = visitor.called_methods
+
+    # ================================
+    # РАСЧЁТ LCOM4
+    # ================================
+
+    def _compute_lcom4(self, class_info: ClassInfo) -> tuple[int, int]:
+        """
+        Считает LCOM4 для данного класса.
+
+        Алгоритм:
+        - Берём только методы, кроме __init__ (по требованиям).
+        - Строим неориентированный граф:
+          - вершины = имена методов;
+          - рёбра между методами A и B, если:
+            * used_attributes(A) ∩ used_attributes(B) != ∅, или
+            * A вызывает B или B вызывает A.
+        - LCOM4 = число связных компонент в этом графе.
+        - Если после фильтрации нет методов, возвращаем (0, 0).
+        """
+        # Игнорируем __init__ при расчёте LCOM4
+        methods = [m for m in class_info.methods if m.name != "__init__"]
+
+        methods_count = len(methods)
+        if methods_count == 0:
+            return 0, 0
+
+        # Инициализируем граф: вершины -> множество соседей
+        adjacency: Dict[str, Set[str]] = {m.name: set() for m in methods}
+
+        # 1. Рёбра по общим атрибутам
+        for i, m1 in enumerate(methods):
+            for j in range(i + 1, len(methods)):
+                m2 = methods[j]
+                # Пересечение используемых атрибутов
+                if m1.used_attributes and m2.used_attributes:
+                    if m1.used_attributes.intersection(m2.used_attributes):
+                        adjacency[m1.name].add(m2.name)
+                        adjacency[m2.name].add(m1.name)
+
+        # 2. Рёбра по вызовам методов
+        name_to_method: Dict[str, MethodInfo] = {m.name: m for m in methods}
+        for m in methods:
+            for called in m.called_methods:
+                if called in name_to_method:
+                    adjacency[m.name].add(called)
+                    adjacency[called].add(m.name)
+
+        # 3. Подсчёт связных компонент (DFS)
+        visited: Set[str] = set()
+        components = 0
+
+        def dfs(node_name: str) -> None:
+            stack = [node_name]
+            while stack:
+                current = stack.pop()
+                if current in visited:
+                    continue
+                visited.add(current)
+                for neighbor in adjacency[current]:
+                    if neighbor not in visited:
+                        stack.append(neighbor)
+
+        for method_name in adjacency.keys():
+            if method_name not in visited:
+                components += 1
+                dfs(method_name)
+
+        lcom4_value = components
+        return lcom4_value, methods_count
+
+
+class _MethodUsageVisitor(ast.NodeVisitor):
+    """
+    AST-посетитель для одного метода класса.
+    Собирает:
+    - used_attributes: обращения к атрибутам класса/экземпляра
+      (self.field, cls.field), если field есть в class_attributes.
+    - called_methods: вызовы методов класса (self.method(), cls.method(), method()).
+    """
+
+    def __init__(self, class_attributes: Set[str], method_names: Set[str]) -> None:
+        self.class_attributes = class_attributes
+        self.method_names = method_names
+
+        self.used_attributes: Set[str] = set()
+        self.called_methods: Set[str] = set()
+
+        # Имена, играющие роль self/cls (первый аргумент метода)
+        self._self_like_names: Set[str] = set()
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
+        self._register_self_like_names(node)
+        self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> Any:
+        self._register_self_like_names(node)
+        self.generic_visit(node)
+
+    def _register_self_like_names(self, node: ast.AST) -> None:
+        """Регистрируем имена, которые играют роль self/cls (первый параметр метода)."""
+        args = getattr(node, "args", None)
+        if args and getattr(args, "args", None):
+            first_arg = args.args[0]
+            if isinstance(first_arg, ast.arg) and first_arg.arg:
+                self._self_like_names.add(first_arg.arg)
+
+    def visit_Attribute(self, node: ast.Attribute) -> Any:
+        """
+        Обращения к атрибутам: self.field, cls.field.
+        Если field есть в class_attributes и base_name является self/cls,
+        считаем это использованием атрибута.
+        """
+        if isinstance(node.value, ast.Name):
+            base_name = node.value.id  # self / cls / другое имя
+            attr_name = node.attr
+
+            if base_name in self._self_like_names and attr_name in self.class_attributes:
+                self.used_attributes.add(attr_name)
+
+        self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call) -> Any:
+        """
+        Вызовы функций/методов: self.method(), cls.method(), method().
+        Если имя совпадает с методом класса, считаем это вызовом метода класса.
+        """
+        # self.method(...) / cls.method(...)
+        if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+            base_name = node.func.value.id
+            method_name = node.func.attr
+            if base_name in self._self_like_names and method_name in self.method_names:
+                self.called_methods.add(method_name)
+
+        # Прямой вызов method(...)
+        if isinstance(node.func, ast.Name):
+            method_name = node.func.id
+            if method_name in self.method_names:
+                self.called_methods.add(method_name)
+
+        self.generic_visit(node)
