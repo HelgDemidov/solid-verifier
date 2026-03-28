@@ -1,5 +1,7 @@
 # SOLID Verifier Dashboard
 
+Russian version: [README.ru.md](README.ru.md)
+
 `solid_dashboard` is a config‑driven CLI tool that analyzes Python projects for adherence to SOLID principles and layered architecture. It runs a pipeline of static analyzers, calculates metrics, checks import contracts, and produces a machine‑readable JSON report (with an optional human‑readable layer on top).
 
 The tool is designed to be project‑agnostic: it can be reused across multiple Python codebases, not just the Scopus Search API.
