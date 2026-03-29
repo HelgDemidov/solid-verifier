@@ -6,7 +6,8 @@
 import ast
 import logging
 from pathlib import Path
-from typing import List, Set
+from typing import List, Set, Union
+from collections.abc import Sequence
 
 from .types import ClassInfo, InterfaceInfo, MethodSignature, ProjectMap
 
@@ -134,27 +135,33 @@ def _is_interface(bases: List[str]) -> bool:
 # Публичная функция
 # ---------------------------------------------------------------------------
 
-def build_project_map(files: List[str]) -> ProjectMap:
+def build_project_map(files: Sequence[Union[str, Path]]) -> ProjectMap:
     """
-    Строит ProjectMap по списку Python-файлов.
-
-    Алгоритм двух проходов:
-    1-й проход: парсим каждый файл, создаём ClassInfo / InterfaceInfo.
-    2-й проход: заполняем обратные связи (implementations) и is_override.
+    Строит ProjectMap по списку Python-файлов или директорий.
+    Директории рекурсивно сканируются на *.py файлы.
     """
     project_map = ProjectMap()
+
+    # Разворачиваем директории в список файлов
+    resolved_files: List[Path] = []
+    for entry in files:
+        p = Path(entry)
+        if p.is_dir():
+            # Рекурсивно собираем все .py файлы из директории
+            resolved_files.extend(sorted(p.rglob("*.py")))
+        elif p.is_file():
+            resolved_files.append(p)
+        else:
+            logger.warning("Path not found, skipping: %s", entry)
 
     # -----------------------------------------------------------------------
     # Проход 1: сбор всех классов и интерфейсов
     # -----------------------------------------------------------------------
-    for file_path_str in files:
-        path = Path(file_path_str)
-
-        if not path.exists():
-            logger.warning("File not found, skipping: %s", file_path_str)
-            continue
+    for path in resolved_files:
         if path.suffix != ".py":
             continue
+
+        file_path_str = str(path)
 
         try:
             source = path.read_text(encoding="utf-8")
@@ -174,7 +181,6 @@ def build_project_map(files: List[str]) -> ProjectMap:
                 continue
 
             bases = _extract_bases(node)
-            # Методы без is_override — заполним во 2-м проходе
             methods = _extract_method_signatures(node, parent_method_names=set())
 
             class_info = ClassInfo(
@@ -188,7 +194,6 @@ def build_project_map(files: List[str]) -> ProjectMap:
             )
             project_map.classes[node.name] = class_info
 
-            # Сразу регистрируем интерфейс, если это ABC/Protocol
             if _is_interface(bases):
                 project_map.interfaces[node.name] = InterfaceInfo(
                     name=node.name,

@@ -4,6 +4,14 @@
 и один negative test (не срабатывает на чистом коде).
 """
 
+# ---------------------------------------------------------------------------
+# НАПОМИНАЛКА ПО КОМАНДАМ ЗАПУСКА ТЕСТОВ
+# ---------------------------------------------------------------------------
+
+# Только unit-тесты (быстро): pytest tools/solid_verifier/tests/llm/test_heuristics.py -v
+# Только интеграционные тесты: pytest -m integration -v
+# Всё вместе: pytest tools/solid_verifier/tests/llm/ -v
+
 import textwrap
 import pytest
 
@@ -14,7 +22,6 @@ from tools.solid_verifier.solid_dashboard.llm.types import (
     MethodSignature,
     ProjectMap,
 )
-
 
 # ---------------------------------------------------------------------------
 # Вспомогательная фабрика: создаёт ProjectMap из одного блока кода напрямую
@@ -939,3 +946,146 @@ class TestOcpH004:
         assert "run" in finding.message
         # Проверяем, что числовое значение CC попало в сообщение
         assert any(char.isdigit() for char in finding.message)
+
+# ---------------------------------------------------------------------------
+# Тесты корректности подсчёта CC: вложенные функции и классы в методах
+# ---------------------------------------------------------------------------
+
+class TestCcNestedScopes:
+    """
+    Проверяет, что _compute_method_cc и OCP-H-004 не засчитывают ветвления
+    из вложенных функций и классов как часть CC внешнего метода.
+
+    Это критично для универсального анализатора: в Python вложенные функции
+    (closures, фабрики, декораторы) и вложенные классы — легальная конструкция,
+    особенно в async-коде, data-pipelines, фабричных методах.
+
+    Без корректного обхода OCP-H-004 выдавал бы ложные срабатывания на
+    любом методе с вложенной функцией, у которой есть своя разветвлённая логика.
+    """
+
+    def test_nested_function_if_not_counted(self):
+        """
+        Вложенная функция с if внутри — не влияет на CC внешнего метода.
+        Внешний метод должен иметь CC=2 (base=1 + один if), не CC=3.
+        """
+        pm = _pm_from_source(
+            """
+            class Wrapper:
+                def process(self, x):
+                    if x > 0:
+                        pass
+                    def inner(y):
+                        if y < 0:
+                            pass
+            """,
+            "Wrapper",
+        )
+        result = identify_candidates(pm)
+        rules = [f.rule for f in result.findings]
+        # CC process() = 1 (base) + 1 (внешний if) = 2 < порога 5
+        # OCP-H-004 не должен сработать
+        assert "OCP-H-004" not in rules
+
+    def test_nested_async_function_not_counted(self):
+        """
+        Async-вложенная функция с множеством ветвлений — не влияет на CC.
+        """
+        pm = _pm_from_source(
+            """
+            class AsyncHandler:
+                def build_task(self, x):
+                    if x is None:
+                        pass
+                    async def _worker(item):
+                        if item.a: pass
+                        if item.b: pass
+                        if item.c: pass
+                        if item.d: pass
+                        if isinstance(item, object): pass
+            """,
+            "AsyncHandler",
+        )
+        result = identify_candidates(pm)
+        rules = [f.rule for f in result.findings]
+        # CC build_task() = 1 + 1 = 2 (только внешний if считается)
+        # _worker() со своими 5 if-ами — отдельная единица, не влияет
+        assert "OCP-H-004" not in rules
+
+    def test_nested_class_not_counted(self):
+        """
+        Вложенный класс с методами внутри — не влияет на CC внешнего метода.
+        """
+        pm = _pm_from_source(
+            """
+            class Factory:
+                def make(self, config):
+                    if config:
+                        pass
+                    class _Impl:
+                        def run(self):
+                            if True: pass
+                            if True: pass
+                            if True: pass
+                            if isinstance(self, object): pass
+            """,
+            "Factory",
+        )
+        result = identify_candidates(pm)
+        rules = [f.rule for f in result.findings]
+        # CC make() = 1 + 1 = 2, вложенный класс _Impl и его методы не считаются
+        assert "OCP-H-004" not in rules
+
+    def test_high_cc_in_outer_method_still_triggers(self):
+        """
+        Внешний метод с высокой CC + isinstance срабатывает даже при наличии
+        вложенной функции. Проверяем, что мы не «потеряли» срабатывание.
+        """
+        pm = _pm_from_source(
+            """
+            class Processor:
+                def process(self, item):
+                    if item.a: pass
+                    if item.b: pass
+                    if item.c: pass
+                    if isinstance(item, SomeClass): pass
+                    def helper():
+                        pass
+            """,
+            "Processor",
+        )
+        result = identify_candidates(pm)
+        rules = [f.rule for f in result.findings]
+        # CC process() = 1 + 4 (четыре if в теле) = 5 >= порога
+        # isinstance есть → OCP-H-004 должен сработать
+        assert "OCP-H-004" in rules
+
+    def test_cc_counts_only_outer_elif_chain(self):
+        """
+        elif-цепочка снаружи считается, elif-цепочка внутри вложенной функции — нет.
+        """
+        pm = _pm_from_source(
+            """
+            class Router:
+                def route(self, req):
+                    if req.method == "GET":
+                        pass
+                    elif req.method == "POST":
+                        pass
+                    elif req.method == "PUT":
+                        pass
+                    elif isinstance(req, SpecialReq):
+                        pass
+                    def _extra(x):
+                        if x == 1: pass
+                        elif x == 2: pass
+                        elif x == 3: pass
+                        elif x == 4: pass
+            """,
+            "Router",
+        )
+        result = identify_candidates(pm)
+        rules = [f.rule for f in result.findings]
+        # CC route() = 1 + 4 (4 ветви в elif-цепочке) = 5 >= порога
+        # isinstance есть во внешней цепочке → OCP-H-004 срабатывает
+        assert "OCP-H-004" in rules

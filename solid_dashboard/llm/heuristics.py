@@ -4,17 +4,16 @@
 Реализует identify_candidates() — чистую функцию от ProjectMap к HeuristicResult.
 Не обращается к файловой системе: весь необходимый код уже находится в ProjectMap.
 
-Реализованные эвристики (первые 4 из 8 по порядку ТЗ):
+Реализованные эвристики (по нарастанию сложнеости):
   LSP-H-001 — raise NotImplementedError в переопределённом методе
   LSP-H-002 — пустое тело переопределённого метода (pass или docstring)
   OCP-H-001 — цепочки if/elif с isinstance() >= 3 ветвей
   LSP-H-004 — __init__ без вызова super().__init__()
-
-Оставшиеся эвристики (следующая итерация):
   OCP-H-002 — match/case на типах
   LSP-H-003 — isinstance в коде с параметром базового типа
   OCP-H-003 — словарь-диспетчер типов
   OCP-H-004 — высокая цикломатическая сложность + isinstance
+
 """
 
 import ast
@@ -105,21 +104,81 @@ _CC_NODE_TYPES = (
 # `a and b` и `a or b` создают дополнительный путь.
 _CC_BOOL_OPS = (ast.And, ast.Or)
 
-def _compute_method_cc(func: ast.FunctionDef | ast.AsyncFunctionDef) -> int:
+# ---------------------------------------------------------------------------
+# Корректный обход AST метода: без захода во вложенные функции и классы
+# ---------------------------------------------------------------------------
+
+def _iter_method_nodes(func: ast.FunctionDef | ast.AsyncFunctionDef):
     """
-    Считает цикломатическую сложность (CC) отдельного метода по формуле Маккейба.
+    Генератор: обходит все AST-ноды тела метода, НЕ заходя в поддеревья
+    вложенных функций, async-функций и вложенных классов.
 
-    CC = 1 + количество узлов ветвления в теле метода.
-    Базовое значение 1 означает «один сквозной путь» при отсутствии ветвлений.
+    Зачем это нужно: стандартный ast.walk() обходит ВСЁ дерево целиком,
+    включая вложенные FunctionDef/ClassDef. Это приводит к тому, что if/for/while
+    внутри вложенной функции ошибочно увеличивают CC внешнего метода.
 
-    Учитываем: if/elif, for, while, except, with, assert, comprehension,
-    а также булевые операторы and/or в условиях (каждый добавляет +1).
+    Пример некорректного подсчёта с ast.walk():
+        def process(self, x):       # CC должен быть 2 (base=1 + один if)
+            if x > 0:               # +1
+                pass
+            def inner(y):           # вложенная функция — не считаем её ноды
+                if y < 0:           # это if НЕ должен влиять на CC process()
+                    pass
 
-    Не учитываем вложенные функции/классы внутри метода —
-    они считаются самостоятельными единицами (как в radon).
+    ast.walk() посчитал бы CC=3 (оба if). Наш генератор даёт правильное CC=2.
+
+    Алгоритм: итерируем через ast.iter_child_nodes() вместо ast.walk(),
+    при встрече вложенного FunctionDef/AsyncFunctionDef/ClassDef — не рекурсируем
+    в их детей. Это называется «остановка на границе вложенной области видимости».
 
     Аргументы:
-        func: AST-нода метода (FunctionDef или AsyncFunctionDef).
+        func: нода метода верхнего уровня (FunctionDef или AsyncFunctionDef).
+
+    Yields:
+        ast.AST: ноды тела метода, исключая поддеревья вложенных функций/классов.
+    """
+    # Используем явный стек вместо рекурсии — избегаем RecursionError на
+    # очень глубоких AST (теоретически возможно в автогенерируемом коде).
+    stack: list[ast.AST] = [func]
+
+    while stack:
+        node = stack.pop()
+        yield node
+
+        for child in ast.iter_child_nodes(node):
+            # Встретили вложенную область видимости (функцию или класс) —
+            # не рекурсируем внутрь: у неё своя CC, это отдельная единица анализа.
+            # Исключение: сам корневой func — он попал в стек изначально и
+            # должен быть обработан. Проверяем по identity (node is not func),
+            # чтобы не пропустить корень при первой итерации.
+            if child is not func and isinstance(
+                child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+            ):
+                # Саму ноду вложенной функции/класса в стек НЕ кладём —
+                # мы вообще не собираемся её обходить.
+                continue
+            stack.append(child)
+
+
+def _compute_method_cc(func: ast.FunctionDef | ast.AsyncFunctionDef) -> int:
+    """
+    Считает цикломатическую сложность (CC) метода по формуле Маккейба.
+
+    CC = 1 + количество узлов ветвления в теле метода.
+    Базовое значение 1 соответствует «одному сквозному пути» без ветвлений.
+
+    Использует _iter_method_nodes() вместо ast.walk(), чтобы корректно
+    игнорировать вложенные функции и классы — они являются самостоятельными
+    единицами анализа и не должны влиять на CC внешнего метода.
+
+    Учитывает:
+        - if / elif (оба — ast.If)
+        - for, while, with, assert, comprehension, ExceptHandler
+        - булевы операторы and/or (каждый оператор в цепочке = +1)
+        - тернарный оператор (IfExp): x if cond else y
+
+    Аргументы:
+        func: нода метода (FunctionDef или AsyncFunctionDef).
 
     Возвращает:
         int: цикломатическая сложность >= 1.
@@ -127,31 +186,17 @@ def _compute_method_cc(func: ast.FunctionDef | ast.AsyncFunctionDef) -> int:
     # Базовое значение: один путь «насквозь» при отсутствии ветвлений
     cc = 1
 
-    for node in ast.walk(func):
-        # Пропускаем вложенные функции и классы — у них своя CC
-        # (ast.walk заходит внутрь них, нам это не нужно для текущего метода).
-        # Технически: пропускаем саму ноду func.body мы не можем через ast.walk,
-        # но вложенные FunctionDef/AsyncFunctionDef/ClassDef — пропускаем.
-        # Проверяем: если нода — это вложенная функция (не сам анализируемый метод)
-        if node is not func and isinstance(
-            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-        ):
-            # Не заходим внутрь — ast.walk уже включил их в обход,
-            # но мы просто не считаем их ноды
-            continue
-
-        # Узлы ветвления: каждый добавляет +1 к CC
+    for node in _iter_method_nodes(func):
+        # Узлы ветвления: каждый добавляет один дополнительный путь исполнения
         if isinstance(node, _CC_NODE_TYPES):
             cc += 1
 
-        # BoolOp: ast.BoolOp содержит список операндов через and/or.
-        # Каждый оператор and/or в цепочке — это дополнительный путь.
-        # Пример: `a and b and c` — это BoolOp(op=And, values=[a, b, c]).
-        # Добавляем (len(values) - 1), т.к. n операндов = n-1 операторов.
+        # BoolOp: цепочка `a and b and c` — это n-1 операторов для n операндов.
+        # Каждый and/or создаёт дополнительный путь (short-circuit evaluation).
         if isinstance(node, ast.BoolOp) and isinstance(node.op, _CC_BOOL_OPS):
             cc += len(node.values) - 1
 
-        # Тернарный оператор (IfExp): `x if cond else y` — это тоже ветвление
+        # IfExp: тернарный оператор `x if cond else y` — это тоже ветвление
         if isinstance(node, ast.IfExp):
             cc += 1
 

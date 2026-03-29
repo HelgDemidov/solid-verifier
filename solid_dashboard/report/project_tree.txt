@@ -15,6 +15,11 @@ tools/
     │   ├── interfaces
     │   │   ├── __init__.py
     │   │   └── analyzer.py
+    │   ├── llm
+    │   │   ├── __init__.py
+    │   │   ├── ast_parser.py
+    │   │   ├── heuristics.py
+    │   │   └── types.py
     │   ├── report
     │   │   ├── templates
     │   │   │   └── report.html.j2
@@ -36,8 +41,14 @@ tools/
     │   ├── requires.txt
     │   └── top_level.txt
     ├── tests
-    │   └── fixtures
-    │       └── sample_project
+    │   ├── fixtures
+    │   │   └── sample_project
+    │   └── llm
+    │       ├── __init__.py
+    │       ├── test_ast_parser.py
+    │       ├── test_heuristics.py
+    │       ├── test_heuristics_integration.py
+    │       └── test_types.py
     ├── README.md
     ├── README.ru.md
     ├── pyproject.toml

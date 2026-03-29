@@ -18,7 +18,7 @@
 
 import textwrap
 import pytest
-
+import sys
 from tools.solid_verifier.solid_dashboard.llm.ast_parser import build_project_map
 from tools.solid_verifier.solid_dashboard.llm.heuristics import identify_candidates
 from tools.solid_verifier.solid_dashboard.llm.types import HeuristicResult
@@ -393,3 +393,125 @@ class TestCandidatesIntegrity:
                 f"Invalid candidate_type '{candidate.candidate_type}' "
                 f"for class '{candidate.class_name}'"
             )
+
+# ---------------------------------------------------------------------------
+# OCP-H-002 (match/case): интеграционный тест через build_project_map +
+# identify_candidates. Проверяем полный путь от tmp-файла до finding.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="match/case syntax requires Python 3.10+"
+)
+class TestOcpH002Integration:
+    """
+    Интеграционный тест: OCP-H-002 (match/case с тремя и более ветвями)
+    детектируется через полный стек build_project_map → identify_candidates.
+
+    Ранее OCP-H-002 покрывался только unit-тестами (изолированно от AST-парсера).
+    Данный класс закрывает зазор: проверяем, что finding возникает в реальном
+    tmp-файле, прошедшем через build_project_map, и корректно прилетает
+    из identify_candidates.
+    """
+
+    @pytest.fixture
+    def match_project_dir(self, tmp_path_factory):
+        base = tmp_path_factory.mktemp("match_project")
+        (base / "dispatcher.py").write_text(textwrap.dedent("""
+            # === OCP-H-002: match/case с тремя type-паттернами (MatchClass) ===
+            # Паттерн вида case SomeClass(): ... — это именно то, что ловит H-002.
+            # В реальном коде это диспетчер, завязанный на конкретные типы событий.
+
+            class Created:
+                pass
+
+            class Updated:
+                pass
+
+            class Deleted:
+                pass
+
+
+            class EventDispatcher:
+                def dispatch(self, event):
+                    match event:
+                        case Created():
+                            self._on_created(event)
+                        case Updated():
+                            self._on_updated(event)
+                        case Deleted():
+                            self._on_deleted(event)
+
+                def _on_created(self, e): ...
+                def _on_updated(self, e): ...
+                def _on_deleted(self, e): ...
+
+
+            # Только два type-паттерна — ниже порога, H-002 не должен срабатывать
+            class TwoBranchDispatcher:
+                def route(self, cmd):
+                    match cmd:
+                        case Created():
+                            self._start()
+                        case Updated():
+                            self._stop()
+
+                def _start(self): ...
+                def _stop(self): ...
+        """), encoding="utf-8")
+        return base
+
+    def test_ocp_h002_finding_present(self, match_project_dir):
+        
+        #EventDispatcher с тремя case-ветвями → finding OCP-H-002 присутствует
+        
+        pm = build_project_map([match_project_dir])
+        result = identify_candidates(pm)
+        rules = [f.rule for f in result.findings]
+        assert "OCP-H-002" in rules
+
+    def test_ocp_h002_finding_references_correct_class(self, match_project_dir):
+        """
+        Finding OCP-H-002 должен ссылаться на EventDispatcher, а не на TwoBranchDispatcher.
+        """
+        pm = build_project_map([match_project_dir])
+        result = identify_candidates(pm)
+        h002_findings = [f for f in result.findings if f.rule == "OCP-H-002"]
+        class_names = [f.class_name for f in h002_findings]
+        assert "EventDispatcher" in class_names
+        assert "TwoBranchDispatcher" not in class_names
+
+    def test_ocp_h002_finding_metadata(self, match_project_dir):
+        """
+        Finding OCP-H-002 содержит корректные метаданные: principle, source, severity.
+        """
+        pm = build_project_map([match_project_dir])
+        result = identify_candidates(pm)
+        h002 = next(f for f in result.findings if f.rule == "OCP-H-002")
+
+        # principle хранится внутри details
+        assert h002.details is not None
+        assert h002.details.principle == "OCP"
+
+        # source и severity — поля самого Finding
+        assert h002.source == "heuristic"
+        assert h002.severity in ("warning", "info")
+
+    def test_ocp_h002_candidate_registered(self, match_project_dir):
+        """
+        EventDispatcher должен попасть в candidates как OCP-кандидат.
+        """
+        pm = build_project_map([match_project_dir])
+        result = identify_candidates(pm)
+        candidate_names = [c.class_name for c in result.candidates]
+        assert "EventDispatcher" in candidate_names
+
+    def test_two_branch_no_finding(self, match_project_dir):
+        """
+        TwoBranchDispatcher (две ветви — ниже порога) не должен давать OCP-H-002.
+        Граничный тест на порог эвристики.
+        """
+        pm = build_project_map([match_project_dir])
+        result = identify_candidates(pm)
+        h002_classes = [f.class_name for f in result.findings if f.rule == "OCP-H-002"]
+        assert "TwoBranchDispatcher" not in h002_classes
