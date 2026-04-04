@@ -20,6 +20,7 @@ import logging
 from typing import List, cast
 from collections import defaultdict
 
+from .class_role import ClassRole, classify_class  # классификатор ролей классов
 from .types import (
     CandidateType,
     ClassInfo,
@@ -58,6 +59,9 @@ _DEFAULT_EXCLUDE_PATTERNS = [
     "node_modules/",
     "setup.py",
     "manage.py",
+    # Конфигурационные файлы — Settings/Config не подходят для SOLID-анализа
+    "config.py",
+    "settings.py",
 ]
 
 # ---------------------------------------------------------------------------
@@ -676,7 +680,11 @@ def _has_dataclass_decorator(class_node: ast.ClassDef) -> bool:
 
 
 # Родительские классы, для которых отсутствие super().__init__() в подклассе
-# не считается нарушением LSP-H-004
+# не считается нарушением LSP-H-004.
+# Расширен базами Pydantic / SQLAlchemy / pydantic-settings:
+# эти фреймворки управляют инициализацией через метаклассы и __init_subclass__,
+# поэтому явный вызов super().__init__() либо не нужен, либо делается
+# самим фреймворком — его отсутствие не является LSP-нарушением.
 
 _LSP_H004_EXCLUDED_PARENTS: set[str] = {
     "object",
@@ -684,16 +692,37 @@ _LSP_H004_EXCLUDED_PARENTS: set[str] = {
     "Protocol",
     "TypedDict",
     "NamedTuple",
+    # Pydantic v1 / v2
     "BaseModel",
+    "GenericModel",
+    # pydantic-settings
+    "BaseSettings",
+    # SQLAlchemy declarative
+    "Base",
+    "DeclarativeBase",
+    "DeclarativeBaseNoMeta",
+    "MappedAsDataclass",
+    # Django ORM
+    "Model",
 }
 
 def _check_lsp_h_004(
     class_node: ast.ClassDef,
     class_info: ClassInfo,
+    class_role: ClassRole,
 ) -> List[Finding]:
     """
     Ищет __init__ в подклассах без вызова super().__init__().
+
+    Использует class_role (ClassRole) для пропуска PURE_INTERFACE-классов:
+    у чистых интерфейсов без собственного __init__ отсутствие super().__init__()
+    является ложным срабатыванием (conservative false positive), а не нарушением LSP.
     """
+    # NEW: PURE_INTERFACE — чистый контракт, __init__ у него отсутствует по дизайну;
+    # срабатывание эвристики здесь является известным false positive (LSP-H-004)
+    if class_role is ClassRole.PURE_INTERFACE:
+        return []
+
     # NEW: Если это dataclass, отсутствие super().__init__ — это норма,
     # не считаем это нарушением LSP.
     if _has_dataclass_decorator(class_node):
@@ -1135,8 +1164,9 @@ def identify_candidates(
     candidates: List[LlmCandidate] = []
 
     for class_name, class_info in project_map.classes.items():
-        # --- Грубая фильтрация нерелевантных путей (Решение 6) ---
-        # На этом шаге отсекаем тесты, миграции, venv, node_modules и т.д.
+        # --- Грубая фильтрация нерелевантных путей ---
+        # На этом шаге отсекаем тесты, миграции, venv, node_modules,
+        # а теперь также config.py и settings.py.
         # Важно делать это ДО AST-парсинга и ДО запуска эвристик, чтобы
         # не тратить время на заведомо нецелевые файлы и не генерировать шум.
         if _should_exclude_path(class_info.file_path, exclude_patterns):
@@ -1152,15 +1182,29 @@ def identify_candidates(
             # Если по какой-то причине парсинг не удался, просто пропускаем класс
             continue
 
+        # --- Классификация роли класса (ClassRole) ---
+        # Единая точка входа: определяем роль до запуска любых эвристик.
+        # PURE_INTERFACE и INFRA_MODEL / CONFIG получают специальную обработку:
+        # некоторые эвристики на них не запускаются или трактуют результат иначе.
+        role = classify_class(class_node)
+
+        # --- Фильтрация инфраструктурных и конфигурационных классов из OCP ---
+        # Pydantic BaseModel, SQLAlchemy-модели и Settings(BaseSettings) создают
+        # шум в OCP-кандидатах с priority: 1; LLM обрабатывает их впустую.
+        # Эти классы не подходят для SOLID-анализа OCP и пропускаются целиком.
+        if role in (ClassRole.INFRA_MODEL, ClassRole.CONFIG):
+            continue
+
         # --- Прогон эвристик для одного класса ---
         class_findings: List[Finding] = []
 
-        # LSP-эвритстики:
-        # LSP-H-001 и LSP-H-002 теперь используют project_map, чтобы
-        # отличать абстрактные классы от конкретных (Решение 2).
+        # LSP-эвристики:
+        # LSP-H-001 и LSP-H-002 используют project_map, чтобы
+        # отличать абстрактные классы от конкретных.
         class_findings.extend(_check_lsp_h_001(class_node, class_info, project_map))
         class_findings.extend(_check_lsp_h_002(class_node, class_info, project_map))
-        class_findings.extend(_check_lsp_h_004(class_node, class_info))
+        # LSP-H-004 теперь получает class_role для пропуска PURE_INTERFACE
+        class_findings.extend(_check_lsp_h_004(class_node, class_info, role))
 
         # OCP-эвристики без доступа к ProjectMap
         class_findings.extend(_check_ocp_h_001(class_node, class_info))
@@ -1175,7 +1219,7 @@ def identify_candidates(
         # Эвристики, которым нужен ProjectMap для проверки типов (LSP-H-003)
         class_findings.extend(_check_lsp_h_003(class_node, class_info, project_map))
 
-        # Копим все findings по проекту для последующей дедупликации (Решение 3)
+        # Копим все findings по проекту для последующей дедупликации
         all_findings.extend(class_findings)
 
         # --- Определение: является ли класс кандидатом для LLM ---
@@ -1213,14 +1257,14 @@ def identify_candidates(
             )
         )
 
-    # NEW: дедупликация кандидатов по (file_path, class_name) (Решение 3)
+    # NEW: дедупликация кандидатов по (file_path, class_name)
     # Объединяем heuristic_reasons и оставляем кандидат с максимальным приоритетом.
     candidates = _deduplicate_candidates(candidates)
 
     # Сортируем кандидатов: наибольший приоритет — первым
     candidates.sort(key=lambda c: c.priority, reverse=True)
 
-    # NEW: дедупликация findings по (file, class, method) (Решение 3)
+    # NEW: дедупликация findings по (file, class, method)
     # При конфликте OCP-H-001 vs OCP-H-004 и LSP-H-001 vs LSP-H-002
     # оставляем более специфичное правило и дописываем explanation.
     deduped_findings = _deduplicate_findings(all_findings)
