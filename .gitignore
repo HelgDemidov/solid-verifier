@@ -10,10 +10,10 @@ venv/
 .env
 
 # Testing & Coverage
-.tmp_heuristics_tests
 .pytest_cache/
 .coverage
 htmlcov/
+.tmp_heuristics_tests/
 
 # SOLID Verifier specific artifacts
 .solid-cache/
