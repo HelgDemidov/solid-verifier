@@ -43,7 +43,9 @@ _KNOWN_INFRA_BASES: frozenset[str] = frozenset({
     # pydantic-settings
     "BaseSettings",
     # SQLAlchemy (классический и declarative)
-    "Base",
+    # "Base" удалено: слишком generic — одного имени недостаточно для сигнала
+    # SQLAlchemy Base корректно определится через InfraScore:
+    # __tablename__ (+1) + Column()/mapped_column() (+1) = 2, порог достигнут
     "DeclarativeBase",
     "DeclarativeBaseNoMeta",
     "MappedAsDataclass",

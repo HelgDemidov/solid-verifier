@@ -12,12 +12,16 @@ import pytest
 from pathlib import Path
 import ast
 
+# --- Функции пайплайна (из подмодулей) ---
 from solid_dashboard.llm.ast_parser import build_project_map
+
+# Публичный API пакета — единственная точка входа в пайплайн
 from solid_dashboard.llm.heuristics import identify_candidates
+
+# Прямые импорты модулей пакета — для unit-тестов отдельных эвристик
 from solid_dashboard.llm.heuristics import ocp_h_001 as _ocp_h_001_mod
 from solid_dashboard.llm.heuristics import ocp_h_004 as _ocp_h_004_mod
 from solid_dashboard.llm.heuristics import lsp_h_004 as _lsp_h_004_mod
-
 from solid_dashboard.llm.types import (
     ClassInfo,
     MethodSignature,
