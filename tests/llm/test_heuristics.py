@@ -13,13 +13,11 @@ from pathlib import Path
 import ast
 
 from solid_dashboard.llm.ast_parser import build_project_map
-from solid_dashboard.llm.heuristics import (
-    _check_ocp_h_001,
-    _count_isinstance_branches,
-    identify_candidates,
-    _check_ocp_h_004,
-    _check_lsp_h_004
-)
+from solid_dashboard.llm.heuristics import identify_candidates
+from solid_dashboard.llm.heuristics import ocp_h_001 as _ocp_h_001_mod
+from solid_dashboard.llm.heuristics import ocp_h_004 as _ocp_h_004_mod
+from solid_dashboard.llm.heuristics import lsp_h_004 as _lsp_h_004_mod
+
 from solid_dashboard.llm.types import (
     ClassInfo,
     MethodSignature,
@@ -336,6 +334,8 @@ def test_count_isinstance_branches_helper():
     # Всего 4 ветки (не считая else), но isinstance только в 3 из них
     assert _count_isinstance_branches(if_node) == 3
 
+from solid_dashboard.llm.heuristics.ocp_h_001 import _count_isinstance_branches
+
 class TestOcpH001Updated:
     def setup_method(self):
         # Заполняем все обязательные поля, требуемые в актуальном types.ClassInfo
@@ -366,7 +366,7 @@ class TestOcpH001Updated:
                 elif isinstance(x, C): pass
         """
         node = self._get_class_node(code)
-        findings = _check_ocp_h_001(node, self.class_info)
+        findings = _ocp_h_001_mod.check(node, self.class_info)
 
         assert len(findings) == 1
         assert findings[0].rule == "OCP-H-001"
@@ -387,7 +387,7 @@ class TestOcpH001Updated:
                 elif isinstance(x, C): pass
         """
         node = self._get_class_node(code)
-        findings = _check_ocp_h_001(node, self.class_info)
+        findings = _ocp_h_001_mod.check(node, self.class_info)
 
         assert len(findings) == 1
         assert "3 isinstance checks" in findings[0].message
@@ -414,7 +414,7 @@ class TestOcpH001Updated:
                 elif x.status == 3: pass
         """
         node = self._get_class_node(code)
-        findings = _check_ocp_h_001(node, self.class_info)
+        findings = _ocp_h_001_mod.check(node, self.class_info)
 
         # Ложных срабатываний быть не должно
         assert len(findings) == 0
@@ -453,7 +453,7 @@ class TestLspH004Updated:
                 self.value = 42
         """
         node = self._get_class_node(code)
-        findings = _check_lsp_h_004(node, self.class_info)
+        findings = _lsp_h_004_mod.check(node, self.class_info)
         
         assert len(findings) == 1
         assert findings[0].rule == "LSP-H-004"
@@ -464,10 +464,10 @@ class TestLspH004Updated:
         class Child(Base):
             def __init__(self, name):
                 super().__init__()
-                self.name = name
+                self.name = name 
         """
         node = self._get_class_node(code)
-        findings = _check_lsp_h_004(node, self.class_info)
+        findings = _lsp_h_004_mod.check(node, self.class_info)
         assert len(findings) == 0
 
     def test_negative_no_init_at_all(self):
@@ -478,7 +478,7 @@ class TestLspH004Updated:
                 pass
         """
         node = self._get_class_node(code)
-        findings = _check_lsp_h_004(node, self.class_info)
+        findings = _lsp_h_004_mod.check(node, self.class_info)
         assert len(findings) == 0
 
     def test_negative_standalone_class_with_init(self):
@@ -497,7 +497,7 @@ class TestLspH004Updated:
             methods=[], dependencies=[]
         )
         
-        findings = _check_lsp_h_004(node, standalone_info)
+        findings = _lsp_h_004_mod.check(node, standalone_info)
         assert len(findings) == 0
 
 
@@ -518,7 +518,7 @@ class TestLspH004Updated:
             methods=[], dependencies=[]
         )
         
-        findings = _check_lsp_h_004(node, info)
+        findings = _lsp_h_004_mod.check(node, info)
         assert len(findings) == 0
 
     def test_negative_abc_parent(self):
@@ -536,7 +536,7 @@ class TestLspH004Updated:
             methods=[], dependencies=[]
         )
         
-        findings = _check_lsp_h_004(node, info)
+        findings = _lsp_h_004_mod.check(node, info)
         assert len(findings) == 0
 
     def test_negative_protocol_parent(self):
@@ -554,7 +554,7 @@ class TestLspH004Updated:
             methods=[], dependencies=[]
         )
         
-        findings = _check_lsp_h_004(node, info)
+        findings = _lsp_h_004_mod.check(node, info)
         assert len(findings) == 0
 
 
@@ -569,7 +569,7 @@ class TestLspH004Updated:
                 self.x = x
         """
         node = self._get_class_node(code)
-        findings = _check_lsp_h_004(node, self.class_info)
+        findings = _lsp_h_004_mod.check(node, self.class_info)
         assert len(findings) == 0
 
     def test_lsp_h_004_ignores_dataclass_with_args_decorator(self):
@@ -581,7 +581,7 @@ class TestLspH004Updated:
                 self.x = x
         """
         node = self._get_class_node(code)
-        findings = _check_lsp_h_004(node, self.class_info)
+        findings = _lsp_h_004_mod.check(node, self.class_info)
         assert len(findings) == 0
 
 # ---------------------------------------------------------------------------
@@ -849,7 +849,7 @@ class TestLspH003:
         assert "LSP-H-003" not in rules
 
     def test_finding_contains_param_name(self, tmp_path):
-        """В тексте finding упоминается имя параметра и базовый тип."""
+        """В finding упоминается имя параметра и базовый тип."""
         f = tmp_path / "example.py"
         f.write_text(textwrap.dedent("""
             class Shape:
@@ -862,10 +862,15 @@ class TestLspH003:
         """), encoding="utf-8")
         pm = build_project_map([str(f)])
         result = identify_candidates(pm, exclude_patterns=[])
-        finding = next((f for f in result.findings if f.rule == "LSP-H-003"), None)
+        finding = next((fi for fi in result.findings if fi.rule == "LSP-H-003"), None)
         assert finding is not None
-        assert "shape" in finding.message
-        assert "Shape" in finding.message
+        assert finding.details is not None
+        assert finding.details.explanation is not None
+        # Параметр упоминается в explanation (конкретное имя переменной)
+        assert "shape" in finding.details.explanation
+        # Базовый тип упоминается в message (generic-фраза про base class/interface)
+        assert "base" in finding.message
+
 
 # ---------------------------------------------------------------------------
 # Тесты для OCP-H-004 (Сложность + isinstance с учетом границ AST)
@@ -911,7 +916,7 @@ class TestOcpH004Updated:
                         pass
         """
         node = self._get_class_node(code)
-        findings = _check_ocp_h_004(node, self.class_info)
+        findings = _ocp_h_004_mod.check(node, self.class_info)
         
         # До исправления ast.walk находил бы isinstance и выдавал ошибку.
         # Теперь эвристика должна молчать.
@@ -934,7 +939,7 @@ class TestOcpH004Updated:
                     pass
         """
         node = self._get_class_node(code)
-        findings = _check_ocp_h_004(node, self.class_info)
+        findings = _ocp_h_004_mod.check(node, self.class_info)
         
         assert len(findings) == 1
         assert findings[0].rule == "OCP-H-004"
@@ -1086,7 +1091,7 @@ class TestCcNestedScopes:
 # Тесты дедупликации (Шаг 3)
 # ===========================================================================
 
-from solid_dashboard.llm.heuristics import _deduplicate_findings
+from solid_dashboard.llm.heuristics._runner import _deduplicate_findings
 from solid_dashboard.llm.types import Finding, FindingDetails
 
 class TestDeduplicateFindings:
@@ -1229,7 +1234,7 @@ class TestDeduplicateFindingsLSP:
 # Тесты дедупликации кандидатов (LlmCandidate)
 # ===========================================================================
 
-from solid_dashboard.llm.heuristics import _deduplicate_candidates
+from solid_dashboard.llm.heuristics._runner import _deduplicate_candidates
 from solid_dashboard.llm.types import LlmCandidate
 
 class TestDeduplicateCandidates:

@@ -64,6 +64,20 @@ _CC_NODE_TYPES = (
 # Булевы операторы тоже создают дополнительные пути исполнения
 _CC_BOOL_OPS = (ast.And, ast.Or)
 
+
+# Явный контракт экспорта — все имена, используемые другими модулями пакета
+__all__ = [
+    "_DEFAULT_EXCLUDE_PATTERNS",
+    "_normalize_path_for_matching",
+    "_should_exclude_path",
+    "_parse_class_ast",
+    "_make_finding",
+    "_is_abstract_class",
+    "_has_isinstance_call",
+    "_count_elif_chain",
+    "_iter_method_nodes",
+    "_compute_method_cc",
+]
 # ---------------------------------------------------------------------------
 # Фильтрация путей
 # ---------------------------------------------------------------------------
@@ -193,20 +207,18 @@ def _count_elif_chain(if_node: ast.If) -> int:
 def _iter_method_nodes(
     func: ast.FunctionDef | ast.AsyncFunctionDef,
 ) -> Generator[ast.AST, None, None]:
-    # ast.walk() обходит всё дерево целиком — в т.ч. вложенные функции.
-    # Это ошибочно увеличивает CC и создаёт ложные isinstance-хиты.
-    # Генератор обходит только узлы тела метода, пропуская поддеревья
-    # FunctionDef, AsyncFunctionDef и ClassDef как независимые единицы
+    # Обходит только узлы тела метода, полностью пропуская
+    # вложенные функции, async-функции и классы как независимые единицы.
+    # Гарантирует корректный CC и отсутствие ложных isinstance-хитов из вложенных областей видимости
     stack = list(func.body)
+    stack: list[ast.AST] = list(func.body)  
     while stack:
         node = stack.pop()
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
         yield node
         for child in ast.iter_child_nodes(node):
-            if not isinstance(
-                child,
-                (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
-            ):
-                stack.append(child)
+            stack.append(child)
 
 # ---------------------------------------------------------------------------
 # Вычисление цикломатической сложности метода — нужна OCP-H-004
