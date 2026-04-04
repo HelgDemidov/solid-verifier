@@ -14,9 +14,10 @@ import sys
 import ast
 from pathlib import Path
 
-from solid_dashboard.llm.ast_parser import build_project_map
-from solid_dashboard.llm.heuristics import identify_candidates
 from solid_dashboard.llm.types import HeuristicResult
+from solid_dashboard.llm.ast_parser import build_project_map
+from solid_dashboard.llm.heuristics import lsp_h_001, lsp_h_002, identify_candidates
+from solid_dashboard.llm.heuristics._runner import _deduplicate_findings
 from solid_dashboard.llm.class_role import ClassRole, classify_class
 
 pytestmark = pytest.mark.integration
@@ -29,119 +30,151 @@ pytestmark = pytest.mark.integration
 def smelly_project_dir(tmp_path_factory):
     """
     Создает временную директорию с двумя Python-файлами:
-    - smells.py — классы с намеренными нарушениями для каждой эвристики.
+    - smells.py — классы с намеренными нарушениями для каждой эвристики
+      (DOMAIN-классы, проходящие через весь пайплайн).
     - clean.py — классы без нарушений (для проверки отсутствия false positives).
 
-    scope="module" — файлы создаются один раз для всего модуля тестов.
-    Это экономит время: build_project_map вызывается не на каждый тест.
+    scope="module" — файлы создаются один раз для всего модуля тестов
+    для экономии времени.
     """
     base = tmp_path_factory.mktemp("integration_project")
 
-    # --- smells.py: по одному нарушению на каждую эвристику ---
+    # --- smells.py: по одному устойчивому нарушению на каждую эвристику ---
     (base / "smells.py").write_text(textwrap.dedent("""
-    # Классы-«носители» нарушений для интеграционных тестов.
-    # Каждый класс — нарушение ровно одной эвристики.
+        # Классы-«носители» нарушений для интеграционных тестов.
+        # Каждый класс моделирует реальный DOMAIN-кейс, а не CONFIG/INFRA.
 
-    # === LSP-H-001: override метод бросает NotImplementedError ===
-    class BaseSerializer:
-        def serialize(self, data): ...
+        # === Общая доменная база для LSP-сценариев ===
+        class BaseSerializer:
+            def serialize(self, data):
+                return str(data)
 
-    class XmlSerializer(BaseSerializer):
-        def serialize(self, data):
-            raise NotImplementedError("XML not supported")
+        class BaseNotifier:
+            def notify(self, message):
+                return f"notify:{message}"
 
-    # === LSP-H-002: override метод с пустым телом ===
-    class BaseNotifier:
-        def notify(self, message): ...
+        class BaseService:
+            def __init__(self):
+                self.enabled = True
 
-    class SilentNotifier(BaseNotifier):
-        def notify(self, message):
-            pass  # намеренно пустой override
+            def execute(self, payload):
+                return payload
 
-    # === LSP-H-004: __init__ без super().__init__() ===
-    class BaseConfig:
-        def __init__(self):
-            self.debug = False
+        # === LSP-H-001: override метод бросает NotImplementedError ===
+        class XmlSerializer(BaseSerializer):
+            def __init__(self):
+                self.format = "xml"  # <-- ДОБАВЛЕНО: Делает класс DOMAIN, а не PURE_INTERFACE
 
-    class AppConfig(BaseConfig):
-        def __init__(self):
-            # Намеренно не вызываем super().__init__() — нарушение LSP
-            self.app_name = "MyApp"
+            def serialize(self, data):
+                raise NotImplementedError("XML not supported")
 
-    # === OCP-H-001: цепочка if/elif с isinstance >= 4 ветвей ===
-    class Circle: pass
-    class Square: pass
-    class Triangle: pass
-    class Hexagon: pass
+        # === LSP-H-002: override метод с пустым телом ===
+        class SilentNotifier(BaseNotifier):
+            def __init__(self):
+                self.muted = True  # <-- ДОБАВЛЕНО: Делает класс DOMAIN, а не PURE_INTERFACE
 
-    class ShapeRenderer:
-        def render(self, shape):
-            if isinstance(shape, Circle):
-                return "circle"
-            elif isinstance(shape, Square):
-                return "square"
-            elif isinstance(shape, Triangle):
-                return "triangle"
-            elif isinstance(shape, Hexagon):
-                return "hexagon"
+            def notify(self, message):
+                pass  # Намеренно пустой override
 
-    # === OCP-H-004: высокая CC + isinstance ===
-    class BaseReport: pass
+        # === LSP-H-004: __init__ без super().__init__() у DOMAIN-класса ===
+        class BrokenService(BaseService):
+            def __init__(self):
+                # Намеренно не вызываем super().__init__()
+                self.service_name = "broken"
 
-    class ComplexProcessor:
-        def process(self, item):
-            # 4 независимых if-ветки создают CC=5 (base=1 + 4 ветви)
-            if item.step == "validate":
-                self._validate(item)
-            if item.step == "transform":
-                self._transform(item)
-            if item.step == "enrich":
-                self._enrich(item)
-            if isinstance(item, BaseReport):
-                self._special_report_handling(item)
-                
-        def _validate(self, item): ...
-        def _transform(self, item): ...
-        def _enrich(self, item): ...
-        def _special_report_handling(self, item): ...
+            def execute(self, payload):
+                return payload
 
-    # === Класс с несколькими нарушениями: должен иметь высший приоритет ===
-    class HighPrioritySmell(BaseSerializer):
-        def __init__(self):
-            # LSP-H-004: нет super().__init__()
-            self.ready = False
+        # === OCP-H-001: цепочка if/elif с isinstance >= 4 ветвей ===
+        class Circle:
+            pass
 
-        def serialize(self, data):
-            # LSP-H-001: override с NotImplementedError
-            raise NotImplementedError
+        class Square:
+            pass
+
+        class Triangle:
+            pass
+
+        class Hexagon:
+            pass
+
+        class ShapeRenderer:
+            def render(self, shape):
+                if isinstance(shape, Circle):
+                    return "circle"
+                elif isinstance(shape, Square):
+                    return "square"
+                elif isinstance(shape, Triangle):
+                    return "triangle"
+                elif isinstance(shape, Hexagon):
+                    return "hexagon"
+                return "unknown"
+
+        # === OCP-H-004: высокая CC + isinstance ===
+        class BaseReport:
+            pass
+
+        class ComplexProcessor:
+            def process(self, item):
+                # 4 независимых if-ветки создают CC=5 (base=1 + 4 ветви)
+                if item.step == "validate":
+                    self._validate(item)
+                if item.step == "transform":
+                    self._transform(item)
+                if item.step == "enrich":
+                    self._enrich(item)
+                if isinstance(item, BaseReport):
+                    self._special_report_handling(item)
+
+            def _validate(self, item):
+                return None
+
+            def _transform(self, item):
+                return None
+
+            def _enrich(self, item):
+                return None
+
+            def _special_report_handling(self, item):
+                return None
+
+        # === Класс с несколькими нарушениями: высокий приоритет ===
+        class HighPrioritySmell(BaseSerializer):
+            def __init__(self):
+                # LSP-H-004: нет super().__init__()
+                self.ready = False
+
+            def serialize(self, data):
+                # LSP-H-001: override с NotImplementedError
+                raise NotImplementedError
     """), encoding="utf-8")
 
     # --- clean.py: образцово-показательный код без нарушений ---
     (base / "clean.py").write_text(textwrap.dedent("""
-    # Чистый модуль — никаких нарушений OCP/LSP.
-    # Должен давать нулевое количество findings от наших эвристик.
+        # Чистый модуль — никаких нарушений OCP/LSP.
+        # Должен давать нулевое количество findings от наших эвристик.
 
-    class DataTransformer:
-        \"\"\"Трансформирует данные без наследования и type-dispatch.\"\"\"
+        class DataTransformer:
+            \"\"\"Трансформирует данные без наследования и type-dispatch.\"\"\"
 
-        def transform(self, data: dict) -> dict:
-            # Простая логика без isinstance и без длинных if/elif цепочек
-            result = {}
-            for key, value in data.items():
-                result[key] = str(value).strip()
-            return result
+            def transform(self, data: dict) -> dict:
+                # Простая логика без isinstance и без длинных if/elif цепочек
+                result = {}
+                for key, value in data.items():
+                    result[key] = str(value).strip()
+                return result
 
-        def validate(self, data: dict) -> bool:
-            return bool(data)
+            def validate(self, data: dict) -> bool:
+                return bool(data)
 
-    class StringNormalizer:
-        \"\"\"Нормализует строки — простой класс без наследования.\"\"\"
+        class StringNormalizer:
+            \"\"\"Нормализует строки — простой класс без наследования.\"\"\"
 
-        def normalize(self, text: str) -> str:
-            return text.lower().strip()
+            def normalize(self, text: str) -> str:
+                return text.lower().strip()
 
-        def is_empty(self, text: str) -> bool:
-            return len(text.strip()) == 0
+            def is_empty(self, text: str) -> bool:
+                return len(text.strip()) == 0
     """), encoding="utf-8")
 
     return base
@@ -163,8 +196,9 @@ def heuristic_result(smelly_project_dir) -> HeuristicResult:
 # ---------------------------------------------------------------------------
 
 class TestAllRulesPresent:
-
-    # OCP-H-002 (match/case) проверен отдельно. OCP-H-003 и LSP-H-003 удалены.
+    # OCP-H-002 (match/case) покрывается отдельным интеграционным тестом.
+    # Здесь проверяем, что основной sample-project стабильно генерирует
+    # все ожидаемые rule-коды для базового набора OCP/LSP эвристик.
     EXPECTED_RULES = {
         "LSP-H-001",
         "LSP-H-002",
@@ -174,7 +208,7 @@ class TestAllRulesPresent:
     }
 
     def test_all_expected_rules_present(self, heuristic_result):
-        """Каждый из rule-кодов должен встретиться хотя бы в одном finding."""
+        """Каждый ожидаемый rule-код должен встретиться хотя бы в одном finding."""
         found_rules = {f.rule for f in heuristic_result.findings}
         missing = self.EXPECTED_RULES - found_rules
         assert not missing, f"Missing rule codes in findings: {missing}"
@@ -253,33 +287,35 @@ class TestFindingMetadataIntegrity:
 # ---------------------------------------------------------------------------
 
 class TestCandidatesIntegrity:
-
     def test_smelly_classes_are_candidates(self, heuristic_result):
-        """Классы с нарушениями должны попасть в candidates."""
+        """Все smell-классы из интеграционного sample должны попасть в candidates."""
         expected_candidates = {
             "XmlSerializer",
             "SilentNotifier",
-            "AppConfig",
+            "BrokenService",
             "ShapeRenderer",
             "ComplexProcessor",
             "HighPrioritySmell",
         }
+
         candidate_names = {c.class_name for c in heuristic_result.candidates}
         missing = expected_candidates - candidate_names
         assert not missing, f"Expected classes not in candidates: {missing}"
 
     def test_high_priority_class_ranked_first(self, heuristic_result):
-        """Класс HighPrioritySmell должен иметь высокий приоритет."""
+        """Класс с несколькими нарушениями должен быть среди верхних кандидатов."""
         priorities = [c.priority for c in heuristic_result.candidates]
         assert priorities == sorted(priorities, reverse=True), (
             "Candidates are not sorted by priority in descending order"
         )
+
         top_names = [c.class_name for c in heuristic_result.candidates[:3]]
         assert "HighPrioritySmell" in top_names, (
             f"HighPrioritySmell not in top-3 candidates: {top_names}"
         )
 
     def test_candidates_have_valid_candidate_type(self, heuristic_result):
+        """Каждый кандидат должен иметь валидный агрегированный тип."""
         valid_types = {"ocp", "lsp", "both"}
         for candidate in heuristic_result.candidates:
             assert candidate.candidate_type in valid_types
@@ -661,3 +697,87 @@ class TestHeuristicsClassRoleIntegration:
         # Имя содержит "Config", но наследования нет — должен быть DOMAIN
         assert classify_class(node) == ClassRole.DOMAIN
         assert _should_skip_for_solid(node) is False
+
+class TestIntegrationProjectMapDiagnostics:
+    def test_lsp_sample_classes_have_expected_parser_metadata(self, smelly_project_dir):
+        """Проверяем, что интеграционный sample действительно строит корректный ProjectMap."""
+        pm = build_project_map([
+            str(smelly_project_dir / "smells.py"),
+            str(smelly_project_dir / "clean.py"),
+        ])
+
+        # Проверяем наличие классов в карте проекта
+        assert "XmlSerializer" in pm.classes
+        assert "SilentNotifier" in pm.classes
+
+        xml_info = pm.classes["XmlSerializer"]
+        notifier_info = pm.classes["SilentNotifier"]
+
+        # Проверяем базовые классы
+        assert "BaseSerializer" in xml_info.parent_classes
+        assert "BaseNotifier" in notifier_info.parent_classes
+
+        # Проверяем наличие методов
+        xml_methods = {m.name: m for m in xml_info.methods}
+        notifier_methods = {m.name: m for m in notifier_info.methods}
+
+        assert "serialize" in xml_methods
+        assert "notify" in notifier_methods
+
+        # Ключевая диагностика: реально ли parser считает их override
+        assert xml_methods["serialize"].is_override is True, (
+            "XmlSerializer.serialize должен быть override для интеграционного LSP-H-001"
+        )
+        assert notifier_methods["notify"].is_override is True, (
+            "SilentNotifier.notify должен быть override для интеграционного LSP-H-002"
+        )
+
+class TestLspPipelineDiagnostics:
+    def test_xml_and_silent_notifier_survive_full_lsp_pipeline(self, smelly_project_dir):
+        """
+        Диагностика полного LSP-пути:
+        1) классы есть в ProjectMap
+        2) raw-check функции дают findings
+        3) findings не теряются до финального HeuristicResult
+        """
+
+        pm = build_project_map([
+            str(smelly_project_dir / "smells.py"),
+            str(smelly_project_dir / "clean.py"),
+        ])
+
+        assert "XmlSerializer" in pm.classes
+        assert "SilentNotifier" in pm.classes
+
+        xml_info = pm.classes["XmlSerializer"]
+        silent_info = pm.classes["SilentNotifier"]
+
+        xml_node = ast.parse(xml_info.source_code).body[0]
+        silent_node = ast.parse(silent_info.source_code).body[0]
+
+        assert isinstance(xml_node, ast.ClassDef)
+        assert isinstance(silent_node, ast.ClassDef)
+
+        # Сырые findings отдельных эвристик
+        xml_findings = lsp_h_001.check(xml_node, xml_info, pm)
+        silent_findings = lsp_h_002.check(silent_node, silent_info, pm)
+
+        assert xml_findings, "XmlSerializer не дал raw finding для LSP-H-001"
+        assert silent_findings, "SilentNotifier не дал raw finding для LSP-H-002"
+
+        # Проверяем, что дедупликация не убивает их полностью
+        merged = _deduplicate_findings(xml_findings + silent_findings)
+        merged_keys = {(f.class_name, f.rule) for f in merged}
+
+        assert ("XmlSerializer", "LSP-H-001") in merged_keys
+        assert ("SilentNotifier", "LSP-H-002") in merged_keys
+
+        # Финальный результат пайплайна тоже обязан их содержать
+        result = identify_candidates(pm)
+        result_rules = {(f.class_name, f.rule) for f in result.findings}
+        candidate_names = {c.class_name for c in result.candidates}
+
+        assert ("XmlSerializer", "LSP-H-001") in result_rules
+        assert ("SilentNotifier", "LSP-H-002") in result_rules
+        assert "XmlSerializer" in candidate_names
+        assert "SilentNotifier" in candidate_names

@@ -1,4 +1,3 @@
-
 # ---------------------------------------------------------------------------
 # НАПОМИНАЛКА ПО КОМАНДАМ ЗАПУСКА ТЕСТОВ
 # ---------------------------------------------------------------------------
@@ -15,13 +14,10 @@ import ast
 # --- Функции пайплайна (из подмодулей) ---
 from solid_dashboard.llm.ast_parser import build_project_map
 
-# Публичный API пакета — единственная точка входа в пайплайн
-from solid_dashboard.llm.heuristics import identify_candidates
-
 # Прямые импорты модулей пакета — для unit-тестов отдельных эвристик
-from solid_dashboard.llm.heuristics import ocp_h_001 as _ocp_h_001_mod
-from solid_dashboard.llm.heuristics import ocp_h_004 as _ocp_h_004_mod
-from solid_dashboard.llm.heuristics import lsp_h_004 as _lsp_h_004_mod
+from solid_dashboard.llm.heuristics import (
+    ocp_h_001, ocp_h_004, lsp_h_004, lsp_h_001, lsp_h_002, identify_candidates
+)
 from solid_dashboard.llm.types import (
     ClassInfo,
     MethodSignature,
@@ -39,6 +35,7 @@ def _pm_from_source(
     parent_classes: list[str] | None = None,
     override_methods: list[str] | None = None,
 ) -> ProjectMap:
+
     """
     Упрощенный helper: строит ProjectMap с одним ClassInfo по исходнику.
 
@@ -104,13 +101,47 @@ def _pm_from_source(
     return project_map
 
 # ---------------------------------------------------------------------------
+# Вспомогательная фабрика для прямого тестирования эвристик (LSP-H-001/002)
+# ---------------------------------------------------------------------------
+
+def _class_info_node_and_project_map_from_source(
+    source: str,
+    class_name: str,
+    parent_classes: list[str] | None = None,
+    override_methods: list[str] | None = None,
+) -> tuple[ClassInfo, ast.ClassDef, ProjectMap]:
+    """
+    Возвращает ClassInfo, AST-ноду класса и ProjectMap для unit-тестов
+    отдельных эвристик.
+
+    Это позволяет тестировать lsp_h_001.check(...) / lsp_h_002.check(...)
+    напрямую, не включая оркестратор identify_candidates(...).
+    """
+    # Строим ProjectMap через общую тестовую фабрику
+    pm = _pm_from_source(
+        source=source,
+        class_name=class_name,
+        parent_classes=parent_classes,
+        override_methods=override_methods,
+    )
+
+    class_info = pm.classes[class_name]
+
+    # Парсим source_code самого класса, чтобы получить ast.ClassDef
+    tree = ast.parse(textwrap.dedent(class_info.source_code))
+    class_node = tree.body[0]
+    assert isinstance(class_node, ast.ClassDef)
+
+    return class_info, class_node, pm
+
+# ---------------------------------------------------------------------------
 # LSP-H-001: raise NotImplementedError в переопределенном методе
 # ---------------------------------------------------------------------------
 
 class TestLspH001:
     def test_positive_bare_raise(self):
         """Переопределенный метод бросает NotImplementedError без аргументов."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def run(self):
@@ -118,13 +149,14 @@ class TestLspH001:
             """,
             "Child", parent_classes=["Base"], override_methods=["run"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        # Напрямую проверяем эвристику, игнорируя фильтры оркестратора
+        findings = lsp_h_001.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-001" in rules
 
     def test_positive_raise_with_message(self):
         """Переопределенный метод бросает NotImplementedError с сообщением."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def run(self):
@@ -132,13 +164,13 @@ class TestLspH001:
             """,
             "Child", parent_classes=["Base"], override_methods=["run"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        findings = lsp_h_001.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-001" in rules
 
     def test_negative_non_override_method(self):
         """Метод НЕ является переопределением — эвристика не срабатывает."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class StandaloneUtil:
                 def helper(self):
@@ -147,13 +179,13 @@ class TestLspH001:
             "StandaloneUtil",
             # override_methods не передаем — метод не помечен как is_override
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        findings = lsp_h_001.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-001" not in rules
 
     def test_negative_other_exception(self):
         """Бросает другое исключение — не NotImplementedError — эвристика молчит."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def run(self):
@@ -161,13 +193,13 @@ class TestLspH001:
             """,
             "Child", parent_classes=["Base"], override_methods=["run"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        findings = lsp_h_001.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-001" not in rules
 
     def test_finding_metadata(self):
         """Проверяем, что finding содержит корректные метаданные."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def process(self):
@@ -175,8 +207,9 @@ class TestLspH001:
             """,
             "Child", parent_classes=["Base"], override_methods=["process"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        finding = next(f for f in result.findings if f.rule == "LSP-H-001")
+        findings = lsp_h_001.check(class_node, class_info, pm)
+        finding = next(f for f in findings if f.rule == "LSP-H-001")
+        
         assert finding.source == "heuristic"
         assert finding.severity == "warning"
         assert finding.class_name == "Child"
@@ -194,16 +227,16 @@ class TestLspH001:
             def process(self, value: int) -> str:
                 raise NotImplementedError
         """
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             source=source,
             class_name="BaseAdapter",
             # parent_classes не задаем: нет ABC
             override_methods=["process"],
         )
 
-        result = identify_candidates(pm, exclude_patterns=[])
-        findings = [f for f in result.findings if f.rule == "LSP-H-001"]
-        assert findings == []
+        findings = lsp_h_001.check(class_node, class_info, pm)
+        lsp_h001_findings = [f for f in findings if f.rule == "LSP-H-001"]
+        assert lsp_h001_findings == []
 
 # ---------------------------------------------------------------------------
 # LSP-H-002: пустое тело переопределенного метода
@@ -212,21 +245,24 @@ class TestLspH001:
 class TestLspH002:
     def test_positive_pass_body(self):
         """Переопределенный метод содержит только pass."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def save(self):
                     pass
             """,
-            "Child", parent_classes=["Base"], override_methods=["save"],
+            "Child",
+            parent_classes=["Base"],
+            override_methods=["save"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+
+        findings = lsp_h_002.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-002" in rules
 
     def test_positive_docstring_only_body(self):
         """Переопределенный метод содержит только docstring."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def save(self):
@@ -234,13 +270,13 @@ class TestLspH002:
             """,
             "Child", parent_classes=["Base"], override_methods=["save"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        findings = lsp_h_002.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-002" in rules
 
     def test_negative_method_with_body(self):
         """Переопределенный метод имеет реализацию — эвристика молчит."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class Child(Base):
                 def save(self, data):
@@ -249,13 +285,13 @@ class TestLspH002:
             """,
             "Child", parent_classes=["Base"], override_methods=["save"],
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        findings = lsp_h_002.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-002" not in rules
 
     def test_negative_non_override_pass(self):
         """Метод с pass, но НЕ является переопределением — эвристика молчит."""
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             """
             class NewClass:
                 def placeholder(self):
@@ -263,8 +299,8 @@ class TestLspH002:
             """,
             "NewClass",
         )
-        result = identify_candidates(pm, exclude_patterns=[])
-        rules = [f.rule for f in result.findings]
+        findings = lsp_h_002.check(class_node, class_info, pm)
+        rules = [f.rule for f in findings]
         assert "LSP-H-002" not in rules
 
     def test_abstract_base_class_with_pass_is_ignored(self):
@@ -277,18 +313,15 @@ class TestLspH002:
             def handle(self, value: int) -> None:
                 pass
         """
-        project_map = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             source=source,
             class_name="BaseHandler",
             parent_classes=["ABC"],          # помечаем как абстрактный
             override_methods=["handle"],     # handle считается override
         )
 
-        result = identify_candidates(project_map, exclude_patterns=[])
-        lsp_h002_findings = [
-            f for f in result.findings if f.rule == "LSP-H-002"
-        ]
-
+        findings = lsp_h_002.check(class_node, class_info, pm)
+        lsp_h002_findings = [f for f in findings if f.rule == "LSP-H-002"]
         assert lsp_h002_findings == []
 
     def test_abstract_method_with_pass_is_ignored(self):
@@ -301,16 +334,15 @@ class TestLspH002:
             def handle(self, value: int) -> None:
                 pass
         """
-        pm = _pm_from_source(
+        class_info, class_node, pm = _class_info_node_and_project_map_from_source(
             source=source,
             class_name="BaseHandler",
             override_methods=["handle"],
         )
 
-        result = identify_candidates(pm, exclude_patterns=[])
-        findings = [f for f in result.findings if f.rule == "LSP-H-002"]
-        assert findings == []
-
+        findings = lsp_h_002.check(class_node, class_info, pm)
+        lsp_h002_findings = [f for f in findings if f.rule == "LSP-H-002"]
+        assert lsp_h002_findings == []
 
 # ---------------------------------------------------------------------------
 # Тесты для OCP-H-001 (Переработанная логика type-dispatch цепочек)
@@ -370,7 +402,7 @@ class TestOcpH001Updated:
                 elif isinstance(x, C): pass
         """
         node = self._get_class_node(code)
-        findings = _ocp_h_001_mod.check(node, self.class_info)
+        findings = ocp_h_001.check(node, self.class_info)
 
         assert len(findings) == 1
         assert findings[0].rule == "OCP-H-001"
@@ -391,7 +423,7 @@ class TestOcpH001Updated:
                 elif isinstance(x, C): pass
         """
         node = self._get_class_node(code)
-        findings = _ocp_h_001_mod.check(node, self.class_info)
+        findings = ocp_h_001.check(node, self.class_info)
 
         assert len(findings) == 1
         assert "3 isinstance checks" in findings[0].message
@@ -418,7 +450,7 @@ class TestOcpH001Updated:
                 elif x.status == 3: pass
         """
         node = self._get_class_node(code)
-        findings = _ocp_h_001_mod.check(node, self.class_info)
+        findings = ocp_h_001.check(node, self.class_info)
 
         # Ложных срабатываний быть не должно
         assert len(findings) == 0
@@ -435,10 +467,17 @@ class TestLspH004Updated:
             name="Child",
             file_path="child.py",
             source_code="",
-            parent_classes=["Base"], 
+            parent_classes=["Base"],
             implemented_interfaces=[],
             methods=[],
             dependencies=[],
+        )
+
+        # Минимальный ProjectMap для новой сигнатуры lsp_h_004.check(...)
+        # Пустой map достаточен для большинства unit-тестов этого класса
+        self.project_map = ProjectMap(
+            classes={},
+            interfaces={},
         )
 
     def _get_class_node(self, code: str) -> ast.ClassDef:
@@ -457,8 +496,8 @@ class TestLspH004Updated:
                 self.value = 42
         """
         node = self._get_class_node(code)
-        findings = _lsp_h_004_mod.check(node, self.class_info)
-        
+        findings = lsp_h_004.check(node, self.class_info, self.project_map)
+
         assert len(findings) == 1
         assert findings[0].rule == "LSP-H-004"
 
@@ -468,10 +507,10 @@ class TestLspH004Updated:
         class Child(Base):
             def __init__(self, name):
                 super().__init__()
-                self.name = name 
+                self.name = name
         """
         node = self._get_class_node(code)
-        findings = _lsp_h_004_mod.check(node, self.class_info)
+        findings = lsp_h_004.check(node, self.class_info, self.project_map)
         assert len(findings) == 0
 
     def test_negative_no_init_at_all(self):
@@ -482,7 +521,7 @@ class TestLspH004Updated:
                 pass
         """
         node = self._get_class_node(code)
-        findings = _lsp_h_004_mod.check(node, self.class_info)
+        findings = lsp_h_004.check(node, self.class_info, self.project_map)
         assert len(findings) == 0
 
     def test_negative_standalone_class_with_init(self):
@@ -493,19 +532,19 @@ class TestLspH004Updated:
                 self.value = 0
         """
         node = self._get_class_node(code)
-        
-        # Меняем ClassInfo: убираем родителей
+
         standalone_info = ClassInfo(
-            name="Standalone", file_path="a.py", source_code="",
-            parent_classes=[], implemented_interfaces=[],
-            methods=[], dependencies=[]
+            name="Standalone",
+            file_path="a.py",
+            source_code="",
+            parent_classes=[],
+            implemented_interfaces=[],
+            methods=[],
+            dependencies=[],
         )
-        
-        findings = _lsp_h_004_mod.check(node, standalone_info)
+
+        findings = lsp_h_004.check(node, standalone_info, self.project_map)
         assert len(findings) == 0
-
-
-    # --- 2. Сценарии с исключенными родительскими классами ---
 
     def test_negative_explicit_object_parent(self):
         """Явное наследование от object не должно давать LSP-H-004."""
@@ -515,32 +554,40 @@ class TestLspH004Updated:
                 self.x = 1
         """
         node = self._get_class_node(code)
-        
+
         info = ClassInfo(
-            name="MyValueObject", file_path="a.py", source_code="",
-            parent_classes=["object"], implemented_interfaces=[],
-            methods=[], dependencies=[]
+            name="MyValueObject",
+            file_path="a.py",
+            source_code="",
+            parent_classes=["object"],
+            implemented_interfaces=[],
+            methods=[],
+            dependencies=[],
         )
-        
-        findings = _lsp_h_004_mod.check(node, info)
+
+        findings = lsp_h_004.check(node, info, self.project_map)
         assert len(findings) == 0
 
     def test_negative_abc_parent(self):
-        """Наследование от ABC (абстрактный класс) игнорируется."""
+        """Наследование от ABC игнорируется."""
         code = """
         class BaseService(ABC):
             def __init__(self):
                 self.x = 1
         """
         node = self._get_class_node(code)
-        
+
         info = ClassInfo(
-            name="BaseService", file_path="a.py", source_code="",
-            parent_classes=["ABC"], implemented_interfaces=[],
-            methods=[], dependencies=[]
+            name="BaseService",
+            file_path="a.py",
+            source_code="",
+            parent_classes=["ABC"],
+            implemented_interfaces=[],
+            methods=[],
+            dependencies=[],
         )
-        
-        findings = _lsp_h_004_mod.check(node, info)
+
+        findings = lsp_h_004.check(node, info, self.project_map)
         assert len(findings) == 0
 
     def test_negative_protocol_parent(self):
@@ -551,18 +598,21 @@ class TestLspH004Updated:
                 self.x = 1
         """
         node = self._get_class_node(code)
-        
+
         info = ClassInfo(
-            name="RepositoryProtocol", file_path="a.py", source_code="",
-            parent_classes=["Protocol"], implemented_interfaces=[],
-            methods=[], dependencies=[]
+            name="RepositoryProtocol",
+            file_path="a.py",
+            source_code="",
+            parent_classes=["Protocol"],
+            implemented_interfaces=[],
+            methods=[],
+            dependencies=[],
         )
-        
-        findings = _lsp_h_004_mod.check(node, info)
+
+        findings = lsp_h_004.check(node, info, self.project_map)
         assert len(findings) == 0
 
-
-    # --- 3. Сценарии с Dataclass ---
+    # --- 2. Защита от false positive: dataclass ---
 
     def test_lsp_h_004_ignores_simple_dataclass_decorator(self):
         """ПРЕДОТВРАЩЕНИЕ FALSE POSITIVE: простой декоратор @dataclass."""
@@ -573,7 +623,7 @@ class TestLspH004Updated:
                 self.x = x
         """
         node = self._get_class_node(code)
-        findings = _lsp_h_004_mod.check(node, self.class_info)
+        findings = lsp_h_004.check(node, self.class_info, self.project_map)
         assert len(findings) == 0
 
     def test_lsp_h_004_ignores_dataclass_with_args_decorator(self):
@@ -585,7 +635,44 @@ class TestLspH004Updated:
                 self.x = x
         """
         node = self._get_class_node(code)
-        findings = _lsp_h_004_mod.check(node, self.class_info)
+        findings = lsp_h_004.check(node, self.class_info, self.project_map)
+        assert len(findings) == 0
+
+    def test_negative_dataclasses_dataclass_decorator_is_ignored(self):
+        """ПРЕДОТВРАЩЕНИЕ FALSE POSITIVE: @dataclasses.dataclass тоже должен игнорироваться."""
+        code = """
+        @dataclasses.dataclass
+        class MyDto(Base):
+            def __init__(self, x):
+                self.x = x
+        """
+        node = self._get_class_node(code)
+        findings = lsp_h_004.check(node, self.class_info, self.project_map)
+        assert len(findings) == 0
+
+    # --- 3. Защита от false positive: pure interface ---
+
+    def test_negative_pure_interface_class_is_ignored(self):
+        """Чистый интерфейс не должен давать LSP-H-004 даже при наличии родителя ABC."""
+        code = """
+        class IRepository(ABC):
+            @abstractmethod
+            def save(self, item):
+                pass
+        """
+        node = self._get_class_node(code)
+
+        info = ClassInfo(
+            name="IRepository",
+            file_path="a.py",
+            source_code="",
+            parent_classes=["ABC"],
+            implemented_interfaces=[],
+            methods=[],
+            dependencies=[],
+        )
+
+        findings = lsp_h_004.check(node, info, self.project_map)
         assert len(findings) == 0
 
 # ---------------------------------------------------------------------------
@@ -920,7 +1007,7 @@ class TestOcpH004Updated:
                         pass
         """
         node = self._get_class_node(code)
-        findings = _ocp_h_004_mod.check(node, self.class_info)
+        findings = ocp_h_004.check(node, self.class_info)
         
         # До исправления ast.walk находил бы isinstance и выдавал ошибку.
         # Теперь эвристика должна молчать.
@@ -943,7 +1030,7 @@ class TestOcpH004Updated:
                     pass
         """
         node = self._get_class_node(code)
-        findings = _ocp_h_004_mod.check(node, self.class_info)
+        findings = ocp_h_004.check(node, self.class_info)
         
         assert len(findings) == 1
         assert findings[0].rule == "OCP-H-004"
