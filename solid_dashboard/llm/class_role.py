@@ -1,16 +1,15 @@
-"""
-Классификатор ролей классов для эвристического анализа SOLID.
-
-Определяет ClassRole — категорию класса по его структуре в AST —
-и функцию classify_class(), которую используют эвристики LSP/OCP,
-чтобы не запускаться на инфраструктурных или конфигурационных классах.
-
-Классы ролей:
-    PURE_INTERFACE — только абстрактные методы (ABC без __init__)
-    INFRA_MODEL    — Pydantic BaseModel / SQLAlchemy ORM / аналоги
-    CONFIG         — конфигурационные классы (BaseSettings, Config)
-    DOMAIN         — прикладной класс, пригодный для SOLID-анализа
-"""
+# ===================================================================================================
+# Классификатор ролей классов для эвристического анализа SOLID
+#
+# Определяет ClassRole — категорию класса по его структуре в AST — и функцию classify_class(), 
+# которую используют эвристики LSP/OCP, чтобы не запускаться на инфраструктурных или конфигурационных классах
+#
+# Классы ролей:
+#   PURE_INTERFACE — только абстрактные методы (ABC без __init__)
+#   INFRA_MODEL    — Pydantic BaseModel / SQLAlchemy ORM / аналоги
+#   CONFIG         — конфигурационные классы (BaseSettings, Config)
+#   DOMAIN         — прикладной класс, пригодный для SOLID-анализа
+# ===================================================================================================
 
 import ast
 from enum import Enum, auto
@@ -82,26 +81,24 @@ def _extract_base_names(class_node: ast.ClassDef) -> list[str]:
 
 
 def _is_pure_interface(class_node: ast.ClassDef) -> bool:
-    """
-    Возвращает True, если класс является чистым интерфейсом/контрактом.
-
-    Критерии (все должны выполняться):
-    1. Хотя бы один FunctionDef в теле класса.
-    2. Все FunctionDef задекорированы @abstractmethod ИЛИ имеют
-       тривиальное тело (pass / ... / одиночный raise NotImplementedError).
-    3. Нет не-абстрактных методов с реальной логикой.
-
-    Это позволяет отличить:
-        class IFoo(ABC):           # PURE_INTERFACE — все методы абстрактны
-            @abstractmethod
-            def process(self): ...
-
-    от:
-        class Base(ABC):           # DOMAIN — есть реальный __init__
-            def __init__(self): self.x = 1
-            @abstractmethod
-            def process(self): ...
-    """
+# ---------------------------------------------------------------------------
+# Возвращает True, если класс является чистым интерфейсом/контрактом
+# Критерии (все должны выполняться):
+#   1. Хотя бы один FunctionDef в теле класса
+#   2. Все FunctionDef задекорированы @abstractmethod ИЛИ имеют тривиальное тело (pass / ... / 1 raise NotImplementedError)
+#   3. Нет не-абстрактных методов с реальной логикой
+#
+# Отличает:
+#   class IFoo(ABC):           # PURE_INTERFACE — все методы абстрактны
+#       @abstractmethod
+#       def process(self): ...
+#
+# от:
+#   class Base(ABC):           # DOMAIN — есть реальный __init__
+#       def __init__(self): self.x = 1
+#       @abstractmethod
+#       def process(self): ...
+# ---------------------------------------------------------------------------
     method_nodes = [
         node for node in class_node.body
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
@@ -164,18 +161,18 @@ def _compute_infra_score(
     class_node: ast.ClassDef,
     base_names: list[str],
 ) -> int:
-    """
-    Вычисляет InfraScore — сумму сигналов, указывающих на инфраструктурный класс.
-
-    Каждый сигнал дает +1 балл. Порог для классификации INFRA_MODEL: >= 2.
-
-    Сигналы:
-    +2  Прямое наследование от известной инфра-базы (_KNOWN_INFRA_BASES)
-    +1  Наличие атрибута __tablename__ (SQLAlchemy ORM)
-    +1  Наличие атрибута model_config (Pydantic v2)
-    +1  Более 70% тела класса составляют AnnAssign (аннотированные поля)
-    +1  Наличие вызовов Column(), Field(), relationship() в теле
-    """
+# ---------------------------------------------------------------------------
+# Вычисляет InfraScore — сумму сигналов, указывающих на инфраструктурный класс
+#
+# Каждый сигнал дает +1 балл. Порог для классификации INFRA_MODEL: >= 2
+#
+# Сигналы:
+#   +2  Прямое наследование от известной инфра-базы (_KNOWN_INFRA_BASES)
+#   +1  Наличие атрибута __tablename__ (SQLAlchemy ORM)
+#   +1  Наличие атрибута model_config (Pydantic v2)
+#   +1  Более 70% тела класса составляют AnnAssign (аннотированные поля)
+#   +1  Наличие вызовов Column(), Field(), relationship() в теле
+# ---------------------------------------------------------------------------
     score = 0
 
     # Сигнал 1: известная инфра-база (+2 — самый сильный сигнал)
@@ -238,25 +235,21 @@ def classify_class(
     class_node: ast.ClassDef,
     import_aliases: dict[str, str] | None = None,
 ) -> ClassRole:
-    """
-    Определяет роль класса по его AST-ноде.
-
-    Аргументы:
-        class_node:      AST-нода ClassDef анализируемого класса.
-        import_aliases:  Словарь алиасов импортов {алиас: оригинальное_имя},
-                         например {"BM": "BaseModel", "Base": "DeclarativeBase"}.
-                         Используется для корректной обработки
-                         `from pydantic import BaseModel as BM`.
-
-    Возвращает:
-        ClassRole: одна из PURE_INTERFACE, INFRA_MODEL, CONFIG, DOMAIN.
-
-    Порядок проверок (от самого специфичного к наиболее общему):
-    1. PURE_INTERFACE — чистый интерфейс/контракт (все методы абстрактны)
-    2. CONFIG         — конфигурационный класс (BaseSettings и аналоги)
-    3. INFRA_MODEL    — инфраструктурная модель (InfraScore >= 2)
-    4. DOMAIN         — всё остальное
-    """
+# ---------------------------------------------------------------------------
+# Определяет роль класса по его AST-ноде
+# Аргументы:
+#   class_node:     AST-нода ClassDef анализируемого класса
+#   import_aliases: словарь алиасов импортов {алиас: оригинальное_имя}, напр.: {"BM": "BaseModel", "Base": "DeclarativeBase"}
+#                   Используется для обработки `from pydantic import BaseModel as BM`
+#
+# Возвращает ClassRole: одна из PURE_INTERFACE, INFRA_MODEL, CONFIG, DOMAIN
+#
+# Порядок проверок (от самого специфичного к наиболее общему):
+#   1. PURE_INTERFACE — чистый интерфейс/контракт (все методы абстрактны)
+#   2. CONFIG         — конфигурационный класс (BaseSettings и аналоги)
+#   3. INFRA_MODEL    — инфраструктурная модель (InfraScore >= 2)
+#   4. DOMAIN         — всё остальное
+# ---------------------------------------------------------------------------
     aliases = import_aliases or {}
 
     # Разрешаем алиасы: если база называется BM, а алиас BM -> BaseModel,
