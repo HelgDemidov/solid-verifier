@@ -4,16 +4,16 @@
 # Конфигурация конкретной эвристики остается в её собственном файле.
 #
 # Экспортируемые имена:
-#   _DEFAULT_EXCLUDE_PATTERNS   — _runner.py
+#   _DEFAULT_EXCLUDE_PATTERNS    — _runner.py
 #   _normalize_path_for_matching — _runner.py
-#   _should_exclude_path        — _runner.py
-#   _parse_class_ast            — _runner.py
-#   _make_finding               — все 7 файлов эвристик
-#   _is_abstract_class          — lsp_h_001.py, lsp_h_002.py
-#   _has_isinstance_call        — ocp_h_001.py, ocp_h_004.py
-#   _count_elif_chain           — ocp_h_001.py
-#   _iter_method_nodes          — ocp_h_004.py, _compute_method_cc (здесь же)
-#   _compute_method_cc          — ocp_h_004.py
+#   _should_exclude_path         — _runner.py
+#   _parse_class_ast             — _runner.py
+#   _make_finding                — все 7 файлов эвристик
+#   _is_abstract_class           — lsp_h_001.py, lsp_h_002.py
+#   _has_isinstance_call         — ocp_h_001.py, ocp_h_004.py
+#   _count_elif_chain            — ocp_h_001.py
+#   _iter_method_nodes           — ocp_h_004.py, _compute_method_cc (здесь же)
+#   _compute_method_cc           — ocp_h_004.py
 
 import ast
 import logging
@@ -44,6 +44,10 @@ _DEFAULT_EXCLUDE_PATTERNS: list[str] = [
     "node_modules/",
     "setup.py",
     "manage.py",
+    # Конфигурационные файлы — не подходят для SOLID-анализа
+    "config.py",
+    "settings.py",
+    "conf.py",
 ]
 
 # ---------------------------------------------------------------------------
@@ -78,6 +82,7 @@ __all__ = [
     "_iter_method_nodes",
     "_compute_method_cc",
 ]
+
 # ---------------------------------------------------------------------------
 # Фильтрация путей
 # ---------------------------------------------------------------------------
@@ -210,8 +215,7 @@ def _iter_method_nodes(
     # Обходит только узлы тела метода, полностью пропуская
     # вложенные функции, async-функции и классы как независимые единицы.
     # Гарантирует корректный CC и отсутствие ложных isinstance-хитов из вложенных областей видимости
-    stack = list(func.body)
-    stack: list[ast.AST] = list(func.body)  
+    stack: list[ast.AST] = list(func.body)
     while stack:
         node = stack.pop()
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):

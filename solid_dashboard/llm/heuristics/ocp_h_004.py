@@ -7,10 +7,15 @@
 #
 # Порог CC: _OCP_H004_CC_THRESHOLD = 5 (настраивается здесь).
 # Использует _iter_method_nodes для корректного подсчёта CC без вложенных функций.
+#
+# Исключения:
+#   - INFRA_MODEL (Pydantic BaseModel, SQLAlchemy ORM): создают шум в кандидатах
+#   - CONFIG (BaseSettings и аналоги): не подходят для SOLID-анализа
 
 import ast
 from typing import List
 
+from ..class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _compute_method_cc, _iter_method_nodes, _make_finding
 
@@ -21,7 +26,14 @@ _OCP_H004_CC_THRESHOLD: int = 5
 def check(
     class_node: ast.ClassDef,
     class_info: ClassInfo,
+    import_aliases: dict[str, str] | None = None,
 ) -> List[Finding]:
+    # Пропускаем инфра-модели (Pydantic, SQLAlchemy) и конфиг-классы —
+    # для них OCP-анализ нерелевантен и создаёт шум в кандидатах
+    role = classify_class(class_node, import_aliases or {})
+    if role in (ClassRole.INFRA_MODEL, ClassRole.CONFIG):
+        return []
+
     findings: List[Finding] = []
 
     for func in class_node.body:

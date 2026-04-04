@@ -5,10 +5,15 @@
 #
 # Если интерпретатор не поддерживает match/case (Python < 3.10), ast.Match
 # отсутствует — эвристика немедленно возвращает пустой список.
+#
+# Исключения:
+#   - INFRA_MODEL (Pydantic BaseModel, SQLAlchemy ORM): создают шум в кандидатах
+#   - CONFIG (BaseSettings и аналоги): не подходят для SOLID-анализа
 
 import ast
 from typing import List, cast
 
+from ..class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _make_finding
 
@@ -19,7 +24,14 @@ _OCP_H002_THRESHOLD: int = 3
 def check(
     class_node: ast.ClassDef,
     class_info: ClassInfo,
+    import_aliases: dict[str, str] | None = None,
 ) -> List[Finding]:
+    # Пропускаем инфра-модели (Pydantic, SQLAlchemy) и конфиг-классы —
+    # для них OCP-анализ нерелевантен и создаёт шум в кандидатах
+    role = classify_class(class_node, import_aliases or {})
+    if role in (ClassRole.INFRA_MODEL, ClassRole.CONFIG):
+        return []
+
     findings: List[Finding] = []
 
     # Получаем классы AST для match/case — доступны только в Python 3.10+

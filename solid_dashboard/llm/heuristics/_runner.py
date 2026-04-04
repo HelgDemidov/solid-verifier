@@ -6,6 +6,7 @@
 # Функция остается чистой: не обращается к файловой системе.
 # Весь исходный код уже находится в ProjectMap.source_code.
 
+import ast
 import logging
 from collections import defaultdict
 from typing import List
@@ -139,6 +140,28 @@ def _determine_candidate_type(
     return "both" if has_hierarchy else "ocp"
 
 # ---------------------------------------------------------------------------
+# Построение алиас-маппера из import-стейтментов исходного кода
+# ---------------------------------------------------------------------------
+
+def _build_import_aliases(source_code: str) -> dict[str, str]:
+    # Строит словарь {алиас: оригинальное_имя} из import-стейтментов.
+    # Пример: `from pydantic import BaseModel as BM` → {"BM": "BaseModel"}
+    # Нужен ClassRole-классификатору для корректной обработки переименованных баз
+    aliases: dict[str, str] = {}
+    if not source_code:
+        return aliases
+    try:
+        tree = ast.parse(source_code)
+    except SyntaxError:
+        return aliases
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                if alias.asname:
+                    aliases[alias.asname] = alias.name
+    return aliases
+
+# ---------------------------------------------------------------------------
 # Главная публичная функция
 # ---------------------------------------------------------------------------
 
@@ -172,20 +195,24 @@ def identify_candidates(
         if class_node is None:
             continue
 
+        # Строим алиас-маппер один раз на класс — нужен ClassRole-классификатору
+        # для корректной обработки `from pydantic import BaseModel as BM` и аналогов
+        import_aliases = _build_import_aliases(class_info.source_code)
+
         # --- Прогон всех 7 эвристик для одного класса ---
         class_findings: List[Finding] = []
 
-        # LSP-эвристики
+        # LSP-эвристики (lsp_h_001/002 не используют import_aliases)
         class_findings.extend(lsp_h_001.check(class_node, class_info, project_map))
         class_findings.extend(lsp_h_002.check(class_node, class_info, project_map))
-        class_findings.extend(lsp_h_004.check(class_node, class_info))
+        class_findings.extend(lsp_h_004.check(class_node, class_info, import_aliases))
 
         # OCP-эвристики
-        class_findings.extend(ocp_h_001.check(class_node, class_info))
-        class_findings.extend(ocp_h_002.check(class_node, class_info))
+        class_findings.extend(ocp_h_001.check(class_node, class_info, import_aliases))
+        class_findings.extend(ocp_h_002.check(class_node, class_info, import_aliases))
         # OCP-H-004 идёт последней: она "шире" — находит isinstance в сложных
         # методах, которые OCP-H-001/002 могли пропустить
-        class_findings.extend(ocp_h_004.check(class_node, class_info))
+        class_findings.extend(ocp_h_004.check(class_node, class_info, import_aliases))
 
         # LSP-H-003 требует ProjectMap для проверки аннотаций типов
         class_findings.extend(lsp_h_003.check(class_node, class_info, project_map))

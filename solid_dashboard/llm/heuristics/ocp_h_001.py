@@ -9,10 +9,15 @@
 # Отличие от монолитной версии: считаем не длину цепочки, а количество ветвей
 # именно с isinstance(), что устраняет ложные срабатывания при наличии guard-условий
 # без isinstance() в начале цепочки.
+#
+# Исключения:
+#   - INFRA_MODEL (Pydantic BaseModel, SQLAlchemy ORM): создают шум в кандидатах
+#   - CONFIG (BaseSettings и аналоги): не подходят для SOLID-анализа
 
 import ast
 from typing import List
 
+from ..class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _count_elif_chain, _has_isinstance_call, _make_finding
 
@@ -43,7 +48,14 @@ def _count_isinstance_branches(if_node: ast.If) -> int:
 def check(
     class_node: ast.ClassDef,
     class_info: ClassInfo,
+    import_aliases: dict[str, str] | None = None,
 ) -> List[Finding]:
+    # Пропускаем инфра-модели (Pydantic, SQLAlchemy) и конфиг-классы —
+    # для них OCP-анализ нерелевантен и создаёт шум в кандидатах
+    role = classify_class(class_node, import_aliases or {})
+    if role in (ClassRole.INFRA_MODEL, ClassRole.CONFIG):
+        return []
+
     findings: List[Finding] = []
 
     for func in class_node.body:

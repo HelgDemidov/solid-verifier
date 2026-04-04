@@ -7,12 +7,15 @@
 #
 # Исключения:
 #   - @dataclass: __init__ генерируется автоматически, super() не нужен
+#   - PURE_INTERFACE (ClassRole): ABC без __init__ — conservative false positive,
+#     пропускаем через classify_class()
 #   - Классы из _LSP_H004_EXCLUDED_PARENTS (object, ABC, Protocol и др.):
 #     их __init__ не несёт значимой инициализации
 
 import ast
 from typing import List
 
+from ..class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _make_finding
 
@@ -46,9 +49,16 @@ def _has_dataclass_decorator(class_node: ast.ClassDef) -> bool:
 def check(
     class_node: ast.ClassDef,
     class_info: ClassInfo,
+    import_aliases: dict[str, str] | None = None,
 ) -> List[Finding]:
     # Dataclass: __init__ генерируется автоматически, super() не нужен
     if _has_dataclass_decorator(class_node):
+        return []
+
+    # PURE_INTERFACE: ABC-классы без собственного __init__ дают conservative
+    # false positive — super().__init__() там не нужен по определению
+    role = classify_class(class_node, import_aliases or {})
+    if role == ClassRole.PURE_INTERFACE:
         return []
 
     # Только для реальных подклассов (пустая строка = динамическая база)
