@@ -11,6 +11,7 @@ import logging
 from collections import defaultdict
 from typing import List
 
+from ..class_role import ClassRole, classify_class
 from ..types import (
     CandidateType,
     ClassInfo,
@@ -199,13 +200,20 @@ def identify_candidates(
         # для корректной обработки `from pydantic import BaseModel as BM` и аналогов
         import_aliases = _build_import_aliases(class_info.source_code)
 
+        # --- ФИЛЬТР ИНФРАСТРУКТУРЫ И КОНФИГОВ: жестко отсекаем DTO, ORM-модели и конфигурации от SOLID-анализа
+        role = classify_class(class_node, import_aliases)
+        if role in (ClassRole.INFRA_MODEL, ClassRole.CONFIG):
+            continue
+        if role == ClassRole.PURE_INTERFACE:
+            continue
+        
         # --- Прогон всех 7 эвристик для одного класса ---
         class_findings: List[Finding] = []
 
         # LSP-эвристики (lsp_h_001/002 не используют import_aliases)
         class_findings.extend(lsp_h_001.check(class_node, class_info, project_map))
         class_findings.extend(lsp_h_002.check(class_node, class_info, project_map))
-        class_findings.extend(lsp_h_004.check(class_node, class_info, import_aliases))
+        class_findings.extend(lsp_h_004.check(class_node, class_info, project_map, import_aliases))
 
         # OCP-эвристики
         class_findings.extend(ocp_h_001.check(class_node, class_info, import_aliases))

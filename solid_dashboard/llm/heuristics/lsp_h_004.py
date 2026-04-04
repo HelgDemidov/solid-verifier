@@ -1,23 +1,23 @@
-# LSP-H-004: __init__ подкласса без вызова super().__init__().
+# LSP-H-004: __init__ подкласса без вызова super().__init__()
 #
 # Если родитель устанавливает атрибуты экземпляра в __init__, а подкласс
-# не вызывает super().__init__(), эти атрибуты не будут инициализированы.
+# не вызывает super().__init__(), эти атрибуты не будут инициализированы
 # Код, полагающийся на контракт родителя, получит AttributeError или
-# молчаливо некорректное состояние — нарушение LSP.
+# молчаливо некорректное состояние — нарушение LSP
 #
 # Исключения:
 #   - @dataclass: __init__ генерируется автоматически, super() не нужен
-#   - PURE_INTERFACE (ClassRole): ABC без __init__ — conservative false positive,
-#     пропускаем через classify_class()
+#   - PURE_INTERFACE (ClassRole) у родителя: ABC без __init__ — super() не нужен
 #   - Классы из _LSP_H004_EXCLUDED_PARENTS (object, ABC, Protocol и др.):
-#     их __init__ не несёт значимой инициализации
+#     их __init__ не несет значимой инициализации
 
 import ast
 from typing import List
 
 from ..class_role import ClassRole, classify_class
-from ..types import ClassInfo, Finding
-from ._shared import _make_finding
+from ..types import ClassInfo, Finding, ProjectMap
+from ._shared import _make_finding, _parse_class_ast
+
 
 # Родительские классы, для которых отсутствие super().__init__() допустимо
 _LSP_H004_EXCLUDED_PARENTS: set[str] = {
@@ -31,7 +31,7 @@ _LSP_H004_EXCLUDED_PARENTS: set[str] = {
 
 
 def _has_dataclass_decorator(class_node: ast.ClassDef) -> bool:
-    # Проверяем наличие @dataclass или @dataclasses.dataclass в декораторах класса.
+    # Проверяем наличие @dataclass или @dataclasses.dataclass в декораторах класса
     # Поддерживаем три формы: @dataclass, @dataclasses.dataclass, @dataclass(frozen=True)
     for dec in class_node.decorator_list:
         if isinstance(dec, ast.Name) and dec.id == "dataclass":
@@ -39,26 +39,55 @@ def _has_dataclass_decorator(class_node: ast.ClassDef) -> bool:
         if isinstance(dec, ast.Attribute) and dec.attr == "dataclass":
             return True
         if isinstance(dec, ast.Call):
-            if isinstance(dec.func, ast.Name) and dec.func.id == "dataclass":
+            func = dec.func
+            if isinstance(func, ast.Name) and func.id == "dataclass":
                 return True
-            if isinstance(dec.func, ast.Attribute) and dec.func.attr == "dataclass":
+            if isinstance(func, ast.Attribute) and func.attr == "dataclass":
                 return True
     return False
+
+
+def _parent_is_pure_interface(
+    parent_name: str,
+    class_info: ClassInfo,
+    project_map: ProjectMap,
+    import_aliases: dict[str, str],
+) -> bool:
+    # Определяет, является ли родительский класс pure interface через ClassRole
+    # Использует ProjectMap, чтобы достать исходник родителя и распарсить его AST
+
+    # Сначала пробуем найти родителя среди обычных классов
+    parent_info = project_map.classes.get(parent_name)
+    if parent_info is None:
+        # Если класс зарегистрирован как интерфейс, берем его оттуда
+        iface_info = project_map.interfaces.get(parent_name)
+        if iface_info is None:
+            return False
+
+        # Для InterfaceInfo у нас нет source_code, но файл тот же, где объявлен интерфейс
+        # В current ProjectMap source_code хранится только на уровне ClassInfo,
+        # поэтому без дополнительной карты file_path -> source_code
+        # мы не можем восстановить AST интерфейса надежно
+        return False
+
+    # Парсим AST родителя из его source_code
+    parent_node = _parse_class_ast(parent_info.source_code, parent_info.name)
+    if parent_node is None:
+        return False
+
+    # Классифицируем роль родителя
+    role = classify_class(parent_node, import_aliases)
+    return role == ClassRole.PURE_INTERFACE
 
 
 def check(
     class_node: ast.ClassDef,
     class_info: ClassInfo,
+    project_map: ProjectMap,
     import_aliases: dict[str, str] | None = None,
 ) -> List[Finding]:
     # Dataclass: __init__ генерируется автоматически, super() не нужен
     if _has_dataclass_decorator(class_node):
-        return []
-
-    # PURE_INTERFACE: ABC-классы без собственного __init__ дают conservative
-    # false positive — super().__init__() там не нужен по определению
-    role = classify_class(class_node, import_aliases or {})
-    if role == ClassRole.PURE_INTERFACE:
         return []
 
     # Только для реальных подклассов (пустая строка = динамическая база)
@@ -66,7 +95,18 @@ def check(
     if not real_parents:
         return []
 
-    # Если все родители — исключённые базовые типы, нарушения нет
+    aliases = import_aliases or {}
+
+    # Если хотя бы один родитель — PURE_INTERFACE, то super().__init__()
+    # не несет состояния и его отсутствие не является нарушением LSP
+    for parent in real_parents:
+        # Родители из списка базовых исключений сразу пропускаем
+        if parent in _LSP_H004_EXCLUDED_PARENTS:
+            continue
+        if _parent_is_pure_interface(parent, class_info, project_map, aliases):
+            return []
+
+    # Если все родители — только из исключенных базовых типов, нарушения нет
     if all(parent in _LSP_H004_EXCLUDED_PARENTS for parent in real_parents):
         return []
 
@@ -95,26 +135,28 @@ def check(
                 break
 
         if not has_super_init:
-            findings.append(_make_finding(
-                rule="LSP-H-004",
-                class_info=class_info,
-                message=(
-                    f"__init__ in '{class_info.name}' does not call super().__init__() "
-                    f"— parent state may be uninitialized"
-                ),
-                principle="LSP",
-                explanation=(
-                    f"'{class_info.name}' inherits from {real_parents} but its __init__ "
-                    f"does not call super().__init__(). If the parent sets instance "
-                    f"attributes in __init__, they will be missing in this subclass, "
-                    f"potentially breaking Liskov Substitution."
-                ),
-                suggestion=(
-                    "Add super().__init__() (with appropriate arguments) as the first "
-                    "statement in __init__, unless you intentionally want to skip "
-                    "parent initialization (document this explicitly if so)."
-                ),
-                method_name=func.name,
-            ))
+            findings.append(
+                _make_finding(
+                    rule="LSP-H-004",
+                    class_info=class_info,
+                    message=(
+                        f"__init__ in '{class_info.name}' does not call super().__init__() "
+                        f"— parent state may be uninitialized"
+                    ),
+                    principle="LSP",
+                    explanation=(
+                        f"'{class_info.name}' inherits from {real_parents} but its __init__ "
+                        f"does not call super().__init__(). If the parent sets instance "
+                        f"attributes in __init__, they will be missing in this subclass, "
+                        f"potentially breaking Liskov Substitution."
+                    ),
+                    suggestion=(
+                        "Add super().__init__() (with appropriate arguments) as the first "
+                        "statement in __init__, unless you intentionally want to skip "
+                        "parent initialization (document this explicitly if so)."
+                    ),
+                    method_name=func.name,
+                )
+            )
 
     return findings
