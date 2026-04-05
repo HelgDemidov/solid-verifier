@@ -11,7 +11,7 @@
 # ===================================================================================================
 
 from __future__ import annotations
-
+import warnings  
 import os  # работа с файловой системой и путями
 import re  # регулярки для парсинга вывода pyan3
 import subprocess  # запуск pyan3 как CLI-инструмента
@@ -86,15 +86,30 @@ class Pyan3Adapter(IAnalyzer):
                 continue
 
             stripped = line.strip()
-            if not stripped.startswith("- U"):
-                continue
 
-            used_name = stripped[len("- U"):].strip()
+            if not stripped.startswith("[U]"):
+                continue
+            used_name = stripped[len("[U]"):].strip()
+
             if not used_name or current_src is None:
                 continue
 
             nodes.add(used_name)
             edges.append({"from": current_src, "to": used_name})
+
+            # Санити-чек: узлы есть, но ребра не построены — признак сломанного парсера
+            parser_warning: str | None = None  # ← всегда инициализируем
+            if nodes and not edges:
+                sample_lines = [
+                    line for line in raw_output.splitlines()
+                    if line.strip()
+                ][:6]
+                parser_warning = (
+                    f"Sanity check: {len(nodes)} nodes parsed but 0 edges. "
+                    f"Likely parser/format mismatch. "
+                    f"First lines of raw_output: {sample_lines}"
+                )
+                warnings.warn(parser_warning, RuntimeWarning, stacklevel=2)
 
         # грязный хардкод "app.routers" удален. 
         # Адаптер возвращает чистый граф вызовов оставляя фильтрацию потребителю.
