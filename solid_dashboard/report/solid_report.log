@@ -709,8 +709,8 @@
     "is_success": true,
     "node_count": 68,
     "edge_count": 135,
-    "edge_count_high": 78,
-    "edge_count_low": 57,
+    "edge_count_high": 64,
+    "edge_count_low": 71,
     "nodes": [
       "Article",
       "ArticleResponse",
@@ -955,12 +955,12 @@
       {
         "from": "app.routers.articles",
         "to": "get_article_service",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "app.routers.articles",
         "to": "get_current_user",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "app.routers.articles",
@@ -975,7 +975,7 @@
       {
         "from": "app.routers.articles",
         "to": "get_search_service",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "app.routers.health",
@@ -1025,7 +1025,7 @@
       {
         "from": "app.routers.users",
         "to": "get_current_user",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "app.routers.users",
@@ -1035,7 +1035,7 @@
       {
         "from": "app.routers.users",
         "to": "get_user_service",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "app.services.article_service",
@@ -1110,12 +1110,12 @@
       {
         "from": "find_and_save",
         "to": "save_many",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "find_and_save",
         "to": "search",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "find_articles",
@@ -1200,12 +1200,12 @@
       {
         "from": "get_articles",
         "to": "get_article_service",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "get_articles",
         "to": "get_articles_paginated",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "get_articles_paginated",
@@ -1270,7 +1270,7 @@
       {
         "from": "get_me",
         "to": "get_current_user",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "get_scopus_client",
@@ -1280,7 +1280,7 @@
       {
         "from": "get_scopus_client",
         "to": "__init__",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "get_search_service",
@@ -1385,7 +1385,7 @@
       {
         "from": "password_reset_request",
         "to": "get_user_service",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "password_reset_request",
@@ -1395,7 +1395,7 @@
       {
         "from": "password_strength",
         "to": "search",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "register",
@@ -1440,7 +1440,7 @@
       {
         "from": "request_password_reset",
         "to": "get_by_email",
-        "confidence": "high"
+        "confidence": "low"
       },
       {
         "from": "save_many",
