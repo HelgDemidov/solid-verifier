@@ -267,26 +267,17 @@ scopus_search_code/                           # Root directory of the analyzed p
 │       │   │   ├── import_linter_adapter.py  # CLI lint-imports + dynamic contract generation
 │       │   │   ├── pyan3_adapter.py          # call graph & dead code (safe, project-agnostic)
 │       │   │   └── heuristics_adapter.py     # unified adapter for the 7 heuristics targeting LSP and OCP
-│       │   ├── llm/                          # Isolated LLM analysis and heuristics layer
-│       │   │   ├── heuristics/               # Decomposed static AST heuristics package
-│       │   │   │   ├── __init__.py           # Public API exports
-│       │   │   │   ├── _runner.py            # Orchestrator running all checks against ProjectMap
-│       │   │   │   ├── _shared.py            # Shared AST utils, ClassRole classifier and filters
-│       │   │   │   ├── lsp_h_001.py          # Detects raise NotImplementedError in overrides
-│       │   │   │   ├── lsp_h_002.py          # Detects empty method stubs (pass/...)
-│       │   │   │   ├── lsp_h_003.py          # Analyzes isinstance on base type parameters
-│       │   │   │   ├── lsp_h_004.py          # Detects invalid __init__ signatures vs parent
-│       │   │   │   ├── ocp_h_001.py          # Detects if/elif chains with isinstance
-│       │   │   │   ├── ocp_h_002.py          # Detects type dispatching via match/case
-│       │   │   │   └── ocp_h_004.py          # Detects high cyclomatic complexity + isinstance
-│       │   │   ├── ast_parser.py             # AST parser building the ProjectMap
-│       │   │   ├── llm_adapter.py            # LLM orchestrator
-│       │   │   ├── gateway.py                # LlmGateway (cache, budget, retry)
-│       │   │   ├── provider.py               # API Providers (OpenRouter) and ACL-A
-│       │   │   ├── response_parser.py        # ACL-B: safe semantic parsing of LLM responses
-│       │   │   ├── cache.py                  # LLM response caching based on prompt hashes
-│       │   │   ├── budget.py                 # Token budget controller
-│       │   │   └── types.py                  # Domain types (Finding, LlmCandidate, ParseResult)
+│       │   │ 
+│       │   ├── llm/                          # Isolated LLM analysis and integration layer
+│       │   │   ├── analysis/                 # AST analysis and static heuristics on top of ProjectMap
+│       │   │   │   └── ...                   # Subpackage with ast_parser, heuristics and helper utilities
+│       │   │   ├── llm_client/               # Infrastructure LLM client (gateway, provider, cache, adapter)
+│       │   │   │   └── ...                   # Subpackage for OpenRouter transport, token budget and caching layer
+│       │   │   ├── heuristics/               # Public facade of heuristics package for external code
+│       │   │   │   └── ...                   # Entry point for running OCP/LSP heuristics from llm.analysis
+│       │   │   ├── errors.py                 # Domain errors of the LLM layer (Retryable/NonRetryable, config validation)
+│       │   │   ├── types.py                  # Domain types of the LLM layer (Finding, LlmCandidate, ParseResult, LlmConfig)
+│       │   │   └── __init__.py               # High-level LLM API exported to the rest of the project
 │       │   └── report/                       # Report generation and processing module
 │       │       ├── templates/                # Jinja2 templates for visual HTML reports
 │       │       ├── differ.py                 # Logic for comparing current report with baseline
