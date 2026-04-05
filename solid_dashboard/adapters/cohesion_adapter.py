@@ -542,9 +542,15 @@ class CohesionAdapter(IAnalyzer):
             if method_info is None:
                 continue
 
+            # флаг: является ли текущий метод @staticmethod
+            # при is_static=True визитор не регистрирует первый параметр как self/cls —
+            # у @staticmethod нет неявного первого аргумента, связанного с экземпляром/классом
+            is_static = "staticmethod" in method_info.decorator_kinds
+
             visitor = _MethodUsageVisitor(
                 class_attributes=class_info.attributes,
                 method_names=method_names,
+                is_static=is_static,
             )
             visitor.visit(node)
 
@@ -636,14 +642,26 @@ class _MethodUsageVisitor(ast.NodeVisitor):
       (self.field, cls.field), если field есть в class_attributes
     - called_methods: вызовы методов класса (self.method(), cls.method(), method())
 
+    Параметр is_static управляет регистрацией self-подобных имен:
+    - False (по умолчанию): первый параметр метода регистрируется как self/cls-подобное имя
+    - True (@staticmethod): регистрация пропускается — первый параметр не является
+      self/cls, его ложная регистрация приводила бы к spurious ребрам в графе LCOM4
+
     Важно: вложенные def/async def внутри метода намеренно НЕ обходятся.
     Это предотвращает загрязнение графа LCOM4 атрибутами и вызовами из замыканий,
     где первый аргумент (self/cls) принадлежит вложенной функции, а не классу.
     """
 
-    def __init__(self, class_attributes: Set[str], method_names: Set[str]) -> None:
+    def __init__(
+        self,
+        class_attributes: Set[str],
+        method_names: Set[str],
+        is_static: bool = False,
+    ) -> None:
         self.class_attributes = class_attributes
         self.method_names = method_names
+        # флаг staticmethod: при True _register_self_like_names не вызывается
+        self._is_static = is_static
 
         self.used_attributes: Set[str] = set()
         self.called_methods: Set[str] = set()
@@ -652,8 +670,10 @@ class _MethodUsageVisitor(ast.NodeVisitor):
         self._self_like_names: Set[str] = set()
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
-        # регистрируем self-подобное имя только для корневого метода класса
-        self._register_self_like_names(node)
+        # для @staticmethod первый параметр — обычный аргумент, не self/cls;
+        # регистрируем self-подобное имя только для instance/class-методов
+        if not self._is_static:
+            self._register_self_like_names(node)
         # обходим только прямые потомки тела — вложенные FunctionDef пропускаются,
         # чтобы их 'self' не загрязнял граф LCOM4 внешнего метода
         for stmt in node.body:
@@ -661,8 +681,9 @@ class _MethodUsageVisitor(ast.NodeVisitor):
                 self.visit(stmt)
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> Any:
-        # аналогично для async def — только прямые потомки тела
-        self._register_self_like_names(node)
+        # аналогично для async def — guard на staticmethod применяется одинаково
+        if not self._is_static:
+            self._register_self_like_names(node)
         for stmt in node.body:
             if not isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 self.visit(stmt)
@@ -702,7 +723,7 @@ class _MethodUsageVisitor(ast.NodeVisitor):
             if base_name in self._self_like_names and method_name in self.method_names:
                 self.called_methods.add(method_name)
 
-        # прямой вызов method(...)
+        # прямой вызов method(...) — работает и для @staticmethod
         if isinstance(node.func, ast.Name):
             method_name = node.func.id
             if method_name in self.method_names:
