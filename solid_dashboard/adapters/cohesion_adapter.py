@@ -44,6 +44,10 @@ class MethodInfo:
     # какие методы этого же класса он вызывает (по имени)
     called_methods: Set[str] = field(default_factory=set)
 
+    is_empty: bool = False
+    # is_empty: True если тело метода тривиально — pass / ... / raise NotImplementedError /
+    # строка-докстринг или их комбинация; такие методы исключаются из графа LCOM4
+
 
 @dataclass
 class ClassInfo:
@@ -307,6 +311,7 @@ class CohesionAdapter(IAnalyzer):
         Определяет:
         - имя метода, async/sync
         - типы декораторов: property, classmethod, staticmethod
+        - is_empty: True если тело метода тривиально (pass / ... / raise NotImplementedError / docstring)
         """
         is_async = isinstance(func_node, ast.AsyncFunctionDef)
         name = getattr(func_node, "name", "<unknown>")
@@ -320,6 +325,9 @@ class CohesionAdapter(IAnalyzer):
             if kind is not None:
                 decorator_kinds.append(kind)
 
+        # определяем, является ли метод тривиальным (пустым для целей LCOM4)
+        is_empty = self._is_empty_method(func_node)
+
         return MethodInfo(
             name=name,
             lineno=lineno,
@@ -327,7 +335,69 @@ class CohesionAdapter(IAnalyzer):
             decorator_kinds=decorator_kinds,
             used_attributes=set(),
             called_methods=set(),
+            is_empty=is_empty,
         )
+
+    @staticmethod
+    def _is_empty_method(func_node: ast.AST) -> bool:
+        """
+        Определяет, является ли метод тривиальным — не несущим реальной логики.
+
+        Тривиальные тела (в любой комбинации):
+          - pass
+          - ... (Ellipsis — типичная заглушка в интерфейсах/Protocol)
+          - raise NotImplementedError(...) или raise NotImplementedError
+          - строка-докстринг (ast.Expr с ast.Constant[str])
+
+        Если тело состоит исключительно из таких инструкций — метод считается пустым
+        и исключается из графа LCOM4, чтобы не искажать метрику связности.
+        """
+        body: list = getattr(func_node, "body", [])
+        if not body:
+            return True
+
+        for stmt in body:
+            # pass
+            if isinstance(stmt, ast.Pass):
+                continue
+
+            # ... (Ellipsis как выражение-заглушка)
+            if (
+                isinstance(stmt, ast.Expr)
+                and isinstance(stmt.value, ast.Constant)
+                and stmt.value.value is ...
+            ):
+                continue
+
+            # строка-докстринг: первый ast.Expr с ast.Constant[str]
+            if (
+                isinstance(stmt, ast.Expr)
+                and isinstance(stmt.value, ast.Constant)
+                and isinstance(stmt.value.value, str)
+            ):
+                continue
+
+            # raise NotImplementedError / raise NotImplementedError(...)
+            if isinstance(stmt, ast.Raise) and stmt.exc is not None:
+                exc = stmt.exc
+                # raise NotImplementedError()  или  raise NotImplementedError("msg")
+                is_nie_call = (
+                    isinstance(exc, ast.Call)
+                    and isinstance(exc.func, ast.Name)
+                    and exc.func.id == "NotImplementedError"
+                )
+                # raise NotImplementedError  (без скобок)
+                is_nie_name = (
+                    isinstance(exc, ast.Name)
+                    and exc.id == "NotImplementedError"
+                )
+                if is_nie_call or is_nie_name:
+                    continue
+
+            # встретили нетривиальную инструкцию — метод не пустой
+            return False
+
+        return True
 
     def _classify_decorator(self, dec: ast.AST) -> Optional[str]:
         """
@@ -477,8 +547,11 @@ class CohesionAdapter(IAnalyzer):
         Считает LCOM4 для данного класса.
 
         Алгоритм:
-        - берем только методы, кроме __init__ (LCOM4-конвенция)
-          и property-методов (они не участвуют в связности классов)
+        - берем только методы, исключая:
+            * __init__ (LCOM4-конвенция)
+            * property-методы (не участвуют в связности классов)
+            * пустые методы (is_empty=True: pass / ... / raise NotImplementedError / docstring)
+              — они не несут логики и не образуют реальных связей в графе
         - строим неориентированный граф:
           вершины = имена методов;
           ребра между A и B, если:
@@ -489,7 +562,9 @@ class CohesionAdapter(IAnalyzer):
         """
         methods = [
             m for m in class_info.methods
-            if m.name != "__init__" and "property" not in m.decorator_kinds
+            if m.name != "__init__"
+            and "property" not in m.decorator_kinds
+            and not m.is_empty  # исключаем тривиальные заглушки из графа
         ]
 
         methods_count = len(methods)
