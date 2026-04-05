@@ -21,6 +21,10 @@ tools/
     │   │   ├── __init__.py
     │   │   └── analyzer.py
     │   ├── llm
+    │   │   ├── analysis
+    │   │   │   ├── __init__.py
+    │   │   │   ├── ast_parser.py
+    │   │   │   └── class_role.py
     │   │   ├── heuristics
     │   │   │   ├── __init__.py
     │   │   │   ├── _runner.py
@@ -32,17 +36,17 @@ tools/
     │   │   │   ├── ocp_h_001.py
     │   │   │   ├── ocp_h_002.py
     │   │   │   └── ocp_h_004.py
+    │   │   ├── llm_client
+    │   │   │   ├── __init__.py
+    │   │   │   ├── budget.py
+    │   │   │   ├── cache.py
+    │   │   │   ├── factory.py
+    │   │   │   ├── gateway.py
+    │   │   │   ├── interfaces.py
+    │   │   │   ├── llm_adapter.py
+    │   │   │   └── provider.py
     │   │   ├── __init__.py
-    │   │   ├── ast_parser.py
-    │   │   ├── budget.py
-    │   │   ├── cache.py
-    │   │   ├── class_role.py
     │   │   ├── errors.py
-    │   │   ├── factory.py
-    │   │   ├── gateway.py
-    │   │   ├── interfaces.py
-    │   │   ├── llm_adapter.py
-    │   │   ├── provider.py
     │   │   └── types.py
     │   ├── report
     │   │   ├── templates
@@ -69,6 +73,22 @@ tools/
     │   ├── fixtures
     │   │   └── sample_project
     │   └── llm
+    │       ├── test_heuristics
+    │       │   ├── __init__.py
+    │       │   ├── conftest.py
+    │       │   ├── test_deduplication.py
+    │       │   ├── test_heuristics_shared.py
+    │       │   ├── test_integration_class_role.py
+    │       │   ├── test_integration_dedup_and_ocp_h002.py
+    │       │   ├── test_integration_pipeline.py
+    │       │   ├── test_lsp_h_001.py
+    │       │   ├── test_lsp_h_002.py
+    │       │   ├── test_lsp_h_003.py
+    │       │   ├── test_lsp_h_004.py
+    │       │   ├── test_ocp_h_001.py
+    │       │   ├── test_ocp_h_002.py
+    │       │   ├── test_ocp_h_004.py
+    │       │   └── test_orchestration.py
     │       ├── __init__.py
     │       ├── conftest.py
     │       ├── mock_provider.py
@@ -76,9 +96,6 @@ tools/
     │       ├── test_ast_parser.py
     │       ├── test_class_role.py
     │       ├── test_gateway.py
-    │       ├── test_heuristics.py
-    │       ├── test_heuristics_integration.py
-    │       ├── test_heuristics_shared.py
     │       ├── test_open_router_manual.py
     │       ├── test_parse_llm_response.py
     │       ├── test_provider.py
