@@ -20,7 +20,7 @@ from pathlib import Path
 from .interfaces.analyzer import IAnalyzer
 
 # Импорты для LLM
-from solid_dashboard.llm.factory import create_llm_adapter
+from solid_dashboard.llm.llm_client.factory import create_llm_adapter
 from solid_dashboard.llm.types import (
     LlmAnalysisInput,
 )

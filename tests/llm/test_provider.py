@@ -5,7 +5,7 @@ import httpx
 import logging
 
 from solid_dashboard.llm.types import LlmResponse
-from solid_dashboard.llm.provider import (
+from solid_dashboard.llm.llm_client.provider import (
     OpenRouterProvider,
     Message,
     LlmOptions,

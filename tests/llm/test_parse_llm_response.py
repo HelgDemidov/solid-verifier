@@ -11,8 +11,8 @@
 import pytest
 from typing import cast
 
-from solid_dashboard.llm.gateway import LlmGateway
-from solid_dashboard.llm.llm_adapter import LlmSolidAdapter  
+from solid_dashboard.llm.llm_client.gateway import LlmGateway
+from solid_dashboard.llm.llm_client.llm_adapter import LlmSolidAdapter  
 from solid_dashboard.llm.types import ( 
     LlmCandidate,
     LlmConfig,

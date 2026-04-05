@@ -14,7 +14,7 @@
 import ast
 from typing import List
 
-from ..class_role import ClassRole, classify_class
+from ..analysis.class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding, ProjectMap
 from ._shared import _make_finding, _parse_class_ast
 

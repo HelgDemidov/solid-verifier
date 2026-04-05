@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Set, Union
 from collections.abc import Sequence
 
-from .types import ClassInfo, InterfaceInfo, MethodSignature, ProjectMap
+from ..types import ClassInfo, InterfaceInfo, MethodSignature, ProjectMap
 
 logger = logging.getLogger(__name__)
 

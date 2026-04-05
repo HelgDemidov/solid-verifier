@@ -17,7 +17,7 @@
 import ast
 from typing import List
 
-from ..class_role import ClassRole, classify_class
+from ..analysis.class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _count_elif_chain, _has_isinstance_call, _make_finding
 

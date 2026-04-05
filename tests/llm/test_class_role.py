@@ -17,7 +17,7 @@ import textwrap
 
 import pytest
 
-from solid_dashboard.llm.class_role import (
+from solid_dashboard.llm.analysis.class_role import (
     ClassRole,
     classify_class,
     _is_pure_interface,

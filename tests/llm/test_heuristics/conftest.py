@@ -7,7 +7,7 @@ import textwrap
 import ast
 from pathlib import Path
 
-from solid_dashboard.llm.ast_parser import build_project_map
+from solid_dashboard.llm.analysis.ast_parser import build_project_map
 from solid_dashboard.llm.types import (
     ClassInfo,
     MethodSignature,

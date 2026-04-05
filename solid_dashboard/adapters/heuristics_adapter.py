@@ -22,7 +22,7 @@ from typing import Any, Dict, List
 
 
 from ..interfaces.analyzer import IAnalyzer  # комментарий: общий протокол адаптеров
-from ..llm.ast_parser import build_project_map  # комментарий: Шаг 0 — ProjectMap
+from ..llm.analysis.ast_parser import build_project_map  # комментарий: Шаг 0 — ProjectMap
 from ..llm.heuristics import identify_candidates  # комментарий: Шаг 1b — эвристики OCPLSP
 
 

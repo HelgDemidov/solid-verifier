@@ -15,7 +15,7 @@
 import ast
 from typing import List
 
-from ..class_role import ClassRole, classify_class
+from ..analysis.class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _compute_method_cc, _iter_method_nodes, _make_finding
 

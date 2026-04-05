@@ -8,13 +8,12 @@
 #   или ошибки (RetryableError/NonRetryableError)
 # ---------------------------------------------------------------------------
 
+import pytest
 from pathlib import Path
 from typing import cast
 
-import pytest
-
-from solid_dashboard.llm.gateway import LlmGateway
-from solid_dashboard.llm.llm_adapter import LlmSolidAdapter
+from solid_dashboard.llm.llm_client.gateway import LlmGateway
+from solid_dashboard.llm.llm_client.llm_adapter import LlmSolidAdapter
 from solid_dashboard.llm.errors import RetryableError
 from solid_dashboard.llm.types import (
     ProjectMap,

@@ -26,7 +26,7 @@ import logging
 
 from pathlib import Path
 
-from solid_dashboard.llm.factory import create_llm_adapter
+from solid_dashboard.llm.llm_client.factory import create_llm_adapter
 from solid_dashboard.llm.types import (
     ProjectMap,
     ClassInfo,

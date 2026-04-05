@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable, Sequence
 
 from solid_dashboard.llm.types import LlmResponse  # импортируем контрактный ответ LLM
-from solid_dashboard.llm.provider import Message, LlmOptions  # типы сообщений и опций
+from solid_dashboard.llm.llm_client.provider import Message, LlmOptions  # типы сообщений и опций
 
 # Тип сценария: по номеру вызова и входу решает, что делать (вернуть ответ или бросить ошибку)
 ScenarioFunc = Callable[[int, Sequence[Message], LlmOptions], LlmResponse]

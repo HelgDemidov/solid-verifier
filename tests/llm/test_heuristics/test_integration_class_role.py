@@ -21,7 +21,7 @@ import textwrap
 
 import pytest
 
-from solid_dashboard.llm.class_role import ClassRole, classify_class
+from solid_dashboard.llm.analysis.class_role import ClassRole, classify_class
 
 pytestmark = pytest.mark.integration
 

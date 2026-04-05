@@ -25,7 +25,7 @@ from .types import (
 )
 
 # --- Функции пайплайна (из подмодулей) ---
-from .ast_parser import build_project_map
+from .analysis.ast_parser import build_project_map
 
 # Единый __all__ — объединяет все публичные имена пакета.
 # Разбит на смысловые секции для читаемости.

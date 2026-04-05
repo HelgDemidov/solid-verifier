@@ -18,7 +18,7 @@ import textwrap
 import pytest
 
 from solid_dashboard.llm.types import HeuristicResult
-from solid_dashboard.llm.ast_parser import build_project_map
+from solid_dashboard.llm.analysis.ast_parser import build_project_map
 from solid_dashboard.llm.heuristics import lsp_h_001, lsp_h_002, identify_candidates
 from solid_dashboard.llm.heuristics._runner import _deduplicate_findings
 

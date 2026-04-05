@@ -18,11 +18,11 @@ from typing import Sequence
 
 import pytest
 
-from solid_dashboard.llm.gateway import LlmGateway  # тестируемый класс
-from solid_dashboard.llm.cache import FileCache     # реальный файловый кэш
+from solid_dashboard.llm.llm_client.gateway import LlmGateway  # тестируемый класс
+from solid_dashboard.llm.llm_client.cache import FileCache     # реальный файловый кэш
 from solid_dashboard.llm.types import LlmResponse   # контрактный ответ
-from solid_dashboard.llm.provider import Message, LlmOptions
-from solid_dashboard.llm.budget import TokenBudgetController
+from solid_dashboard.llm.llm_client.provider import Message, LlmOptions
+from solid_dashboard.llm.llm_client.budget import TokenBudgetController
 from .mock_provider import MockProvider  # наш общий MockProvider
 
 from solid_dashboard.llm.errors import (
@@ -305,7 +305,7 @@ def test_retryable_error_then_success(monkeypatch) -> None:
     mock_provider = MockProvider(scenario=scenario_retry_then_success)
 
     # Чтобы тест не реально спал между ретраями, подменим time.sleep на no-op
-    import solid_dashboard.llm.gateway as gateway_mod
+    import solid_dashboard.llm.llm_client.gateway as gateway_mod
 
     monkeypatch.setattr(gateway_mod.time, "sleep", lambda _: None)
 
@@ -343,7 +343,7 @@ def test_retryable_error_exceeds_max_attempts_raises_llm_unavailable(monkeypatch
 
     mock_provider = MockProvider(scenario=scenario_always_retryable)
 
-    import solid_dashboard.llm.gateway as gateway_mod
+    import solid_dashboard.llm.llm_client.gateway as gateway_mod
 
     monkeypatch.setattr(gateway_mod.time, "sleep", lambda _: None)
 
@@ -383,7 +383,7 @@ def test_non_retryable_error_not_retried(monkeypatch) -> None:
 
     mock_provider = MockProvider(scenario=scenario_non_retryable)
 
-    import solid_dashboard.llm.gateway as gateway_mod
+    import solid_dashboard.llm.llm_client.gateway as gateway_mod
 
     monkeypatch.setattr(gateway_mod.time, "sleep", lambda _: None)
 
@@ -452,7 +452,7 @@ def test_cache_write_error_does_not_break_pipeline(tmp_path: Path, monkeypatch) 
     )
 
     # Для надежности подменим time.sleep на no-op (на случай RetryableError, хотя тут его нет)
-    import solid_dashboard.llm.gateway as gateway_mod
+    import solid_dashboard.llm.llm_client.gateway as gateway_mod
 
     monkeypatch.setattr(gateway_mod.time, "sleep", lambda _: None)
 

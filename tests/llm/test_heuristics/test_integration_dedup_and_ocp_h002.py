@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from solid_dashboard.llm.ast_parser import build_project_map
+from solid_dashboard.llm.analysis.ast_parser import build_project_map
 from solid_dashboard.llm.heuristics import identify_candidates
 
 pytestmark = pytest.mark.integration

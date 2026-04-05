@@ -13,7 +13,7 @@
 import ast
 from typing import List, cast
 
-from ..class_role import ClassRole, classify_class
+from ..analysis.class_role import ClassRole, classify_class
 from ..types import ClassInfo, Finding
 from ._shared import _make_finding
 
