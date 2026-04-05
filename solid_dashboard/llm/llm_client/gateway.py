@@ -10,10 +10,10 @@ from typing import Sequence, Optional
 
 from .provider import LlmProvider, Message, LlmOptions
 from .interfaces import LlmCache  # протокол кэша для Gateway
-from .types import LlmResponse    # контрактный тип ответа LLM
+from ..types import LlmResponse    # контрактный тип ответа LLM
 
 from .budget import TokenBudgetController
-from .errors import (
+from ..errors import (
     BudgetExhaustedError,
     LlmUnavailableError,
     RetryableError,

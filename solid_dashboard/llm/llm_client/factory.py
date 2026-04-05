@@ -13,11 +13,11 @@ import logging
 
 from .budget import TokenBudgetController  
 from .cache import FileCache               
-from .errors import NonRetryableError      
+from ..errors import NonRetryableError      
 from .gateway import LlmGateway            
 from .llm_adapter import LlmSolidAdapter   
 from .provider import OpenRouterProvider       
-from .types import LlmConfig               
+from ..types import LlmConfig               
 
 logger = logging.getLogger(__name__)
 

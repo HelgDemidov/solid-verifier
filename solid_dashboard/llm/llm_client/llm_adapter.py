@@ -8,10 +8,10 @@ import logging
 from dataclasses import dataclass
 from typing import List, Sequence
 
-from .errors import RetryableError, NonRetryableError
+from ..errors import RetryableError, NonRetryableError
 from .gateway import LlmGateway
 from .provider import Message, LlmOptions
-from .types import (
+from ..types import (
     LlmAnalysisInput,
     LlmAnalysisOutput,
     LlmMetadata,

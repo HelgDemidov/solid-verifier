@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol, Optional
 
-from .types import LlmResponse  # импортируем контрактный тип ответа LLM
+from ..types import LlmResponse  # импортируем контрактный тип ответа LLM
 
 
 class LlmCache(Protocol):
