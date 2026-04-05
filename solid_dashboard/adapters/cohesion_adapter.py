@@ -289,7 +289,9 @@ class CohesionAdapter(IAnalyzer):
             non_dunder_count += 1  # просто считаем, узел не храним
 
             for dec in node.decorator_list:
-                if (...):
+                if (isinstance(dec, ast.Name) and dec.id == "abstractmethod") or (
+                    isinstance(dec, ast.Attribute) and dec.attr == "abstractmethod"
+                ):
                     abstract_method_count += 1
                     break
 
