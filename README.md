@@ -71,23 +71,47 @@ The LLM layer is implemented separately from `IAnalyzer` and is invoked directly
 - **`pyan3_adapter.py`**  
   Uses `pyan3` to build a call graph and identify potential **dead code**. During refactoring, this adapter was stripped of global environment state mutations (removed `os.chdir` calls), making it absolutely safe and project-agnostic. FastAPI-specific glue code is filtered out to avoid false positives.
 
-### LLM Layer: Heuristics and Adapter
+### LLM layer: heuristics and adapter
 
-The LLM layer consists of two connected parts: a heuristics module and the LLM adapter itself.
+The LLM layer now relies on a more intelligent static front: before invoking the model, the entire project is passed through an AST-based classification of class roles (`ClassRole`) and an updated set of SOLID heuristics for OCP/LSP.
 
-**`heuristics.py`** implements 7 static AST heuristics for detecting OCP/LSP violation candidates:
+**Heuristic layer (AST + ClassRole)**
 
-| ID          | Principle | What it detects |
-|-------------|-----------|-----------------|
-| `OCP-H-001` | OCP       | `if/elif` chain with `isinstance` (3+ branches) |
-| `OCP-H-002` | OCP       | `match/case` used as a type dispatcher (Python 3.10+) |
-| `OCP-H-004` | OCP       | High cyclomatic complexity combined with `isinstance` |
-| `LSP-H-001` | LSP       | `raise NotImplementedError` inside an overridden method |
-| `LSP-H-002` | LSP       | Stub method (`pass` or docstring only) in a subclass |
-| `LSP-H-003` | LSP       | `isinstance` check for a parameter annotated with a base type |
-| `LSP-H-004` | LSP       | Subclass `__init__` without `super().__init__()` |
+The `heuristics.py` monolith has been replaced with a decomposed `heuristics` package. For each `ast.ClassDef`, the tool first computes a class role:
 
-**`llm_adapter.py`** (`LlmSolidAdapter`) orchestrates LLM analysis: for each heuristic candidate it assembles context, builds a prompt, and sends the request through `LlmGateway`.
+- `PURE_INTERFACE` — ABC/Protocol without state, pure interfaces.
+- `INFRA_MODEL` / `CONFIG_CLASS` — Pydantic/SQLAlchemy models, Settings/BaseConfig and other infrastructural schemas.
+- `BEHAVIORAL` — regular domain/service classes with real behavior.
+- `MIXIN` / `DATA_CLASS` — mixin patterns and pure data containers.
+
+Only classes with the `BEHAVIORAL` role (and their parents that are not pure interfaces) are subject to LSP/OCP heuristics. ABC/Protocol without state, Pydantic/SQLAlchemy and configuration classes are systematically excluded from SOLID checks, which eliminates most of the historical noise.
+
+**Current set of LSP/OCP heuristics**
+
+The updated set of AST heuristics focuses on domain classes and respects the role of the parent:
+
+| ID          | Principle | What it detects (with ClassRole applied)                     |
+|-------------|-----------|-------------------------------------------------------------|
+| `OCP-H-001` | OCP       | Top-level `if/elif` chain with `isinstance` (≥3 branches)   |
+| `OCP-H-002` | OCP       | `match/case` used as type dispatcher                        |
+| `OCP-H-004` | OCP       | High cyclomatic complexity + `isinstance` in domain methods |
+| `LSP-H-001` | LSP       | `raise NotImplementedError` in an overriding method         |
+| `LSP-H-002` | LSP       | Empty stub method (`pass`/only docstring/`...`) in subclass |
+| `LSP-H-003` | LSP       | `isinstance` checks on parameters of the base type          |
+| `LSP-H-004` | LSP       | Problematic child `__init__` vs parent constructor          |
+
+The key change: `LSP-H-004` no longer compares signatures against **pure interfaces**. If the base class has the `PURE_INTERFACE` or `MIXIN` role, adding parameters/logic to the child `__init__` is treated as a valid specialization and does not trigger an LSP violation.
+
+The heuristic layer also implements a **multi-signal INFRA filter**: Pydantic/SQLAlchemy/Settings classes are recognized by a set of structural signals (inheritance from `BaseModel`/`BaseSettings`/`Base`, presence of `model_config`, `__tablename__`, dominance of `AnnAssign`, etc.) and receive the `INFRA_MODEL`/`CONFIG_CLASS` role. After that they are fully excluded from LSP/OCP analysis.
+
+**LLM adapter (LlmSolidAdapter)**
+
+`LlmSolidAdapter` still runs only for candidates selected by the heuristic layer, but the candidate list is now much smaller and “cleaner”:
+
+- In a typical project at the Scopus Search scale, only a handful of classes reach the OCP/LSP layer (4 candidates in the latest report), with one explicitly problematic demo class and the others acting as structural points of interest.
+- For each candidate, the adapter assembles an AST-based context, builds a prompt and sends it through `LlmGateway` to OpenRouter, then passes the response through a two-level ACL (transport + semantic parser).
+
+As a result, the LLM layer operates on a pre-filtered set of **truly suspicious** spots rather than on raw classes from the entire codebase.
 
 ### OCP/LSP LLM Analysis: Layer Architecture
 
@@ -151,22 +175,39 @@ The LLM layer is isolated from the rest of the system by two independent Anti-Co
 
 Any failure at either level may partially or fully disable the LLM path for a particular candidate, but it **never breaks the whole pipeline**: static and heuristic findings continue to work as usual.
 
-#### Two Sources of Truth: Heuristics and LLM
+#### Two sources of truth: heuristics and LLM
 
-A key characteristic of the Response Parser is that it deliberately combines two different data sources with different trust levels.
+After the heuristics refactor, the “two sources of truth” architecture became even more explicit.
 
-- **Heuristics (`LlmCandidate`) are the source of truth for coordinates**:
-  - `file = candidate.filepath`
-  - `class_name = candidate.classname`
-  - `source = "llm"`
-  - `line = None` (the LLM does not provide reliable line numbers)
-- **The LLM is the source of semantic content**:
-  - `message` (required description of the issue)
-  - `severity` (normalized to `error / warning / info`)
-  - `details.principle` — from JSON with fallback to `candidate.candidate_type`
-  - `details.explanation`, `details.suggestion`, `details.method_name`, `details.analyzed_with` — best effort
+**1. Static analysis and heuristics — source of coordinates and trust**
 
-Based on the inferred principle (`OCP` or `LSP`), the code automatically builds `rule` (`OCP-LLM-001` or `LSP-LLM-001`), so LLM findings fit naturally into the same rule system as heuristic rules like `OCP-H-001`.
+The static layer (Radon, Cohesion, ImportGraph, ImportLinter) plus AST heuristics and `ClassRole` determine:
+
+- which files, classes and methods are even worth analyzing;
+- which of them are domain `BEHAVIORAL` objects potentially violating OCP/LSP;
+- which exact heuristics fired (for example, the combination of `LSP-H-001` + `OCP-H-001` + `OCP-H-004` for the same class).
+
+For each candidate, an `LlmCandidate` is built and treated as the **source of truth for coordinates**:
+
+- `file` — file path;
+- `class_name` — class name;
+- principle type (`OCP`/`LSP`) — a base frame for the final rule (`OCP-LLM-001` / `LSP-LLM-001`);
+- the list of fired heuristics (`heuristic_reasons`).
+
+The static layer is self-sufficient: in the latest report, all goals of the heuristics refactor are achieved even with zero LLM contribution (candidates were selected successfully, but model responses did not participate in decisions yet).
+
+**2. LLM — source of meaning and explanations**
+
+The LLM only sees pre-filtered candidates and is used as a **source of semantic content**:
+
+- generates a human-readable `message` (problem description);
+- refines the principle (`details.principle`) and provides an explanation (`details.explanation`);
+- proposes concrete refactoring suggestions (`details.suggestion`);
+- when possible, points to the method (`details.method_name`) and gives best-effort information on which heuristics were corroborated (`details.heuristic_corroboration`).
+
+All LLM findings pass through the `Response Parser` (ACL-B), which strictly validates JSON and populates the `Finding` domain model. Key fields (`file`, `class_name`, `source="llm"`, rule, principle) are always derived from **heuristics** rather than free-form model text so that the trusted static layer remains leading.
+
+The result: static and LLM-based findings live in the same `Finding` list but with different “zones of responsibility”: coordinates and principle assignment are defined by statics, while explanations and recommendations come from the LLM.
 
 #### LLM Finding Field Map
 
@@ -223,10 +264,21 @@ scopus_search_code/                           # Root directory of the analyzed p
 │       │   │   ├── cohesion_adapter.py       # custom LCOM4 (ignores @property, strict AST traversal)
 │       │   │   ├── import_graph_adapter.py   # import graph (grimp) + stability metrics
 │       │   │   ├── import_linter_adapter.py  # CLI lint-imports + dynamic contract generation
-│       │   │   └── pyan3_adapter.py          # call graph & dead code (safe, project-agnostic)
+│       │   │   ├── pyan3_adapter.py          # call graph & dead code (safe, project-agnostic)
+│       │   │   └── heuristics_adapter.py     # unified adapter for the 7 heuristics targeting LSP and OCP
 │       │   ├── llm/                          # Isolated LLM analysis and heuristics layer
+│       │   │   ├── heuristics/               # Decomposed static AST heuristics package
+│       │   │   │   ├── __init__.py           # Public API exports
+│       │   │   │   ├── _runner.py            # Orchestrator running all checks against ProjectMap
+│       │   │   │   ├── _shared.py            # Shared AST utils, ClassRole classifier and filters
+│       │   │   │   ├── lsp_h_001.py          # Detects raise NotImplementedError in overrides
+│       │   │   │   ├── lsp_h_002.py          # Detects empty method stubs (pass/...)
+│       │   │   │   ├── lsp_h_003.py          # Analyzes isinstance on base type parameters
+│       │   │   │   ├── lsp_h_004.py          # Detects invalid __init__ signatures vs parent
+│       │   │   │   ├── ocp_h_001.py          # Detects if/elif chains with isinstance
+│       │   │   │   ├── ocp_h_002.py          # Detects type dispatching via match/case
+│       │   │   │   └── ocp_h_004.py          # Detects high cyclomatic complexity + isinstance
 │       │   │   ├── ast_parser.py             # AST parser building the ProjectMap
-│       │   │   ├── heuristics.py             # Static heuristics (finding OCP/LSP candidates)
 │       │   │   ├── llm_adapter.py            # LLM orchestrator
 │       │   │   ├── gateway.py                # LlmGateway (cache, budget, retry)
 │       │   │   ├── provider.py               # API Providers (OpenRouter) and ACL-A
@@ -373,14 +425,17 @@ All dependencies are pinned in `requirements.txt` to stable versions compatible 
 
 ## Roadmap
 
-- **Near-term tasks**
-  - **Integrate strict JSON schema for LLM:** transition OpenRouter models to guaranteed response generation in the `response_schema.json` format using modular prompt templates (`system.md`, `user_base.md`, etc.).
-  - **Decompose heuristics monolith:** comprehensive refactoring of `heuristics.py` and `test_heuristics.py` (~1500 lines each). Split into 7 independent modules (one heuristic per file) and 7 corresponding test suites to radically improve readability, testability, and ease of adding new rules.
+- **Short-term tasks**
+
+  - Bring the LLM layer to production-ready: stabilize prompts and the JSON response schema, reduce `parse_failures` to zero on typical projects while preserving strict ACL guarantees (no model error should ever break the static report).
+  - Fine-tune handling of infrastructural classes (`Postgres*Repository`, `ScopusHTTPClient`): choose between “LLM-only” analysis and full filtering via an enhanced `ClassRole` (`INFRA_SERVICE` / `INFRA_CLIENT`) so that OCP/LSP checks stay maximally focused on domain layers.
+  - Evolve the visual HTML dashboard (`generator.py`, `differ.py`) with explicit attribution of contributions from the static layer, heuristics and LLM for each finding.
 
 - **Mid-term tasks**
-  - Implement `generator.py` and `differ.py` for rendering visual HTML dashboards and calculating diffs (degradations/improvements) against a stored baseline of metrics.
-  - Extract the SOLID Verifier into an independent package installable globally via pip (`pip install solid-verifier`).
-  - Develop a basic web interface or a VS Code extension for browsing reports and navigating metrics across local projects in real time.
+
+  - Extract SOLID Verifier into a standalone package (`pip install solid-verifier`) while preserving the current adapter and LLM architecture.
+  - Integrate with IDEs / VS Code for interactive browsing of LSP/OCP candidates and contextual LLM recommendations directly in the editor.
 
 - **Long-term tasks**
-  - **LLM Mentoring for SRP and DIP:** expand the role of the LLM. Feed the neural network precise mathematical data from static analyzers (failed `import-linter` contracts and high LCOM4 scores) to automatically generate human-readable explanations and architectural refactoring suggestions.
+
+  - Use the LLM not only for OCP/LSP, but also as a “mentoring layer” on top of SRP/DIP metrics: interpret high LCOM4, broken import contracts and highly complex functions as human-readable refactoring advice, **without** giving the model control over the report itself.

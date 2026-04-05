@@ -21,14 +21,25 @@ tools/
     │   │   ├── __init__.py
     │   │   └── analyzer.py
     │   ├── llm
+    │   │   ├── heuristics
+    │   │   │   ├── __init__.py
+    │   │   │   ├── _runner.py
+    │   │   │   ├── _shared.py
+    │   │   │   ├── lsp_h_001.py
+    │   │   │   ├── lsp_h_002.py
+    │   │   │   ├── lsp_h_003.py
+    │   │   │   ├── lsp_h_004.py
+    │   │   │   ├── ocp_h_001.py
+    │   │   │   ├── ocp_h_002.py
+    │   │   │   └── ocp_h_004.py
     │   │   ├── __init__.py
     │   │   ├── ast_parser.py
     │   │   ├── budget.py
     │   │   ├── cache.py
+    │   │   ├── class_role.py
     │   │   ├── errors.py
     │   │   ├── factory.py
     │   │   ├── gateway.py
-    │   │   ├── heuristics.py
     │   │   ├── interfaces.py
     │   │   ├── llm_adapter.py
     │   │   ├── provider.py
@@ -63,9 +74,11 @@ tools/
     │       ├── mock_provider.py
     │       ├── test_analyze_mock_gateway.py
     │       ├── test_ast_parser.py
+    │       ├── test_class_role.py
     │       ├── test_gateway.py
     │       ├── test_heuristics.py
     │       ├── test_heuristics_integration.py
+    │       ├── test_heuristics_shared.py
     │       ├── test_open_router_manual.py
     │       ├── test_parse_llm_response.py
     │       ├── test_provider.py
