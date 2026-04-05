@@ -252,6 +252,7 @@ scopus_search_code/                           # Root directory of the analyzed p
 │       ├── tests/                            # Unit and integration tests
 │       │   ├── fixtures/                     # Mock data and fake projects (sample_project)
 │       │   └── llm/                          # Unit and E2E tests for LLM integration (Gateway, ACL)
+│       │        └── test_heuristics/         # Unit and E2E test package for SOLID verifier heuristics
 │       ├── solid_dashboard/                  # Main Python package of the tool
 │       │   ├── __main__.py                   # CLI entry point
 │       │   ├── config.py                     # Parsing and validation of solid_config.json
