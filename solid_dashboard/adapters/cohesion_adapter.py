@@ -111,7 +111,7 @@ class CohesionAdapter(IAnalyzer):
 
             cohesion_score = float(lcom4)
 
-            # добавляем class_kind в каждый элемент выходного списка классов
+            # добавляем class_kind и excluded_from_aggregation в каждый элемент выходного списка классов
             class_results.append({
                 "name": class_info.name,
                 "methods_count": methods_count,
@@ -121,6 +121,8 @@ class CohesionAdapter(IAnalyzer):
                 "filepath": class_info.filepath,
                 "lineno": class_info.lineno,
                 "class_kind": class_info.kind,
+                # True для interface/abstract/dataclass — класс виден в списке, но не входит в агрегаты
+                "excluded_from_aggregation": class_info.kind != "concrete",
             })
 
             # агрегаты считаются только по concrete-классам — интерфейсы не засоряют метрики
