@@ -6,14 +6,12 @@ import pytest
 from pathlib import Path
 from typing import cast
 
-from solid_dashboard.adapters.cohesion_adapter import (
-    CohesionAdapter,
-    ClassInfo,  # type: ignore[reportPrivateImportUsage]
-)
+from solid_dashboard.adapters.cohesion_adapter import CohesionAdapter, ClassInfo
+from solid_dashboard.adapters.class_classifier import classify_class
 
-# ClassInfo реэкспортируется отсюда как единственное место с type: ignore —
+# ClassInfo и classify_class реэкспортируются отсюда как единственная точка импорта —
 # тестовые файлы делают `from .conftest import ClassInfo` без дублирования type: ignore
-__all__ = ["ClassInfo"]
+__all__ = ["ClassInfo", "classify_class"]
 
 
 # парсим фрагмент кода и возвращаем первый ClassDef — удобно для unit-тестов

@@ -15,7 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from solid_dashboard.adapters.cohesion_adapter import CohesionAdapter, _classify_class
+from solid_dashboard.adapters.cohesion_adapter import CohesionAdapter
+from solid_dashboard.adapters.class_classifier import classify_class
 
 
 # ---------------------------------------------------------------------------
@@ -37,7 +38,7 @@ def _class_by_name(result: dict, name: str) -> dict:
 
 
 def _classify(source: str, class_name: str) -> str:
-    """Парсит source, находит ClassDef по имени, возвращает kind через _classify_class.
+    """Парсит source, находит ClassDef по имени, возвращает kind через classify_class.
 
     Используется для классов, все методы которых тривиальны (is_empty=True):
     такие классы имеют methods_count=0 и не попадают в result['classes'] через run(),
@@ -46,7 +47,7 @@ def _classify(source: str, class_name: str) -> str:
     tree = ast.parse(textwrap.dedent(source))
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef) and node.name == class_name:
-            return _classify_class(node)
+            return classify_class(node)
     raise AssertionError(f"ClassDef '{class_name}' не найден в AST")
 
 
@@ -246,7 +247,7 @@ class TestClassKindClassification:
     def test_protocol_all_abstract_yields_kind_interface(self):
         # Protocol только с @abstractmethod-методами → "interface"
         # Все методы имеют тело `...` (is_empty=True) → methods_count=0 →
-        # класс не попадает в result['classes'] через run(); проверяем _classify_class напрямую
+        # класс не попадает в result['classes'] через run(); проверяем classify_class напрямую
         kind = _classify("""
             from typing import Protocol
             from abc import abstractmethod
@@ -262,7 +263,7 @@ class TestClassKindClassification:
 
     def test_protocol_with_concrete_method_yields_kind_abstract(self, tmp_path):
         # Protocol с одним конкретным методом → "abstract", не "interface"
-        # Это специфика _classify_class: наличие хотя бы одного non-abstract метода
+        # Это специфика classify_class: наличие хотя бы одного non-abstract метода
         result = _run(tmp_path, """
             from typing import Protocol
             from abc import abstractmethod
@@ -319,7 +320,7 @@ class TestClassKindClassification:
     def test_abc_subclass_all_abstract_yields_interface(self):
         # ABC со всеми абстрактными non-dunder методами → "interface"
         # Все методы имеют тело `...` (is_empty=True) → methods_count=0 →
-        # класс не попадает в result['classes'] через run(); проверяем _classify_class напрямую
+        # класс не попадает в result['classes'] через run(); проверяем classify_class напрямую
         kind = _classify("""
             from abc import ABC, abstractmethod
 

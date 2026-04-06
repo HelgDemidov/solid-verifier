@@ -1,5 +1,5 @@
 # ==============================================================================
-# Блок B: unit-тесты для _classify_class (модульная функция)
+# Блок B: unit-тесты для classify_class (модульная функция в class_classifier)
 #
 # Проверяем корректную семантическую классификацию классов:
 #   "dataclass"  — @dataclass / BaseModel / Base
@@ -7,13 +7,13 @@
 #   "abstract"   — ABC/Protocol, но есть хотя бы один конкретный метод
 #   "concrete"   — всё остальное
 #
-# После рефакторинга (a4a9e5e) _classify_class является модульной функцией,
-# а не методом CohesionAdapter. Тесты вызывают её напрямую без экземпляра адаптера.
+# classify_class является публичной функцией модуля class_classifier.
+# Тесты вызывают её напрямую без экземпляра адаптера.
 # ==============================================================================
 
 import pytest
 
-from solid_dashboard.adapters.cohesion_adapter import _classify_class
+from solid_dashboard.adapters.class_classifier import classify_class
 
 
 class TestClassifyClass:
@@ -27,7 +27,7 @@ class TestClassifyClass:
                 x: int
                 y: str
         """)
-        assert _classify_class(node) == "dataclass"
+        assert classify_class(node) == "dataclass"
 
     # наследование от BaseModel (Pydantic) -> "dataclass"
     def test_basemodel_base(self, parse_class):
@@ -36,7 +36,7 @@ class TestClassifyClass:
                 name: str
                 age: int
         """)
-        assert _classify_class(node) == "dataclass"
+        assert classify_class(node) == "dataclass"
 
     # наследование от Base (SQLAlchemy DeclarativeBase) -> "dataclass"
     def test_declarative_base(self, parse_class):
@@ -45,7 +45,7 @@ class TestClassifyClass:
                 __tablename__ = "articles"
                 id: int
         """)
-        assert _classify_class(node) == "dataclass"
+        assert classify_class(node) == "dataclass"
 
     # ABC, все non-dunder методы с @abstractmethod -> "interface"
     def test_abc_all_abstract(self, parse_class):
@@ -59,7 +59,7 @@ class TestClassifyClass:
                 @abstractmethod
                 def save(self, entity): ...
         """)
-        assert _classify_class(node) == "interface"
+        assert classify_class(node) == "interface"
 
     # ABC без non-dunder методов вообще -> "interface"
     def test_abc_no_methods(self, parse_class):
@@ -69,7 +69,7 @@ class TestClassifyClass:
             class IBase(ABC):
                 pass
         """)
-        assert _classify_class(node) == "interface"
+        assert classify_class(node) == "interface"
 
     # ABC с одним конкретным методом -> "abstract"
     def test_abc_mixed_methods(self, parse_class):
@@ -83,7 +83,7 @@ class TestClassifyClass:
                 def validate(self):
                     return True
         """)
-        assert _classify_class(node) == "abstract"
+        assert classify_class(node) == "abstract"
 
     # Protocol, все non-dunder @abstractmethod -> "interface"
     def test_protocol_all_abstract(self, parse_class):
@@ -94,7 +94,7 @@ class TestClassifyClass:
                 @abstractmethod
                 def run(self, path: str): ...
         """)
-        assert _classify_class(node) == "interface"
+        assert classify_class(node) == "interface"
 
     # Protocol с конкретным методом -> "abstract"
     def test_protocol_with_concrete(self, parse_class):
@@ -108,7 +108,7 @@ class TestClassifyClass:
                 def name(self) -> str:
                     return "analyzer"
         """)
-        assert _classify_class(node) == "abstract"
+        assert classify_class(node) == "abstract"
 
     # обычный класс без ABC/dataclass -> "concrete"
     def test_plain_class(self, parse_class):
@@ -120,7 +120,7 @@ class TestClassifyClass:
                 def get_user(self, id: int):
                     return self.repo.get(id)
         """)
-        assert _classify_class(node) == "concrete"
+        assert classify_class(node) == "concrete"
 
     # dunder-методы не считаются non-dunder, ABC без non-dunder -> "interface"
     def test_abc_only_dunder(self, parse_class):
@@ -131,4 +131,4 @@ class TestClassifyClass:
                 def __init__(self): ...
                 def __str__(self): ...
         """)
-        assert _classify_class(node) == "interface"
+        assert classify_class(node) == "interface"
