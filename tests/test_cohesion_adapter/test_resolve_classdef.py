@@ -10,36 +10,33 @@
 
 import ast
 import logging
-
 import pytest
 
+from typing import cast
 from solid_dashboard.adapters.cohesion_adapter import CohesionAdapter
 
 
 def _make_classdef(name: str) -> ast.ClassDef:
-    """Вспомогательная функция: создает минимальный ClassDef с заданным именем."""
-    return ast.parse(f"class {name}: pass").body[0]
-
+    # cast необходим: body[0] типизирован как ast.stmt,
+    # но мы гарантируем ClassDef через детерминированный f"class {name}: pass"
+    return cast(ast.ClassDef, ast.parse(f"class {name}: pass").body[0])
 
 class TestResolveClassdef:
     # имя отсутствует в индексе — внешняя зависимость, молча возвращаем None
-    def test_not_found_returns_none(self):
-        adapter = CohesionAdapter()
+    def test_not_found_returns_none(self, adapter):
         index = {}  # пустой индекс
         result = adapter._resolve_classdef("BaseModel", index, "/some/file.py")
         assert result is None
 
     # ровно одно определение в индексе — возвращает его безусловно
-    def test_single_entry_returned(self):
-        adapter = CohesionAdapter()
+    def test_single_entry_returned(self, adapter):
         classdef = _make_classdef("Repo")
         index = {"Repo": [("/app/repo.py", classdef)]}
         result = adapter._resolve_classdef("Repo", index, "/app/service.py")
         assert result is classdef
 
     # два определения, одно в том же файле что и caller — выбирает same-file
-    def test_same_file_wins(self):
-        adapter = CohesionAdapter()
+    def test_same_file_wins(self, adapter):
         classdef_a = _make_classdef("Base")
         classdef_b = _make_classdef("Base")
         index = {
@@ -52,8 +49,7 @@ class TestResolveClassdef:
         assert result is classdef_a
 
     # два определения в разных файлах, ни одно не совпадает с caller — None + WARNING
-    def test_ambiguous_returns_none_and_warns(self, caplog):
-        adapter = CohesionAdapter()
+    def test_ambiguous_returns_none_and_warns(self, adapter, caplog):
         classdef_a = _make_classdef("Mixin")
         classdef_b = _make_classdef("Mixin")
         index = {
@@ -75,8 +71,7 @@ class TestResolveClassdef:
 
     # одно определение в том же файле что и caller, второе в другом —
     # WARNING не должен появляться, возвращает совпадающий ClassDef
-    def test_same_file_no_warning(self, caplog):
-        adapter = CohesionAdapter()
+    def test_same_file_no_warning(self, adapter, caplog):
         classdef_a = _make_classdef("Helper")
         classdef_b = _make_classdef("Helper")
         index = {

@@ -2,6 +2,8 @@ import ast
 import textwrap
 import pytest
 from pathlib import Path
+from typing import cast
+from solid_dashboard.adapters.cohesion_adapter import CohesionAdapter
 
 
 # парсим фрагмент кода и возвращаем первый ClassDef — удобно для unit-тестов
@@ -24,3 +26,9 @@ def tmp_code_dir(tmp_path: Path):
             (tmp_path / name).write_text(textwrap.dedent(src), encoding="utf-8")
         return tmp_path
     return _inner
+
+@pytest.fixture
+def adapter() -> CohesionAdapter:
+    # cast нужен: CohesionAdapter реализует IAnalyzer (Protocol),
+    # Pylance не видит приватные методы через Protocol-линзу без явного приведения
+    return cast(CohesionAdapter, CohesionAdapter())
