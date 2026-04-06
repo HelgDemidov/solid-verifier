@@ -20,7 +20,7 @@ import os
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 from solid_dashboard.interfaces.analyzer import IAnalyzer
 
 # именованный логгер модуля — используется во всех методах адаптера
@@ -59,7 +59,7 @@ class ClassInfo:
     methods: List[MethodInfo] = field(default_factory=list)
     attributes: Set[str] = field(default_factory=set)
     # attributes: множество имен полей класса/экземпляра
-    # (уровень класса + self.xxx из __init__)
+    # (уровень класса + self.xxx из __init__ текущего класса + унаследованные self.xxx из __init__ предков)
     kind: str = "concrete"
     # kind: семантический тип класса — "concrete" / "abstract" / "interface" / "dataclass"
     # заполняется методом _classify_class на этапе _build_class_info
@@ -87,7 +87,7 @@ class CohesionAdapter(IAnalyzer):
         ignore_dirs_cfg = config.get("ignore_dirs") or []
         ignore_dirs = set(name.strip() for name in ignore_dirs_cfg if name and name.strip())
 
-        # передаем ignore_dirs в сборщик
+        # передаем ignore_dirs в сборщик; двухпроходная реализация обогащает атрибуты предков
         classes_info: List[ClassInfo] = self._collect_classes(target_path, ignore_dirs)
 
         # считаем LCOM4 для каждого класса и формируем результирующий список
@@ -180,11 +180,31 @@ class CohesionAdapter(IAnalyzer):
     # ================================
 
     def _collect_classes(self, target_path: Path, ignore_dirs: set) -> List[ClassInfo]:
-        classes: List[ClassInfo] = []
+        """
+        Двухпроходный сбор ClassInfo по всем Python-файлам в target_path.
 
+        Pass 1 — парсинг файлов: для каждого ast.ClassDef создаем ClassInfo,
+                 собираем атрибуты уровня класса и методы, строим глобальный
+                 ClassDef-индекс (имя класса -> ast.ClassDef).
+
+        Pass 2 — обогащение атрибутами предков: для каждого ClassInfo
+                 вызываем _enrich_with_ancestor_attributes, которая рекурсивно
+                 обходит MRO-цепочку по индексу и добавляет self.xxx из __init__
+                 всех найденных предков.
+        """
+        # промежуточный контейнер для первого прохода:
+        # список (ClassInfo, ast.ClassDef) — ClassDef нужен на Pass 2 для извлечения bases
+        raw_items: List[Tuple[ClassInfo, ast.ClassDef]] = []
+
+        # глобальный индекс: имя класса -> его ast.ClassDef
+        # если одно имя встречается несколько раз — берем последнее (edge-case, редко)
+        classdef_index: Dict[str, ast.ClassDef] = {}
+
+        # ------------------------------------------------------------------
+        # Pass 1: парсим файлы, строим ClassInfo и индекс
+        # ------------------------------------------------------------------
         for root, dirs, files in os.walk(target_path):
-            # архитектурный трюк: in-place модификация dirs запрещает
-            # os.walk спускаться в игнорируемые директории
+            # in-place модификация запрещает os.walk спускаться в игнорируемые директории
             dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
             for filename in files:
@@ -203,17 +223,74 @@ class CohesionAdapter(IAnalyzer):
                     logger.warning("CohesionAdapter: syntax error in %s: %s", file_path, e)
                     continue
 
-                # проходим по всем классам в файле
                 for node in ast.walk(tree):
                     if isinstance(node, ast.ClassDef):
                         class_info = self._build_class_info(node, file_path)
-                        # сначала собираем self.xxx из __init__, чтобы добавить в attributes
+                        # собираем self.xxx из __init__ самого класса (предки — на Pass 2)
                         self._collect_instance_attributes_from_init(class_info, node)
-                        # затем наполняем used_attributes / called_methods
+                        # наполняем used_attributes / called_methods по текущим атрибутам
                         self._populate_method_usage(class_info, node)
-                        classes.append(class_info)
 
-        return classes
+                        raw_items.append((class_info, node))
+                        # последнее определение побеждает при конфликте имен в индексе
+                        classdef_index[node.name] = node
+
+        # ------------------------------------------------------------------
+        # Pass 2: обогащаем атрибуты каждого класса из __init__ его предков
+        # ------------------------------------------------------------------
+        for class_info, class_node in raw_items:
+            self._enrich_with_ancestor_attributes(class_info, class_node, classdef_index)
+
+        return [ci for ci, _ in raw_items]
+
+    def _enrich_with_ancestor_attributes(
+        self,
+        class_info: ClassInfo,
+        class_node: ast.ClassDef,
+        classdef_index: Dict[str, ast.ClassDef],
+        _visited: Optional[Set[str]] = None,
+    ) -> None:
+        """
+        Рекурсивно обходит MRO-цепочку класса по AST-индексу и добавляет
+        в class_info.attributes все self.xxx, присвоенные в __init__ предков.
+
+        Алгоритм:
+        1. Извлечь имена базовых классов из class_node.bases.
+        2. Для каждого имени, найденного в classdef_index, рекурсивно вызвать себя,
+           затем собрать self.xxx из __init__ этого предка.
+        3. Предки, не найденные в индексе (внешние зависимости — SQLAlchemy, etc.),
+           молча игнорируются.
+        4. _visited предотвращает бесконечные циклы при diamond-наследовании.
+        """
+        if _visited is None:
+            # инициализируем множество посещенных имен; стартуем с текущего класса
+            _visited = {class_node.name}
+
+        for base in class_node.bases:
+            # извлекаем короткое имя базового класса (последний компонент)
+            if isinstance(base, ast.Name):
+                base_name = base.id
+            elif isinstance(base, ast.Attribute):
+                base_name = base.attr
+            else:
+                continue
+
+            # предок не в нашем scope (внешняя библиотека) — пропускаем
+            if base_name not in classdef_index:
+                continue
+
+            # защита от циклов и повторных обходов одного предка
+            if base_name in _visited:
+                continue
+            _visited.add(base_name)
+
+            ancestor_node = classdef_index[base_name]
+
+            # сначала рекурсивно поднимаемся по MRO предка (глубина-первый)
+            self._enrich_with_ancestor_attributes(class_info, ancestor_node, classdef_index, _visited)
+
+            # затем собираем self.xxx из __init__ этого предка в атрибуты текущего класса
+            self._collect_instance_attributes_from_init(class_info, ancestor_node)
 
     def _build_class_info(self, class_node: ast.ClassDef, file_path: Path) -> ClassInfo:
         """
@@ -493,6 +570,8 @@ class CohesionAdapter(IAnalyzer):
         """
         Находит в __init__ присваивания вида self.xxx = ... и добавляет имена xxx
         в class_info.attributes, чтобы их можно было учитывать как поля экземпляра.
+
+        Используется как для текущего класса (Pass 1), так и для предков (Pass 2 / _enrich_with_ancestor_attributes).
         """
         for node in class_node.body:
             if not isinstance(node, ast.FunctionDef):
@@ -536,6 +615,11 @@ class CohesionAdapter(IAnalyzer):
         - обходит тело метода;
         - заполняет used_attributes (какие атрибуты класса/экземпляра используются);
         - заполняет called_methods (какие методы данного класса вызываются).
+
+        Вызывается на Pass 1 — до обогащения атрибутами предков.
+        После Pass 2 (_enrich_with_ancestor_attributes) унаследованные атрибуты
+        добавляются в class_info.attributes, и _MethodUsageVisitor корректно
+        их находит при следующем обходе через _repopulate_method_usage.
         """
         methods_by_name: Dict[str, MethodInfo] = {m.name: m for m in class_info.methods}
         method_names: Set[str] = set(methods_by_name.keys())
@@ -550,8 +634,6 @@ class CohesionAdapter(IAnalyzer):
                 continue
 
             # флаг: является ли текущий метод @staticmethod
-            # при is_static=True визитор не регистрирует первый параметр как self/cls —
-            # у @staticmethod нет неявного первого аргумента, связанного с экземпляром/классом
             is_static = "staticmethod" in method_info.decorator_kinds
 
             visitor = _MethodUsageVisitor(
