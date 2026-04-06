@@ -24,7 +24,7 @@
 import textwrap
 import pytest
 from pathlib import Path
-from typing import cast
+from typing import Optional, cast
 
 from solid_dashboard.adapters.cohesion_adapter import CohesionAdapter
 
@@ -87,7 +87,7 @@ def tmp_code_dir(tmp_path: Path):
 # Вспомогательная функция: запуск адаптера с дефолтным контекстом
 # ---------------------------------------------------------------------------
 
-def _run(adapter: CohesionAdapter, target_dir: Path, config: dict = None) -> dict:
+def _run(adapter: CohesionAdapter, target_dir: Path, config: Optional[dict] = None) -> dict:
     """Обертка над adapter.run() с пустым context и дефолтным config."""
     return adapter.run(str(target_dir), context={}, config=config or {})
 
