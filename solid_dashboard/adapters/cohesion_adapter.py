@@ -857,7 +857,8 @@ class _MethodUsageVisitor(ast.NodeVisitor):
     Собирает:
     - used_attributes: обращения к атрибутам класса/экземпляра
       (self.field, cls.field), если field есть в class_attributes
-    - called_methods: вызовы методов класса (self.method(), cls.method(), method())
+    - called_methods: вызовы методов класса (self.method(), cls.method(), method(),
+      super().method(), super(ClassName, self).method())
 
     Параметр is_static управляет регистрацией self-подобных имен:
     - False (по умолчанию): первый параметр метода регистрируется как self/cls-подобное имя
@@ -930,7 +931,8 @@ class _MethodUsageVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> Any:
         """
-        Вызовы функций/методов: self.method(), cls.method(), method().
+        Вызовы функций/методов: self.method(), cls.method(), method(),
+        super().method(), super(ClassName, self).method().
         Если имя совпадает с методом класса, считаем это вызовом метода класса.
         """
         # self.method(...) / cls.method(...)
@@ -940,8 +942,20 @@ class _MethodUsageVisitor(ast.NodeVisitor):
             if base_name in self._self_like_names and method_name in self.method_names:
                 self.called_methods.add(method_name)
 
+        # super().method(...) / super(ClassName, self).method(...)
+        elif (
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Call)
+            and isinstance(node.func.value.func, ast.Name)
+            and node.func.value.func.id == "super"
+        ):
+            # node.func.attr — имя вызываемого метода из родительского класса
+            method_name = node.func.attr
+            if method_name in self.method_names:
+                self.called_methods.add(method_name)
+
         # прямой вызов method(...) — работает и для @staticmethod
-        if isinstance(node.func, ast.Name):
+        elif isinstance(node.func, ast.Name):
             method_name = node.func.id
             if method_name in self.method_names:
                 self.called_methods.add(method_name)
