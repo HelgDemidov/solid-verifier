@@ -187,9 +187,12 @@ class ImportLinterAdapter(IAnalyzer):
 
             # Добавляем ignore_imports для каждой директории из ignore_dirs
             # В import-linter поле ignore_imports допустимо внутри контракта типа layers
-            if ignore_dirs:
+            # Директории с точкой (`.git`, `.venv`, `.mypy_cache`) — не Python-пакеты,
+            # import-linter не может построить для них валидный import expression
+            valid_ignore = [d for d in ignore_dirs if not d.startswith(".")]
+            if valid_ignore:
                 ignore_lines = []
-                for d in ignore_dirs:
+                for d in valid_ignore:
                     # Исключаем как исходящие, так и входящие импорты игнорируемой директории
                     ignore_lines.append(f"    {package_name}.{d}.* -> *")
                     ignore_lines.append(f"    * -> {package_name}.{d}.*")
