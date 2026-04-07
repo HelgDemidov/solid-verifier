@@ -154,9 +154,11 @@ class ImportLinterAdapter(IAnalyzer):
         cfg.optionxform = str  # type: ignore[assignment]
         cfg.read(base_config_path, encoding="utf-8")
 
-        # Перезаписываем root_packages в глобальной секции [importlinter]
+        # Записываем root_packages как multiline INI-значение — критично для import-linter:
+        # при однострочном значении ('app') import-linter итерирует строку посимвольно
+        # и получает ['a','p','p']; multiline-форма гарантирует разбор через splitlines()
         if cfg.has_section("importlinter"):
-            cfg.set("importlinter", "root_packages", package_name)
+            cfg.set("importlinter", "root_packages", f"\n    {package_name}")
 
         layer_config: Dict[str, Any] = solid_config.get("layers", {})
         layer_names = list(layer_config.keys())
@@ -176,8 +178,8 @@ class ImportLinterAdapter(IAnalyzer):
             if contract_type != "layers" or not layer_names:
                 continue
 
-            # Формируем multiline-строку слоев в формате INI (отступ = 4 пробела)
-            # убираем префикс, containers уже задаёт пространство имён:
+            # Формируем multiline-строку слоев в формате INI (отступ = 4 пробела);
+            # имена слоев без префикса пакета — containers в .importlinter задает пространство имен
             layers_value = "\n" + "\n".join(
                 f"    {layer}" for layer in layer_names
             )
