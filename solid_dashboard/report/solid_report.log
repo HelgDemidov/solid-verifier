@@ -994,12 +994,12 @@
     }
   },
   "import_linter": {
-    "is_success": true,
+    "is_success": false,
     "contracts_checked": 1,
-    "broken_contracts": 0,
-    "kept_contracts": 1,
+    "broken_contracts": 1,
+    "kept_contracts": 0,
     "violations": [],
-    "raw_output": "=============\nImport Linter\n=============\n\n\n---------\nContracts\n---------\n\nAnalyzed 32 files, 42 dependencies.\n-----------------------------------\n\nScopus API layered architecture KEPT\n\nContracts: 1 kept, 0 broken."
+    "raw_output": "=============\nImport Linter\n=============\n\nCould not find package 'a' in your Python path."
   },
   "pyan3": {
     "is_success": true,

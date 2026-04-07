@@ -177,8 +177,9 @@ class ImportLinterAdapter(IAnalyzer):
                 continue
 
             # Формируем multiline-строку слоев в формате INI (отступ = 4 пробела)
+            # убираем префикс, containers уже задаёт пространство имён:
             layers_value = "\n" + "\n".join(
-                f"    {package_name}.{layer}" for layer in layer_names
+                f"    {layer}" for layer in layer_names
             )
             cfg.set(section, "layers", layers_value)
 
