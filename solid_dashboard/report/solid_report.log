@@ -999,7 +999,7 @@
     "broken_contracts": 1,
     "kept_contracts": 0,
     "violations": [],
-    "raw_output": "=============\nImport Linter\n=============\n\n\nNo matches for ignored import * -> app.__pycache__.*."
+    "raw_output": "=============\nImport Linter\n=============\n\n\nNo matches for ignored import * -> app.core.*."
   },
   "pyan3": {
     "is_success": true,
