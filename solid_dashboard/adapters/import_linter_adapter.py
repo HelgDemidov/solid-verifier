@@ -8,7 +8,8 @@
 #    базового файла .importlinter и актуального списка слоев из solid_config.json.
 # 2. Изолированный запуск import-linter CLI в подпроцессе с передачей правильного
 #    контекста (PYTHONPATH), охватывающего директорию анализа.
-# 3. Применение фильтра ignore_dirs (настройка ignore_imports) для исключения инфраструктурного кода из архитектурных проверок.
+# 3. Применение фильтра import_linter_ignore_subpackages (настройка ignore_imports) для
+#    явного исключения субпакетов из архитектурных проверок.
 # 4. Парсинг текстового вывода линтера (ANSI-очистка) для подсчета нарушенных/
 #    соблюденных контрактов и извлечения списка конкретных нарушений.
 # ===================================================================================================
@@ -17,7 +18,7 @@
 import configparser  # стандартный INI-парсер для работы с .importlinter
 import os             # работа с путями и файлами
 import re             # разбор текста и ANSI-кодов
-import subprocess     # запуск lint-imports как отдельного процесса
+import subprocess     # запуск lint-imports как отделэного процесса
 from typing import Any, Dict, List  # типы для аннотаций
 
 from solid_dashboard.interfaces.analyzer import IAnalyzer  # базовый интерфейс адаптера
@@ -31,7 +32,7 @@ class ImportLinterAdapter(IAnalyzer):
     # - Читает существующий базовый файл .importlinter через configparser (нечувствительно к порядку полей)
     # - Динамически перезаписывает параметр root_packages под целевую директорию (package_name)
     # - Обновляет архитектурный контракт (блок 'layers') актуальными слоями проекта во всех контрактах типа layers
-    # - Автоматически генерирует правила ignore_imports для исключения папок из ignore_dirs
+    # - Исключает субпакеты из import_linter_ignore_subpackages через ignore_imports
     # - Сохраняет результат во временный файл (например, .importlinter_auto_app)
     # - Запускает lint-imports --config <temp_file> и безопасно удаляет его после работы
 
@@ -57,17 +58,12 @@ class ImportLinterAdapter(IAnalyzer):
             return self._error_message(f".importlinter not found at {base_config_path}")
 
         try:
-            # Извлекаем ignore_dirs из конфига, фильтруем пустые строки
-            ignore_dirs_cfg = config.get("ignore_dirs") or []
-            ignore_dirs = [d.strip() for d in ignore_dirs_cfg if d and d.strip()]
-
             # Генерируем синхронизированный временный конфиг через configparser
             self.generate_synced_config(
                 base_config_path=base_config_path,
                 solid_config=config,
                 outpath=temp_config_path,
                 package_name=package_name,
-                ignore_dirs=ignore_dirs,
             )
 
             # Пробрасываем корень проекта в PYTHONPATH для корректного разрешения импортов
@@ -127,6 +123,7 @@ class ImportLinterAdapter(IAnalyzer):
             # Гарантированно удаляем временный файл даже при исключении
             if os.path.exists(temp_config_path):
                 try:
+:
                     os.remove(temp_config_path)
                 except OSError:
                     pass
@@ -137,31 +134,41 @@ class ImportLinterAdapter(IAnalyzer):
         solid_config: Dict[str, Any],
         outpath: str,
         package_name: str,
-        ignore_dirs: List[str],
     ) -> None:
         """
         Читает базовый .importlinter через configparser, заменяет root_packages
         на package_name, обновляет блок layers во всех контрактах типа layers,
-        добавляет ignore_imports и сохраняет результат в outpath.
+        добавляет ignore_imports из import_linter_ignore_subpackages
+        и сохраняет результат в outpath.
 
-        Использование configparser вместо построчного парсера гарантирует:
-        - нечувствительность к порядку полей внутри секции
-        - корректную обработку нескольких контрактов (в т.ч. типа forbidden)
-        - отсутствие неявных зависимостей от форматирования исходного файла
+        Семантическое разделение полей конфига:
+          ignore_dirs                    — filesystem-фильтр для всех адаптеров
+          import_linter_ignore_subpackages — Python import paths только для этого адаптера
+
+        import_linter_ignore_subpackages опциональное поле: если отсутствует —
+        ignore_imports не генерируется, адаптер работает в штатном режиме.
         """
         cfg = configparser.RawConfigParser()
         # Сохраняем регистр ключей — configparser по умолчанию приводит к нижнему
         cfg.optionxform = str  # type: ignore[assignment]
         cfg.read(base_config_path, encoding="utf-8")
 
-        # Записываем root_packages как multiline INI-значение — критично для import-linter:
-        # при однострочном значении ('app') import-linter итерирует строку посимвольно
-        # и получает ['a','p','p']; multiline-форма гарантирует разбор через splitlines()
         if cfg.has_section("importlinter"):
+            # Записываем root_packages как multiline INI-значение — критично для import-linter:
+            # при однострочном значении ('app') import-linter итерирует строку посимвольно
+            # и получает ['a','p','p']; multiline-форма гарантирует разбор через splitlines()
             cfg.set("importlinter", "root_packages", f"\n    {package_name}")
+            # unmatched_ignore_imports=warn: страховочный слой против ошибок при
+            # рассинхронизации конфига со структурой пакета (паттерн без совпадений → warn, не error)
+            cfg.set("importlinter", "unmatched_ignore_imports", "warn")
 
         layer_config: Dict[str, Any] = solid_config.get("layers", {})
         layer_names = list(layer_config.keys())
+
+        # Ичитываем опциональный список субпакетов для исключения из архитектурных контрактов.
+        # Отдельное поле (ignore_dirs не используется): filesystem и import paths — разные семантики
+        linter_ignore_raw = solid_config.get("import_linter_ignore_subpackages") or []
+        linter_ignore = [d.strip() for d in linter_ignore_raw if d and d.strip()]
 
         # Итерируемся по всем секциям — обрабатываем каждый контракт независимо
         for section in cfg.sections():
@@ -185,15 +192,11 @@ class ImportLinterAdapter(IAnalyzer):
             )
             cfg.set(section, "layers", layers_value)
 
-            # Добавляем ignore_imports для каждой директории из ignore_dirs
-            # В import-linter поле ignore_imports допустимо внутри контракта типа layers
-            # Директории с точкой (`.git`, `.venv`, `.mypy_cache`) — не Python-пакеты,
-            # import-linter не может построить для них валидный import expression
-            valid_ignore = [d for d in ignore_dirs if not d.startswith(".")]
-            if valid_ignore:
+            # Генерируем ignore_imports только если пользователь явно указал субпакеты
+            if linter_ignore:
                 ignore_lines = []
-                for d in valid_ignore:
-                    # Исключаем как исходящие, так и входящие импорты игнорируемой директории
+                for d in linter_ignore:
+                    # Исключаем как исходящие, так и входящие импорты исключаемого субпакета
                     ignore_lines.append(f"    {package_name}.{d}.* -> *")
                     ignore_lines.append(f"    * -> {package_name}.{d}.*")
                 cfg.set(section, "ignore_imports", "\n" + "\n".join(ignore_lines))
