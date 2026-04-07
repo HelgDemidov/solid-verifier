@@ -12,6 +12,7 @@
 #    для каждого слоя, выявление потенциальных нарушений потока управления.
 # 5. Разрешение tier-мапа из solid_config.json для SDP/SAP-проверок (коммит 4+).
 # 6. Поддержка utility_layers (core, schemas) — crosscutting-слои в графе без SDP-проверки (коммит 4.6).
+# 7. SDP violation detector: выявление нарушений Stable Dependencies Principle (коммит 5).
 # ===================================================================================================
 
 
@@ -34,27 +35,32 @@ class ImportGraphAdapter(IAnalyzer):
     .. code-block:: python
 
         {
-            "rule": str,          # идентификатор правила, например "SDP-001" или "SAP-001"
-            "layer": str,         # имя слоя, нарушающего правило
-            "instability": float, # фактическое значение I для данного слоя
-            "dependency": str,    # имя слоя-зависимости (target), нарушающего отношение
-            "dep_instability": float,  # значение I зависимости
-            "severity": str,      # "error" | "warning" | "info"
-            "message": str,       # человекочитаемое описание нарушения
-            "evidence": None,     # TODO: reserved for SDP/SAP evidence payload (dict | None)
+            "rule": str,               # "SDP-001"
+            "layer": str,              # слой-источник нарушения
+            "instability": float,      # I(source)
+            "dependency": str,         # слой-цель (target)
+            "dep_instability": float,  # I(target)
+            "severity": str,           # "error"
+            "message": str,            # человекочитаемое описание
+            "evidence": None,          # reserved for коммит 6+
         }
 
-    Поле ``evidence`` зарезервировано для будущего слоя доказательств:
-    конкретных модулей и ребер импорта, подтверждающих нарушение метрики.
-    До реализации SDP/SAP-детектора всегда равно None.
+    SDP (Stable Dependencies Principle): слой должен зависеть только от слоев,
+    которые стабильнее него самого. Формально для ребра source→target:
+
+        I(source) <= I(target) + tolerance
+
+    Нарушение: source зависит от target, но target нестабильнее source.
+    Пример-якорь направления условия:
+        services (I=0.8) → models (I=0.2): 0.8 <= 0.2 + 0.10? → False → violation
+        routers  (I=1.0) → services (I=0.8): 1.0 <= 0.8 + 0.10? → False → violation
+        models   (I=0.2) → db_libs  (I=0.0): 0.2 <= 0.0 + 0.10? → False → violation
+            (но models→db_libs есть в allowed_dependency_exceptions → пропускается)
 
     Семантика utility_layers (crosscutting-слои):
-    - ``utility_layers`` (например, core, schemas) участвуют в графе и метриках Ca/Ce/I
-      наравне с обычными ``layers``.
-    - Они НЕ входят в ``layer_order``, поэтому SDP/skip-layer детекторы (коммит 5+)
-      обрабатывают рёбра к ним через fail-silent (tier = None → ребро пропускается).
-    - Это позволяет видеть реальные зависимости на services→core, routers→schemas
-      без ложных SDP-нарушений для crosscutting-слоёв.
+    - ``utility_layers`` (core, schemas) участвуют в графе и метриках Ca/Ce/I.
+    - Они НЕ входят в ``layer_order`` → tier=None → SDP-детектор их пропускает (fail-silent).
+    - Это позволяет видеть реальные зависимости без ложных SDP-нарушений.
     """
 
     @property
@@ -73,7 +79,7 @@ class ImportGraphAdapter(IAnalyzer):
             return {
                 "nodes": [],
                 "edges": [],
-                "violations": [],  # scaffold: пустой список до реализации SDP/SAP-детектора
+                "violations": [],
                 "error": "no layer configuration found in solid_config.json",
             }
 
@@ -113,11 +119,42 @@ class ImportGraphAdapter(IAnalyzer):
                 package_name=package_name
             )
 
+            # --- Блок 6: SDP violation detection ----------------------------
+            # Порядок вызовов строго фиксирован: сначала граф, потом метрики,
+            # потом tier-мап, потом детектор
+
+            # Собираем instability_map из уже рассчитанных nodes за O(n)
+            instability_map: Dict[str, float] = {
+                node["id"]: node["instability"] for node in nodes
+            }
+
+            # Строим tier_map: utility_layers не получают tier → fail-silent в детекторе
+            tier_map = self._resolve_tier_map(config)
+
+            # Читаем tolerance: дефолт 0.0 (строгая проверка)
+            tolerance: float = float(config.get("sdp_tolerance") or 0.0)
+
+            # Читаем allowed_dependency_exceptions: дефолт [] (без исключений)
+            exceptions: List[Dict[str, Any]] = config.get("allowed_dependency_exceptions") or []
+
+            # Восстанавливаем layer_edges из edges для детектора
+            layer_edges_set: Set[Tuple[str, str]] = {
+                (e["source"], e["target"]) for e in edges
+            }
+
+            violations = self._detect_sdp_violations(
+                layer_edges=layer_edges_set,
+                instability_map=instability_map,
+                tier_map=tier_map,
+                tolerance=tolerance,
+                exceptions=exceptions,
+            )
+            # --- конец Блока 6 ----------------------------------------------
+
             return {
                 "nodes": nodes,
                 "edges": edges,
-                # scaffold: violations всегда пустой до реализации SDP/SAP-детектора (коммит 5+)
-                "violations": [],
+                "violations": violations,
                 "debug_info": {
                     "package": package_name,
                     "total_modules": len(graph.modules),
@@ -125,13 +162,15 @@ class ImportGraphAdapter(IAnalyzer):
                     # utility_layer_prefixes_used: для верификации что utility_layers подхвачены
                     "utility_layer_prefixes_used": normalized_utility_layers,
                     "external_layer_prefixes_used": external_layer_config,
+                    "sdp_tolerance_used": tolerance,
+                    "sdp_exceptions_count": len(exceptions),
                 },
             }
         except Exception as exc:
             return {
                 "nodes": [],
                 "edges": [],
-                "violations": [],  # scaffold: контракт поля сохраняется даже при ошибке
+                "violations": [],  # контракт поля сохраняется даже при ошибке
                 "error": str(exc),
             }
         finally:
@@ -140,7 +179,98 @@ class ImportGraphAdapter(IAnalyzer):
                 sys.path.remove(parent_dir)
 
     # ------------------------------------------------------------------
-    # Tier-map resolver (scaffold для SDP/SAP-детектора, коммит 5+)
+    # SDP violation detector (коммит 5)
+    # ------------------------------------------------------------------
+
+    def _detect_sdp_violations(
+        self,
+        layer_edges: Set[Tuple[str, str]],
+        instability_map: Dict[str, float],
+        tier_map: Optional[Dict[str, int]],
+        tolerance: float,
+        exceptions: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Выявляет нарушения Stable Dependencies Principle (SDP) по рёбрам графа.
+
+        SDP-условие для ребра source→target:
+
+            I(source) <= I(target) + tolerance
+
+        Нарушение фиксируется когда source зависит от target,
+        но target нестабильнее source (с учётом допуска tolerance).
+
+        Пример-якорь направления условия (tolerance=0.10, конфиг проекта):
+
+        .. code-block:: text
+
+            services (I=0.80) → models    (I=0.20): 0.80 <= 0.20+0.10=0.30? NO  → violation
+            routers  (I=1.00) → services  (I=0.80): 1.00 <= 0.80+0.10=0.90? NO  → violation
+            models   (I=0.20) → db_libs   (I=0.00): 0.20 <= 0.00+0.10=0.10? NO  → violation
+                (но models→db_libs в allowed_dependency_exceptions → пропускается)
+            infrastructure (I=0.60) → interfaces (I=0.33): 0.60 <= 0.33+0.10=0.43? NO → violation
+
+        Слои пропускаются (fail-silent) если:
+        - source или target отсутствуют в tier_map (utility_layers, неизвестные слои)
+        - tier_map равен None (нет layer_order в конфиге)
+
+        Исключения из ``allowed_dependency_exceptions`` фильтруются по
+        {"source": str, "target": str} до применения SDP-проверки.
+
+        :param layer_edges: множество рёбер графа (source, target)
+        :param instability_map: {layer_name: instability_value}
+        :param tier_map: {layer_name: tier_index} или None
+        :param tolerance: допустимое превышение I(target) над I(source) (из sdp_tolerance)
+        :param exceptions: список разрешённых нарушений из allowed_dependency_exceptions
+        :returns: список violation-словарей
+        """
+        violations: List[Dict[str, Any]] = []
+
+        # Если tier_map не построен (нет layer_order) — нечего проверять
+        if not tier_map:
+            return violations
+
+        # Строим быстрый lookup для исключений: set of (source, target)
+        exception_pairs: Set[Tuple[str, str]] = {
+            (exc.get("source", ""), exc.get("target", ""))
+            for exc in exceptions
+            if exc.get("source") and exc.get("target")
+        }
+
+        for source, target in sorted(layer_edges):
+            # Пропускаем слои без tier (utility_layers, неизвестные) — fail-silent
+            if source not in tier_map or target not in tier_map:
+                continue
+
+            # Пропускаем явно разрешённые исключения из конфига
+            if (source, target) in exception_pairs:
+                continue
+
+            i_source = instability_map.get(source, 0.0)
+            i_target = instability_map.get(target, 0.0)
+
+            # SDP-условие: source должен быть не менее стабильным чем target (с допуском)
+            # Нарушение: source зависит от чего-то нестабильнее себя
+            if i_source > i_target + tolerance:
+                violations.append({
+                    "rule": "SDP-001",
+                    "layer": source,
+                    "instability": i_source,
+                    "dependency": target,
+                    "dep_instability": i_target,
+                    "severity": "error",
+                    "message": (
+                        f"{source} (I={i_source}) depends on {target} (I={i_target}), "
+                        f"but {target} is less stable than {source} "
+                        f"(violation margin: {round(i_source - i_target, 2)}, tolerance: {tolerance})"
+                    ),
+                    "evidence": None,  # reserved for коммит 6+
+                })
+
+        return violations
+
+    # ------------------------------------------------------------------
+    # Tier-map resolver
     # ------------------------------------------------------------------
 
     def _resolve_tier_map(
@@ -176,7 +306,7 @@ class ImportGraphAdapter(IAnalyzer):
         Внешние слои из ``external_layers`` автоматически получают тир ``max_tier + 1``
         (самые стабильные зависимости, на них все опираются внутренние слои).
 
-        ``utility_layers`` намеренно не присваиваются автоматически в tier_map —
+        ``utility_layers`` намеренно не присваиваются в tier_map —
         они crosscutting и не участвуют в SDP-проверках.
 
         Возвращает None если ``layer_order`` отсутствует или пустой (fail-silent).
