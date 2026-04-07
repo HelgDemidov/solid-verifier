@@ -584,22 +584,22 @@
         "id": "routers",
         "label": "routers",
         "ca": 0,
-        "ce": 5,
+        "ce": 7,
         "instability": 1.0
       },
       {
         "id": "services",
         "label": "services",
         "ca": 1,
-        "ce": 2,
-        "instability": 0.67
+        "ce": 4,
+        "instability": 0.8
       },
       {
         "id": "infrastructure",
         "label": "infrastructure",
-        "ca": 1,
+        "ca": 2,
         "ce": 3,
-        "instability": 0.75
+        "instability": 0.6
       },
       {
         "id": "models",
@@ -616,21 +616,47 @@
         "instability": 0.33
       },
       {
+        "id": "core",
+        "label": "core",
+        "ca": 2,
+        "ce": 3,
+        "instability": 0.6
+      },
+      {
+        "id": "schemas",
+        "label": "schemas",
+        "ca": 2,
+        "ce": 0,
+        "instability": 0.0
+      },
+      {
         "id": "db_libs",
         "label": "db_libs",
-        "ca": 3,
+        "ca": 4,
         "ce": 0,
         "instability": 0.0
       },
       {
         "id": "web_libs",
         "label": "web_libs",
-        "ca": 1,
+        "ca": 2,
         "ce": 0,
         "instability": 0.0
       }
     ],
     "edges": [
+      {
+        "source": "core",
+        "target": "db_libs"
+      },
+      {
+        "source": "core",
+        "target": "infrastructure"
+      },
+      {
+        "source": "core",
+        "target": "web_libs"
+      },
       {
         "source": "infrastructure",
         "target": "db_libs"
@@ -653,6 +679,10 @@
       },
       {
         "source": "routers",
+        "target": "core"
+      },
+      {
+        "source": "routers",
         "target": "db_libs"
       },
       {
@@ -665,6 +695,10 @@
       },
       {
         "source": "routers",
+        "target": "schemas"
+      },
+      {
+        "source": "routers",
         "target": "services"
       },
       {
@@ -673,14 +707,247 @@
       },
       {
         "source": "services",
+        "target": "core"
+      },
+      {
+        "source": "services",
         "target": "interfaces"
       },
       {
         "source": "services",
         "target": "models"
+      },
+      {
+        "source": "services",
+        "target": "schemas"
       }
     ],
-    "violations": [],
+    "violations": [
+      {
+        "rule": "SDP-001",
+        "layer": "infrastructure",
+        "instability": 0.6,
+        "dependency": "db_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "infrastructure (I=0.6) depends on db_libs (I=0.0), but db_libs is less stable than infrastructure (violation margin: 0.6, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "infrastructure",
+        "instability": 0.6,
+        "dependency": "interfaces",
+        "dep_instability": 0.33,
+        "severity": "error",
+        "message": "infrastructure (I=0.6) depends on interfaces (I=0.33), but interfaces is less stable than infrastructure (violation margin: 0.27, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "infrastructure",
+        "instability": 0.6,
+        "dependency": "models",
+        "dep_instability": 0.2,
+        "severity": "error",
+        "message": "infrastructure (I=0.6) depends on models (I=0.2), but models is less stable than infrastructure (violation margin: 0.4, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "interfaces",
+        "instability": 0.33,
+        "dependency": "models",
+        "dep_instability": 0.2,
+        "severity": "error",
+        "message": "interfaces (I=0.33) depends on models (I=0.2), but models is less stable than interfaces (violation margin: 0.13, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "routers",
+        "instability": 1.0,
+        "dependency": "db_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "routers (I=1.0) depends on db_libs (I=0.0), but db_libs is less stable than routers (violation margin: 1.0, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "routers",
+        "instability": 1.0,
+        "dependency": "infrastructure",
+        "dep_instability": 0.6,
+        "severity": "error",
+        "message": "routers (I=1.0) depends on infrastructure (I=0.6), but infrastructure is less stable than routers (violation margin: 0.4, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "routers",
+        "instability": 1.0,
+        "dependency": "models",
+        "dep_instability": 0.2,
+        "severity": "error",
+        "message": "routers (I=1.0) depends on models (I=0.2), but models is less stable than routers (violation margin: 0.8, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "routers",
+        "instability": 1.0,
+        "dependency": "services",
+        "dep_instability": 0.8,
+        "severity": "error",
+        "message": "routers (I=1.0) depends on services (I=0.8), but services is less stable than routers (violation margin: 0.2, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "routers",
+        "instability": 1.0,
+        "dependency": "web_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "routers (I=1.0) depends on web_libs (I=0.0), but web_libs is less stable than routers (violation margin: 1.0, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "services",
+        "instability": 0.8,
+        "dependency": "interfaces",
+        "dep_instability": 0.33,
+        "severity": "error",
+        "message": "services (I=0.8) depends on interfaces (I=0.33), but interfaces is less stable than services (violation margin: 0.47, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "services",
+        "instability": 0.8,
+        "dependency": "models",
+        "dep_instability": 0.2,
+        "severity": "error",
+        "message": "services (I=0.8) depends on models (I=0.2), but models is less stable than services (violation margin: 0.6, tolerance: 0.1)",
+        "evidence": null
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "infrastructure",
+        "tier": 2,
+        "dependency": "db_libs",
+        "dep_tier": 5,
+        "skip_distance": 2,
+        "severity": "error",
+        "message": "infrastructure (tier=2) depends directly on db_libs (tier=5), skipping 2 tier(s): ['interfaces', 'models']",
+        "evidence": [
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "infrastructure",
+        "tier": 2,
+        "dependency": "models",
+        "dep_tier": 4,
+        "skip_distance": 1,
+        "severity": "warning",
+        "message": "infrastructure (tier=2) depends directly on models (tier=4), skipping 1 tier(s): ['interfaces']",
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "routers",
+        "tier": 0,
+        "dependency": "db_libs",
+        "dep_tier": 5,
+        "skip_distance": 4,
+        "severity": "error",
+        "message": "routers (tier=0) depends directly on db_libs (tier=5), skipping 4 tier(s): ['services', 'infrastructure', 'interfaces', 'models']",
+        "evidence": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "routers",
+        "tier": 0,
+        "dependency": "infrastructure",
+        "dep_tier": 2,
+        "skip_distance": 1,
+        "severity": "warning",
+        "message": "routers (tier=0) depends directly on infrastructure (tier=2), skipping 1 tier(s): ['services']",
+        "evidence": [
+          1
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "routers",
+        "tier": 0,
+        "dependency": "models",
+        "dep_tier": 4,
+        "skip_distance": 3,
+        "severity": "error",
+        "message": "routers (tier=0) depends directly on models (tier=4), skipping 3 tier(s): ['services', 'infrastructure', 'interfaces']",
+        "evidence": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "routers",
+        "tier": 0,
+        "dependency": "web_libs",
+        "dep_tier": 5,
+        "skip_distance": 4,
+        "severity": "error",
+        "message": "routers (tier=0) depends directly on web_libs (tier=5), skipping 4 tier(s): ['services', 'infrastructure', 'interfaces', 'models']",
+        "evidence": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "services",
+        "tier": 1,
+        "dependency": "interfaces",
+        "dep_tier": 3,
+        "skip_distance": 1,
+        "severity": "warning",
+        "message": "services (tier=1) depends directly on interfaces (tier=3), skipping 1 tier(s): ['infrastructure']",
+        "evidence": [
+          2
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "services",
+        "tier": 1,
+        "dependency": "models",
+        "dep_tier": 4,
+        "skip_distance": 2,
+        "severity": "error",
+        "message": "services (tier=1) depends directly on models (tier=4), skipping 2 tier(s): ['infrastructure', 'interfaces']",
+        "evidence": [
+          2,
+          3
+        ]
+      }
+    ],
     "debug_info": {
       "package": "app",
       "total_modules": 44,
@@ -701,6 +968,14 @@
           "app.interfaces"
         ]
       },
+      "utility_layer_prefixes_used": {
+        "core": [
+          "app.core"
+        ],
+        "schemas": [
+          "app.schemas"
+        ]
+      },
       "external_layer_prefixes_used": {
         "db_libs": [
           "sqlalchemy"
@@ -709,7 +984,13 @@
           "fastapi",
           "starlette"
         ]
-      }
+      },
+      "sdp_tolerance_used": 0.1,
+      "sdp_exceptions_count": 1,
+      "skip_layer_violations_count": 8,
+      "interface_layers_used": [
+        "interfaces"
+      ]
     }
   },
   "import_linter": {
