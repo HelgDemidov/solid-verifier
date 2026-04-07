@@ -123,7 +123,6 @@ class ImportLinterAdapter(IAnalyzer):
             # Гарантированно удаляем временный файл даже при исключении
             if os.path.exists(temp_config_path):
                 try:
-:
                     os.remove(temp_config_path)
                 except OSError:
                     pass
@@ -158,7 +157,7 @@ class ImportLinterAdapter(IAnalyzer):
             # при однострочном значении ('app') import-linter итерирует строку посимвольно
             # и получает ['a','p','p']; multiline-форма гарантирует разбор через splitlines()
             cfg.set("importlinter", "root_packages", f"\n    {package_name}")
-            # unmatched_ignore_imports=warn: страховочный слой против ошибок при
+            # unmatched_ignore_imports=warn: страховочный слой против ошибок при
             # рассинхронизации конфига со структурой пакета (паттерн без совпадений → warn, не error)
             cfg.set("importlinter", "unmatched_ignore_imports", "warn")
 
