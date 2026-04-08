@@ -65,7 +65,7 @@ The LLM layer is implemented separately from `IAnalyzer` and is invoked directly
   - **Pass 1:** recursively traverses the target directory respecting `ignore_dirs`, parses every file through `ast`, and builds `ClassInfo` and `MethodInfo` for every class while constructing a global definition index.
   - **Pass 2:** enriches every class with attributes declared in ancestor `__init__` methods by recursively traversing the MRO chain through the index; when attributes are extended, `_MethodUsageVisitor` is re-run to update the connectivity graph.
 
-  The connectivity graph is built from two types of edges: shared instance attributes (`self.field`) and inter-method calls (`self.method()`, `super().method()`). Strategically excluded from the graph: `__init__`, `@property` methods, and empty stubs (`pass` / `...` / `raise NotImplementedError`). The `class_classifier.py` module assigns each class a semantic role (`concrete`, `abstract`, `interface`, `dataclass`) — aggregate metrics (`mean_cohesion_all`, `mean_cohesion_multi_method`, `low_cohesion_count`) are computed **only** for `concrete` classes so that interfaces and dataclass models do not distort the overall cohesion picture. Name-collision resolution when the same class name appears in multiple files is handled by a "same-file wins" priority; when ambiguity cannot be resolved, the adapter degrades gracefully with logging. The adapter is fully covered by tests in the `tests/test_cohesion_adapter/` package.
+  The connectivity graph is built from two types of edges: shared instance attributes (`self.field`) and inter-method calls (`self.method()`, `super().method()`). Strategically excluded from the graph: `__init__`, `@property` methods, and empty stubs (`pass` / `...` / `raise NotImplementedError`). The `class_classifier.py` module assigns each class a semantic role (`concrete`, `abstract`, `interface`, `dataclass`) — aggregate metrics (`mean_cohesion_all`, `mean_cohesion_multi_method`, `low_cohesion_count`) are computed **only** for `concrete` classes so that interfaces and dataclass models do not distort the overall cohesion picture. Name-collision resolution when the same class name appears in multiple files is handled by a "same-file wins" priority; when ambiguity cannot be resolved, the adapter degrades gracefully with logging. The adapter is fully covered by tests in the `tests/static_adapters/test_cohesion_adapter/` package.
 
 - **`import_graph_adapter.py`**  
   Builds an architectural import graph using `grimp`, lifting the level of analysis from individual modules to the layers defined in `solid_config.json` (`layers`, `utility_layers`, `external_layers`, `layer_order`).  
@@ -252,7 +252,12 @@ scopus_search_code/                           # Root directory of the analyzed p
 │       │   └── response_schema.json          # Strict JSON contract for model output
 │       ├── tests/                            # Unit and integration tests for the verifier
 │       │   ├── fixtures/                     # Mock data and fake projects (sample_project)
-│       │   ├── test_cohesion_adapter/        # Tests for the LCOM4 adapter: computations, ancestor enrichment, classifier
+│       │   ├── static_adapters/              # Tests for all static adapters (Radon, Cohesion, ImportGraph, ImportLinter, Pyan3)
+│       │   │   ├── test_cohesion_adapter/    # Tests for the LCOM4 adapter: computations, ancestor enrichment, classifier
+│       │   │   ├── test_import_graph_adapter/ # Tests for the import graph and Martin stability metrics
+│       │   │   ├── test_import_linter_adapter/ # Tests for layered architecture contract enforcement
+│       │   │   ├── test_pyan3_adapter/       # Tests for call-graph construction and dead code detection
+│       │   │   └── test_radon_adapter/       # Tests for cyclomatic complexity and maintainability metrics
 │       │   └── llm/                          # Unit and E2E tests for LLM integration (Gateway, ACL)
 │       │       └── test_heuristics/          # Unit and E2E test package for SOLID verifier heuristics
 │       ├── solid_dashboard/                  # Main Python package of the tool
