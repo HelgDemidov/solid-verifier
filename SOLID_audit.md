@@ -140,9 +140,11 @@ Uses `grimp` to build a full import graph, maps physical modules → logical lay
 
 **`nodes[]` element:**
 
+<!-- corrected: added "label" field confirmed in _build_nodes_with_stability(); always equals "id"; present for frontend rendering compatibility -->
 ```jsonc
 {
   "id": "services",          // str — logical layer name (from solid_config.json)
+  "label": "services",       // str — always equals id; preserved for frontend/D3 rendering
   "ca": 2,                   // int — afferent coupling (layers depending on this)
   "ce": 3,                   // int — efferent coupling (layers this depends on)
   "instability": 0.6         // float — ce / (ca + ce); 0.0 = stable, 1.0 = unstable
@@ -308,7 +310,8 @@ Two-pass pyan3 text output parsing. Pass 1 detects name-collision blocks (`suspi
 | RadonAdapter | `items[type=="method"].{filepath, lineno, name, complexity, rank}` | `filepath` → narrow to class via lineno proximity |
 | CohesionAdapter | `classes[class_kind=="concrete"].{filepath, name, cohesion_score, methods_count}` | `(filepath, name)` |
 
-**Joining strategy:** For a Cohesion record `(filepath, class_name)`, find all Radon `items` with `type="method"` and `filepath == filepath`. Since Radon does not store `class_name`, the class must be resolved by lineno range (class lineno ≤ method lineno ≤ next class lineno). The report aggregator must build this range index.
+<!-- corrected: raw Cohesion adapter field is "name", not "class_name"; the aggregator normalizes it to "class_name" in ClassMetrics output -->
+**Joining strategy:** For a Cohesion record `(filepath, name)`, find all Radon `items` with `type="method"` and `filepath == filepath`. Since Radon does not store `class_name`, the class must be resolved by lineno range (class lineno ≤ method lineno ≤ next class lineno). The report aggregator must build this range index.
 
 **Which adapter provides what:**
 - Radon: raw per-method metrics (CC number, rank, parameter_count).
@@ -358,11 +361,11 @@ Two-pass pyan3 text output parsing. Pass 1 detects name-collision blocks (`suspi
 |---|---|---|---|---|---|
 | E1 | `HIGH_CC_METHOD` | High cyclomatic complexity | Radon (`items`, CC > threshold) | `(filepath, lineno, name)` | warning (CC 11–15), error (CC > 15) |
 | E2 | `LOW_MI_FILE` | Low maintainability index | Radon (`maintainability.files`, rank C) | `filepath` | warning (rank B), error (rank C) |
-| E3 | `LOW_COHESION_CLASS` | Low cohesion class | Cohesion (`classes`, LCOM4 > threshold, class_kind==concrete) | `(filepath, class_name)` | warning (LCOM4 = 2), error (LCOM4 ≥ 3) |
+| E3 | `LOW_COHESION_CLASS` | Low cohesion class | Cohesion (`classes`, LCOM4 > threshold, class_kind==concrete) | `(filepath, name)` <!-- corrected: raw field is "name"; aggregator normalizes to "class_name" in ClassMetrics --> | warning (LCOM4 = 2), error (LCOM4 ≥ 3) |
 | E4 | `LAYER_VIOLATION` | Architecture layer violation | ImportLinter (`violation_details`) + ImportGraph (`violations` SDP/SLP, `edges`) | `(from_layer, to_layer)` | error (BROKEN + SDP), warning (SLP-warning) |
-| E5 | `IMPORT_CYCLE` | Import cycle detected | ImportGraph (bidirectional edges: `(A→B)` and `(B→A)` both present) | `frozenset({layer_a, layer_b})` | error |
+| E5 | `IMPORT_CYCLE` | Import cycle detected | ImportGraph (bidirectional edges: `(A→B)` and `(B→A)` both present) | `frozenset({layer_a, layer_b})` | error <!-- corrected: known limitation — bidirectional scan catches only 2-node cycles; n-node cycles (A→B→C→A) silently missed; ImportGraphAdapter itself has no cycle detection API; full SCC (Tarjan) needed for Phase 2 --> |
 | E6 | `DEAD_CODE_NODE` | Dead code node | Pyan3 (`dead_nodes`) | `qualified_name` | warning (low-confidence node), error (high-confidence node) |
-| E7 | `OVERLOADED_CLASS` | Overloaded class (CC + LCOM4) | Radon + Cohesion (joined on filepath/lineno range) | `(filepath, class_name)` | error (both signals present), warning (one signal) |
+| E7 | `OVERLOADED_CLASS` | Overloaded class (CC + LCOM4) | Radon + Cohesion (joined on filepath/lineno range) | `(filepath, name)` <!-- corrected: raw field is "name"; aggregator normalizes to "class_name" in ClassMetrics --> | error (both signals present), warning (one signal) |
 | E8 | `SDP_VIOLATION` | Stable Dependencies violation | ImportGraph (`violations`, rule=SDP-001) | `(from_layer, to_layer)` | error |
 | E9 | `SLP_VIOLATION` | Skip-layer violation | ImportGraph (`violations`, rule=SLP-001) | `(from_layer, to_layer, skip_distance)` | per adapter (`severity` field) |
 | E10 | `HIGH_PARAMETER_COUNT` | Too many parameters (ISP signal) | Radon (`items`, `parameter_count ≥ threshold`, requires lizard_used=true) | `(filepath, lineno, name)` | warning |
@@ -464,7 +467,10 @@ Two-pass pyan3 text output parsing. Pass 1 detects name-collision blocks (`suspi
 
 #### Rule D4 — IMPORT_CYCLE detection
 
+<!-- corrected: ImportGraphAdapter does NOT perform any cycle detection internally; grimp's cycle API is not called. Rule D4 is the only detection mechanism available. -->
 ImportGraph `edges` contains cycle `A→B` and `B→A` (both edges present). These are not emitted as violations by the adapter itself. The aggregator must detect them by scanning the edge set for bidirectional pairs.
+
+**Known limitation:** This bidirectional scan catches only 2-node cycles. A cycle of length ≥ 3 (e.g., A→B→C→A with no direct B→A or C→B edge) is silently missed. Phase 2 should replace this with a full SCC algorithm (Tarjan or Kosaraju) over the layer graph.
 
 ---
 
@@ -555,13 +561,15 @@ ImportGraph `edges` contains cycle `A→B` and `B→A` (both edges present). The
 
 #### ClassMetrics
 
+<!-- corrected: raw Cohesion adapter field is "name"; aggregator renames it to "class_name" during _normalize_cohesion(); ClassMetrics always exposes "class_name" -->
 ```jsonc
 {
   "class_id": "app/services/search_service.py::SearchService",
   // str — "<filepath>::<class_name>" — stable across runs
+  // NOTE: built from raw record["name"] — the raw Cohesion adapter field is "name", not "class_name"
 
   "filepath": "app/services/search_service.py",
-  "class_name": "SearchService",
+  "class_name": "SearchService",  // normalized from raw field "name" by _normalize_cohesion()
   "lineno": 12,
   "class_kind": "concrete",    // "concrete"|"abstract"|"interface"|"dataclass"
   "lcom4": 2.0,                // Optional[float] — null if Cohesion failed
@@ -596,10 +604,12 @@ ImportGraph `edges` contains cycle `A→B` and `B→A` (both edges present). The
 
 #### LayerMetrics
 
+<!-- corrected: added "label" field (present in raw adapter nodes[], always equals id; passed through to LayerMetrics) -->
 ```jsonc
 {
   "layer_id": "services",      // str — stable ID == layer name from config
   "layer_name": "services",
+  "label": "services",         // str — from raw node["label"]; equals layer_name; for frontend rendering
   "tier": 1,                   // Optional[int] — from tier_map; null for utility_layers
   "ca": 2,
   "ce": 3,
@@ -652,15 +662,24 @@ For `_build_context()` to enrich a candidate, the following IDs must be stable a
 
 **File:** `tools/solid_verifier/solid_dashboard/report_aggregator.py`
 
+<!-- corrected: config is passed as a SEPARATE parameter to run_pipeline() and is NOT stored in context; aggregator must receive it explicitly -->
 **Public API:**
 
 ```python
-def aggregate_results(context: Dict[str, Any]) -> Dict[str, Any]:
+def aggregate_results(context: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Entry point. Consumes context dict with keys:
       "radon", "cohesion", "import_graph", "import_linter", "pyan3"
     All keys are optional — absent or error-containing values degrade gracefully.
     Returns the aggregated report dict matching the schema in §4.
+
+    Config keys consumed by the aggregator:
+      config.get("cohesion_threshold", 1)  -> lcom4_threshold (int)
+      config.get("layers", {})             -> layer prefix map for module→layer resolution
+      config.get("utility_layers", {})     -> utility layer names (crosscutting, no tier)
+
+    Note: CC threshold (10) is hardcoded in RadonAdapter and replicated here as a
+    module-level constant CC_THRESHOLD = 10. It is NOT read from config.
     """
 ```
 
@@ -698,6 +717,9 @@ def _emit_mi_events(files: List[FileMetrics]) -> List[ViolationEvent]: ...
 def _emit_cohesion_events(classes: List[ClassMetrics], threshold: int) -> List[ViolationEvent]: ...
 def _emit_dead_code_events(dead_entries: List[DeadCodeEntry]) -> List[ViolationEvent]: ...
 def _detect_import_cycles(edges: List[LayerEdge]) -> List[ViolationEvent]: ...
+# TODO Phase 1: bidirectional pair scan only (catches 2-node cycles).
+# TODO Phase 2 (future): full Tarjan SCC over layer graph for n-node cycles.
+# <!-- corrected: ImportGraphAdapter has no internal cycle detection; grimp cycle API not called -->
 
 def _attach_cross_metrics(
     functions: Dict[str, FunctionMetrics],
@@ -739,6 +761,14 @@ def _is_error_result(raw: Dict) -> bool: ...
 aggregate_results(context):
 
 Step 1 — Guard and normalize raw adapter outputs
+  // <!-- corrected: config is an explicit parameter to aggregate_results(), not in context -->
+  // Extract thresholds from config:
+  //   cc_threshold   = CC_THRESHOLD (module constant = 10; mirrors hardcoded value in RadonAdapter)
+  //   lcom4_threshold = int(config.get("cohesion_threshold", 1))  // key confirmed in cohesion_adapter.py
+  //   layer_config    = config.get("layers", {})
+  //   utility_layers  = config.get("utility_layers", {})
+  //   If config is empty/None → all thresholds fall back to defaults; record in meta.config_defaults_used = True
+
   for each adapter key in ["radon", "cohesion", "import_graph", "import_linter", "pyan3"]:
     raw = context.get(key) or {}
     if _is_error_result(raw): mark adapter as failed; skip normalization
@@ -767,9 +797,10 @@ Step 4 — Denormalize cross-metrics
     // class.max_method_cc ← max CC among functions in fn_to_class[class_id]
 
 Step 5 — Emit single-source ViolationEvent protos
-  cc_events       = _emit_cc_events(radon_functions, cc_threshold=10)
+  // <!-- corrected: use extracted threshold variables from Step 1 -->
+  cc_events       = _emit_cc_events(radon_functions, cc_threshold)       // cc_threshold = CC_THRESHOLD = 10 (constant)
   mi_events       = _emit_mi_events(files with rank C)
-  cohesion_events = _emit_cohesion_events(cohesion_classes, lcom4_threshold)
+  cohesion_events = _emit_cohesion_events(cohesion_classes, lcom4_threshold)  // lcom4_threshold from config
   dead_events     = _emit_dead_code_events(pyan3_dead_nodes)
   cycle_events    = _detect_import_cycles(graph_edges)
     // bidirectional scan: for (A,B) in edges, if (B,A) also in edges → IMPORT_CYCLE
@@ -832,6 +863,7 @@ Step 9 — Assemble final report
 | `import_linter` absent/failed | No BROKEN contract events, LAYER_VIOLATION (if ImportGraph fired) demoted to SDP/SLP, strength = "weak" |
 | `pyan3` absent/failed | `dead_code = []`, no DEAD_CODE_NODE events |
 | `lizard_used = false` | `parameter_count = null` everywhere, no HIGH_PARAMETER_COUNT events |
+| `config` missing or empty <!-- corrected: config is explicit parameter; must handle None/empty gracefully --> | all thresholds fall back to defaults (cc=10, lcom4=1); `meta.config_defaults_used = True` |
 
 All cases: `meta.adapters_failed` records which adapters were skipped. Report structure is always valid — missing sections are empty lists/dicts, never absent keys.
 
@@ -917,3 +949,26 @@ context["import_linter"]["violation_details"] = [
 - `report["violations"]` contains an event with `type="IMPORT_CYCLE"`.
 - `event.location.from_layer` and `event.location.to_layer` form the cycle pair.
 - `event.severity == "error"`.
+
+---
+
+#### Test T7 — IMPORT_CYCLE false negative for 3-node cycle (known gap) <!-- corrected: added per D3 finding -->
+
+**Setup:** ImportGraph edges form a 3-node cycle: `A→B`, `B→C`, `C→A` — but no bidirectional pairs exist (`B→A`, `C→B`, or `A→C` are absent).
+
+**Assert:**
+- `report["violations"]` does NOT contain any `IMPORT_CYCLE` event.
+- This test documents a **known limitation** of the Phase 1 bidirectional scan.
+- Test must be marked with `pytest.mark.xfail(strict=False, reason="Phase 1: n-node cycles not yet detected")`.
+
+---
+
+#### Test T8 — `aggregate_results()` with empty config dict <!-- corrected: added per D4 finding -->
+
+**Setup:** Call `aggregate_results(context, config={})` with a fully populated `context`.
+
+**Assert:**
+- No `KeyError` or `TypeError` raised.
+- `cc_threshold` defaults to 10, `lcom4_threshold` defaults to 1.
+- `report["meta"]["config_defaults_used"] == True`.
+- All violation events are still emitted correctly using default thresholds.
