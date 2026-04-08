@@ -20,10 +20,13 @@ _SUCCESS_KEYS = frozenset({
     "root_node_count",
     "root_nodes",
     "suspicious_blocks",
+    "collision_rate",
     "raw_output",
 })
 
 # Ключи, которые обязаны присутствовать в ответе с ошибкой run()
+# Включает все поля _error(): числовые поля обнулены, списки пусты,
+# collision_rate == 0.0, error — непустая строка.
 _ERROR_KEYS = frozenset({
     "is_success",
     "error",
@@ -38,6 +41,7 @@ _ERROR_KEYS = frozenset({
     "root_node_count",
     "root_nodes",
     "suspicious_blocks",
+    "collision_rate",
     "raw_output",
 })
 
@@ -113,7 +117,16 @@ def assert_success_schema(result: dict) -> None:
 
 
 def assert_error_schema(result: dict) -> None:
-    """Проверяет, что result содержит все обязательные ключи ответа с ошибкой."""
+    """Проверяет полный schema-контракт ответа с ошибкой.
+
+    Верифицирует:
+    - наличие всех обязательных ключей (_ERROR_KEYS)
+    - is_success == False
+    - error — непустая строка
+    - все числовые счетчики равны 0
+    - collision_rate == 0.0
+    - все списочные поля пусты
+    """
     missing = _ERROR_KEYS - result.keys()
     assert not missing, f"Отсутствуют ключи в error-ответе: {missing}"
     assert result["is_success"] is False, "is_success должен быть False"
@@ -122,6 +135,8 @@ def assert_error_schema(result: dict) -> None:
     for key in ("node_count", "edge_count", "edge_count_high", "edge_count_low",
                 "dead_node_count", "root_node_count"):
         assert result[key] == 0, f"{key} должен быть 0 в error-ответе"
+    # collision_rate обнулен
+    assert result["collision_rate"] == 0.0, "collision_rate должен быть 0.0 в error-ответе"
     # все списки пусты
     for key in ("nodes", "edges", "dead_nodes", "root_nodes", "suspicious_blocks"):
         assert result[key] == [], f"{key} должен быть [] в error-ответе"
