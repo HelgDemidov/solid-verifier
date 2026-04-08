@@ -27,6 +27,7 @@ from solid_dashboard.llm.types import (
 # LlmConfig, ProjectMap, LlmCandidate больше напрямую не используем здесь,
 # чтобы не дублировать контракт; LlmConfig собирается централизованно в config.load_llm_config.
 from solid_dashboard.config import load_llm_config  # type: ignore[import]
+from solid_dashboard.report_aggregator import aggregate_results
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,26 @@ def run_pipeline(target_dir: str, config: Dict[str, Any], adapters: List[IAnalyz
         results[adapter.name] = result
         if adapter.name not in context:
             context[adapter.name] = result
+
+    # 2а. Агрегация результатов статических адаптеров
+    # aggregate_results() читает из context ключи: radon, cohesion, import_graph,
+    # import_linter, pyan3. Если ключ отсутствует или содержит {"error": ...} —
+    # адаптер помечается как failed; отчет остается валидным (graceful degradation).
+    # Результат хранится в results["aggregated_report"] и context["aggregated_report"];
+    # существующие ключи context не удаляются (backward compatibility).
+    try:
+        aggregated = aggregate_results(context, config)
+        results["aggregated_report"] = aggregated
+        context["aggregated_report"] = aggregated
+        logger.info(
+            "Pipeline: aggregated_report built — violations=%d, adapters_succeeded=%s",
+            len(aggregated.get("violations", [])),
+            aggregated.get("meta", {}).get("adapters_succeeded", []),
+        )
+    except Exception as _agg_exc:
+        logger.error("Pipeline: report_aggregator failed: %s", _agg_exc)
+        results["aggregated_report"] = {"error": str(_agg_exc)}
+        context["aggregated_report"] = {"error": str(_agg_exc)}
 
     # 2. Интеграция LLM (Шаг 2 из архитектуры v15)
     # проверяем, включен ли LLM в конфигурации (по умолчанию выключен)
