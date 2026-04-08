@@ -131,14 +131,20 @@ class TestParserFiltering:
 class TestSanityWarning:
 
     def test_sanity_warning_emitted_when_nodes_but_no_edges(self, adapter, tmp_py_project, base_config):
-        # узлы есть, рёбер нет — признак несовместимости формата, должно выдать RuntimeWarning
-        # Вызывается когда: есть блоки без отступа, но ни одной строки с [U]-отступом
+        # Узлы есть, рёбер нет — признак несовместимости формата pyan3.
+        # Адаптер должен выдать ровно один RuntimeWarning с текстом "Sanity check".
+        #
+        # Фильтруем по тексту, а не только по категории: адаптер может выдавать
+        # и другие RuntimeWarning (например, collision_rate), и мы проверяем
+        # именно sanity-предупреждение, а не все подряд.
         raw = "isolated.Node\n"
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
             result = _run_with_output(adapter, tmp_py_project, base_config, raw)
-        runtime_warnings = [w for w in caught if issubclass(w.category, RuntimeWarning)]
-        assert len(runtime_warnings) == 1
-        assert "Sanity check" in str(runtime_warnings[0].message)
+        sanity_warnings = [
+            w for w in caught
+            if issubclass(w.category, RuntimeWarning) and "Sanity check" in str(w.message)
+        ]
+        assert len(sanity_warnings) == 1
         # результат все равно is_success=True — предупреждение не прерывает пайплайн
         assert result["is_success"] is True

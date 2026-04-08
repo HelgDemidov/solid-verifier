@@ -90,14 +90,24 @@ class TestEdgeDeduplication:
         assert_edge(result["edges"], "A", "C", "high")
 
     def test_counters_reflect_post_deduplication_state(self, adapter, tmp_py_project, base_config):
-        # 3 вхождения A→B (2 high + 1 low) + 1 уникальное A→C (high):
-        # пессимистичная стратегия: A→B low (low заразил high), A→C high
-        # → edge_count=2, high=1, low=1
+        # Сценарий: 3 вхождения A→B (2 high + 1 low) + 1 уникальное Y→C (high).
+        #
+        # Почему источник Y, а не A:
+        # _detect_suspicious_blocks читает весь raw как единый поток. Блок "A"
+        # с кратным [U] B (part2) помечает "A" как suspicious — после чего ВСЕ
+        # рёбра с src="A" получают confidence="low", включая A→C, что давало
+        # high=0,low=2 вместо high=1,low=1.
+        # Источник Y изолирован от suspicious-пометки A и остаётся clean (high).
+        #
+        # Итог после дедупликации:
+        #   A→B: low (low заразил high по пессимистичной стратегии)
+        #   Y→C: high
+        #   edge_count=2, high=1, low=1
         raw = (
-            make_raw_output([("A", "B")]) +                              # high
-            make_raw_output([("A", "B")], extra_used={"A": ["B"]}) +    # low
-            make_raw_output([("A", "B")]) +                              # high
-            make_raw_output([("A", "C")])
+            make_raw_output([("A", "B")]) +                              # A→B high
+            make_raw_output([("A", "B")], extra_used={"A": ["B"]}) +    # A→B low (делает A suspicious)
+            make_raw_output([("A", "B")]) +                              # A→B high (дубль)
+            make_raw_output([("Y", "C")])                                # Y→C high (изолированный)
         )
         result = _run_with_output(adapter, tmp_py_project, base_config, raw)
         assert_success_schema(result)

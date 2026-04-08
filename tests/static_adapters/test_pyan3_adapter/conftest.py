@@ -31,7 +31,11 @@ def config_with_ignore() -> dict:
 
 @pytest.fixture
 def tmp_py_project(tmp_path: Path) -> Path:
-    # временный проект: два минимальных .py-файла для интеграционных тестов
+    # временный Python-пакет: __init__.py обязателен, иначе адаптер эмитирует
+    # RuntimeWarning (Шаг 2) при каждом тесте, что засоряет warnings summary.
+    # Наличие __init__.py также репрезентативно: реальный тренировочный объект
+    # (папка app/) является корректно оформленным пакетом.
+    (tmp_path / "__init__.py").write_text("", encoding="utf-8")
     (tmp_path / "module_a.py").write_text(
         textwrap.dedent("""
             def foo():
