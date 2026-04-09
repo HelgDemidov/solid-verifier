@@ -13,6 +13,7 @@
 #   Commit F — Шаги 7–9: дедупликация, сводка, финальная сборка (текущий файл)
 # ===================================================================================================
 
+import networkx as nx 
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
@@ -547,37 +548,49 @@ def _emit_dead_code_events(dead_entries):
     ) for e in dead_entries]
 
 
-def _detect_import_cycles(edges):
+def _detect_import_cycles(edges: List[Dict[str, Any]]) -> List[ViolationEvent]:
     """
-    Phase 1: bidirectional pair scan — SOLID_audit.md D3 known limitation.
-    n-node cycles (A->B->C->A with no direct reversal) are silently missed.
-    Phase 2 (future): Tarjan SCC over layer graph.
+    Phase 2: Tarjan SCC через networkx.strongly_connected_components().
+
+    Обнаруживает все циклы в графе слоев, включая n-узловые (A->B->C->A).
+    Каждый SCC размером >= 2 порождает одно событие IMPORT_CYCLE.
+
+    Phase 1 (bidirectional pair scan) заменена полностью.
     """
-    edge_set: Set[Tuple[str, str]] = {
-        (e.get("source", ""), e.get("target", ""))
-        for e in edges if isinstance(e, dict)
-    }
-    seen: Set[FrozenSet[str]] = set()
-    events = []
-    for source, target in sorted(edge_set):
-        if not source or not target:
+    # строим направленный граф из рёбер адаптера
+    g = nx.DiGraph()
+    for e in edges:
+        if isinstance(e, dict):
+            s, t = e.get("source", ""), e.get("target", "")
+            if s and t:
+                g.add_edge(s, t)
+
+    events: List[ViolationEvent] = []
+    # strongly_connected_components возвращает frozenset-ы
+    for scc in nx.strongly_connected_components(g):
+        if len(scc) < 2:  # одиночные вершины — не цикл
             continue
-        pair: FrozenSet[str] = frozenset({source, target})
-        if pair in seen:
-            continue
-        if (target, source) in edge_set:
-            seen.add(pair)
-            a, b = sorted(pair)
-            events.append(ViolationEvent(
-                id=_make_event_id("IMPORT_CYCLE", a, b),
-                type="IMPORT_CYCLE", severity="error",
-                location=ViolationLocation(from_layer=a, to_layer=b),
-                metrics=ViolationMetrics(),
-                evidence=[EvidenceItem(source="import_graph",
-                    details={"edges": [[source, target], [target, source]],
-                             "note": "Phase 1: bidirectional pair only. n-node cycles require Tarjan SCC (Phase 2)."})],
-                strength="weak",
-            ))
+        participants = sorted(scc)
+        cycle_key = "__".join(participants)
+        events.append(ViolationEvent(
+            id=_make_event_id("IMPORT_CYCLE", cycle_key),
+            type="IMPORT_CYCLE",
+            severity="error",
+            location=ViolationLocation(
+                from_layer=participants[0],
+                to_layer=participants[-1],
+            ),
+            metrics=ViolationMetrics(),
+            evidence=[EvidenceItem(
+                source="import_graph",
+                details={
+                    "cycle_nodes": participants,
+                    "cycle_size": len(participants),
+                    "note": "Phase 2: Tarjan SCC via networkx.strongly_connected_components()",
+                },
+            )],
+            strength="weak",
+        ))
     return events
 
 

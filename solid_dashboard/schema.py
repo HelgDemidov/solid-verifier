@@ -105,7 +105,7 @@ class ImportsSummary(BaseModel):
     broken_contracts: int = 0
     sdp_violations: int = 0
     slp_violations: int = 0
-    import_cycles: int = 0               # bidirectional pairs (Phase 1 only)
+    import_cycles: int = 0               # Tarjan SCC Phase 2: количество SCC размером >= 2
 
 
 class DeadCodeSummary(BaseModel):

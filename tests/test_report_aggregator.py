@@ -384,17 +384,10 @@ def test_t6_import_cycle_bidirectional():
 # T7 — IMPORT_CYCLE false negative: 3-узловой цикл (известное ограничение Phase 1)
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Phase 1: bidirectional scan only. "
-           "n-node cycles (A->B->C->A) are not detected. "
-           "Phase 2 (Tarjan SCC) required — SOLID_audit.md §3.3 Rule D4.",
-)
-def test_t7_import_cycle_3node_false_negative():
+def test_t7_import_cycle_3node_detected():
     """
-    Цикл A->B->C->A без обратных пар НЕ обнаруживается Phase 1 алгоритмом.
-    Этот тест документирует известное ограничение и помечен как xfail.
-    Если тест внезапно пройдет (Phase 2 реализован), xfail станет xpass.
+    Phase 2 (Tarjan SCC): 3-узловой цикл routers->services->infrastructure->routers
+    должен обнаруживаться. Один IMPORT_CYCLE, severity=error, cycle_size=3.
     """
     context = {
         "import_graph": _graph_context(
@@ -406,8 +399,7 @@ def test_t7_import_cycle_3node_false_negative():
             edges=[
                 {"source": "routers",        "target": "services"},
                 {"source": "services",       "target": "infrastructure"},
-                {"source": "infrastructure", "target": "routers"},   # замыкает 3-цикл
-                # нет прямых обратных пар: services->routers, infrastructure->services, routers->infrastructure
+                {"source": "infrastructure", "target": "routers"},
             ],
         ),
     }
@@ -415,9 +407,11 @@ def test_t7_import_cycle_3node_false_negative():
     result = aggregate_results(context, _base_config())
     cycle_events = [v for v in result["violations"] if v["type"] == "IMPORT_CYCLE"]
 
-    # В Phase 1 цикл НЕ обнаружится — это xfail
-    assert len(cycle_events) >= 1, (
-        "Phase 2 not yet implemented: 3-node cycles not detected by bidirectional scan")
+    assert len(cycle_events) == 1
+    assert cycle_events[0]["severity"] == "error"
+    ev_details = cycle_events[0]["evidence"][0]["details"]
+    assert ev_details["cycle_size"] == 3
+    assert set(ev_details["cycle_nodes"]) == {"routers", "services", "infrastructure"}
 
 
 # ---------------------------------------------------------------------------
@@ -498,3 +492,31 @@ def test_report_schema_keys_always_present():
 
     # violations_total консистентен с len(violations)
     assert result["summary"]["violations_total"] == len(result["violations"])
+
+
+# ---------------------------------------------------------------------------
+# Регрессионный тест: 
+# - подтверждает, что Phase 2 не сломала обнаружение двунаправленных пар 
+# - прямо ссылается на T6-аналогичный сценарий
+# ---------------------------------------------------------------------------
+def test_t7b_import_cycle_2node_regression():
+    """
+    После замены на Tarjan SCC двунаправленные пары (Phase 1 поведение)
+    по-прежнему обнаруживаются. Регрессионный тест для Phase 2.
+    SCC размером 2 = bidirectional pair.
+    """
+    context = {
+        "import_graph": _graph_context(
+            edges=[
+                {"source": "services",        "target": "infrastructure"},
+                {"source": "infrastructure",  "target": "services"},
+            ],
+        ),
+    }
+    result = aggregate_results(context, _base_config())
+    cycle_events = [v for v in result["violations"] if v["type"] == "IMPORT_CYCLE"]
+    assert len(cycle_events) == 1
+    assert cycle_events[0]["severity"] == "error"
+    ev = cycle_events[0]["evidence"][0]["details"]
+    assert ev["cycle_size"] == 2
+    assert set(ev["cycle_nodes"]) == {"services", "infrastructure"}
