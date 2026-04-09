@@ -6,16 +6,21 @@
 # - проверяется только публичный контракт выходного словаря — устойчивость к рефакторингу
 # - adapter-специфичные детали не тестируются здесь (покрыты в tests/static_adapters/)
 #
-# Покрываемые сценарии (T1–T8 из SOLID_audit.md §5.4):
-#   T1 — LAYER_VIOLATION: ImportLinter + ImportGraph на одной паре -> 1 событие, 2 evidence, strength=strong
-#   T2 — Кросс-метрики: class_lcom4 на FunctionMetrics, OVERLOADED_CLASS
-#   T3 — Graceful degradation: pyan3 отсутствует -> dead_code=[], adapters_failed содержит "pyan3"
-#   T4 — HIGH_CC_METHOD severity: CC=16 -> error, CC=11 -> warning, CC=CC_THRESHOLD -> no event
-#   T5 — DEAD_CODE_NODE confidence: collision_rate<0.35 -> error; >=0.35 -> warning
-#        + enrichment: filepath и layer выводятся из qualified_name (Constraints 3 & 5)
-#   T6 — IMPORT_CYCLE: двунаправленное ребро -> событие IMPORT_CYCLE
-#   T7 — IMPORT_CYCLE false negative (xfail): 3-узловой цикл не обнаруживается (Phase 1)
-#   T8 — Empty config: нет исключений, meta.config_defaults_used=True
+# Покрываемые сценарии (T1–T12 из SOLID_audit.md §5.4):
+#   T1  — LAYER_VIOLATION: ImportLinter + ImportGraph на одной паре -> 1 событие, 2 evidence, strength=strong
+#   T2  — Кросс-метрики: class_lcom4 на FunctionMetrics, OVERLOADED_CLASS
+#   T3  — Graceful degradation: pyan3 отсутствует -> dead_code=[], adapters_failed содержит "pyan3"
+#   T4  — HIGH_CC_METHOD severity: CC=16 -> error, CC=11 -> warning, CC=CC_THRESHOLD -> no event
+#   T5  — DEAD_CODE_NODE confidence: collision_rate<0.35 -> error; >=0.35 -> warning
+#         + enrichment: filepath и layer выводятся из qualified_name (Constraints 3 & 5)
+#   T6  — IMPORT_CYCLE: двунаправленное ребро -> событие IMPORT_CYCLE
+#   T7  — IMPORT_CYCLE 3-узловой цикл (Phase 2 Tarjan SCC)
+#   T7b — Регрессия Phase 2: двунаправленные пары по-прежнему обнаруживаются
+#   T8  — Empty config: нет исключений, meta.config_defaults_used=True
+#   T9  — _is_error_result: is_success=False без "error" key -> NOT in adapters_failed (регрессия 34a625d)
+#   T10 — _is_error_result: "error" key -> adapters_failed, события не генерируются
+#   T11 — _enrich_dead_code_entries: односегментное имя -> filepath=name+".py", layer=None
+#   T12 — _enrich_dead_code_entries: двухсегментное имя "app.fn" -> filepath="app.py", layer=None
 # ===================================================================================================
 
 import pytest
@@ -381,7 +386,7 @@ def test_t6_import_cycle_bidirectional():
 
 
 # ---------------------------------------------------------------------------
-# T7 — IMPORT_CYCLE false negative: 3-узловой цикл (известное ограничение Phase 1)
+# T7 — IMPORT_CYCLE: 3-узловой цикл (Phase 2 Tarjan SCC)
 # ---------------------------------------------------------------------------
 
 def test_t7_import_cycle_3node_detected():
@@ -495,8 +500,8 @@ def test_report_schema_keys_always_present():
 
 
 # ---------------------------------------------------------------------------
-# Регрессионный тест: 
-# - подтверждает, что Phase 2 не сломала обнаружение двунаправленных пар 
+# Регрессионный тест T7b:
+# - подтверждает, что Phase 2 не сломала обнаружение двунаправленных пар
 # - прямо ссылается на T6-аналогичный сценарий
 # ---------------------------------------------------------------------------
 def test_t7b_import_cycle_2node_regression():
@@ -520,3 +525,119 @@ def test_t7b_import_cycle_2node_regression():
     ev = cycle_events[0]["evidence"][0]["details"]
     assert ev["cycle_size"] == 2
     assert set(ev["cycle_nodes"]) == {"services", "infrastructure"}
+
+
+# ---------------------------------------------------------------------------
+# T9 — _is_error_result: is_success=False без "error" key -> NOT in adapters_failed
+# ---------------------------------------------------------------------------
+
+def test_t9_is_success_false_without_error_key_is_not_adapter_failure():
+    """
+    ImportLinterAdapter с is_success=False И непустым violation_details
+    НЕ должен трактоваться как сбой адаптера.
+    До исправления коммита 34a625d все LAYER_VIOLATION события отбрасывались.
+    Регрессионный тест для _is_error_result() логики.
+    """
+    context = {
+        "import_linter": {
+            "is_success": False,          # violations найдены, но адаптер не упал
+            "contracts_checked": 1,
+            "broken_contracts": 1,
+            "kept_contracts": 0,
+            "violations": ["Scopus API layered architecture"],
+            "violation_details": [{
+                "contract_name": "Scopus API layered architecture",
+                "status": "BROKEN",
+                "broken_imports": [
+                    {"importer": "app.routers.search", "imported": "app.models.paper"}
+                ],
+            }],
+            "raw_output": "",
+            # ключа "error" нет -> не является сбоем адаптера
+        }
+    }
+    result = aggregate_results(context, _base_config())
+
+    assert "import_linter" not in result["meta"]["adapters_failed"], (
+        "import_linter with is_success=False but no 'error' key "
+        "must NOT be in adapters_failed"
+    )
+    layer_violations = [v for v in result["violations"] if v["type"] == "LAYER_VIOLATION"]
+    assert len(layer_violations) >= 1, (
+        "Expected at least 1 LAYER_VIOLATION from import_linter with broken contracts"
+    )
+
+
+# ---------------------------------------------------------------------------
+# T10 — _is_error_result: "error" key -> adapters_failed, события не генерируются
+# ---------------------------------------------------------------------------
+
+def test_t10_adapter_with_error_key_goes_to_adapters_failed():
+    """
+    Адаптер с ключом "error" в ответе -> попадает в adapters_failed,
+    его данные не используются для генерации событий.
+    """
+    context = {
+        "radon": {"error": "subprocess timeout after 30s"},  # реальный сбой адаптера
+        "cohesion": _cohesion_context(lcom4=1.0),
+    }
+    result = aggregate_results(context, _base_config())
+
+    assert "radon" in result["meta"]["adapters_failed"], (
+        "Adapter with 'error' key must be in adapters_failed"
+    )
+    assert "radon" not in result["meta"]["adapters_succeeded"]
+    # данные упавшего адаптера не должны порождать события
+    cc_events = [v for v in result["violations"] if v["type"] == "HIGH_CC_METHOD"]
+    assert len(cc_events) == 0, (
+        "No HIGH_CC_METHOD events expected from a failed radon adapter"
+    )
+
+
+# ---------------------------------------------------------------------------
+# T11 — _enrich_dead_code_entries: односегментное имя (без точки)
+# ---------------------------------------------------------------------------
+
+def test_t11_enrich_dead_code_single_segment_name():
+    """
+    qualified_name без точки ("legacy_module") -> граничный случай enrichment.
+    filepath = "legacy_module.py", layer = None.
+    Адаптер не должен падать с IndexError при rsplit(".", 1).
+    """
+    ctx = {"pyan3": _pyan3_context(dead_nodes=["legacy_module"], collision_rate=0.0)}
+    result = aggregate_results(ctx, _base_config())
+
+    assert len(result["dead_code"]) == 1
+    entry = result["dead_code"][0]
+    assert entry["filepath"] == "legacy_module.py", (
+        f"Single-segment name should produce filepath='legacy_module.py', "
+        f"got {entry['filepath']!r}"
+    )
+    assert entry["layer"] is None, (
+        f"Expected layer=None for single-segment name, got {entry['layer']!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# T12 — _enrich_dead_code_entries: двухсегментное имя (ровно одна точка)
+# ---------------------------------------------------------------------------
+
+def test_t12_enrich_dead_code_two_segment_name():
+    """
+    qualified_name с ровно одной точкой ("app.legacy_fn"):
+    module = "app", filepath = "app.py", layer = None.
+    "app" не является слоем в _base_config() -> layer=None.
+    """
+    ctx = {"pyan3": _pyan3_context(dead_nodes=["app.legacy_fn"], collision_rate=0.0)}
+    result = aggregate_results(ctx, _base_config())
+
+    assert len(result["dead_code"]) == 1
+    entry = result["dead_code"][0]
+    assert entry["filepath"] == "app.py", (
+        f"Two-segment name 'app.legacy_fn' should produce filepath='app.py', "
+        f"got {entry['filepath']!r}"
+    )
+    assert entry["layer"] is None, (
+        f"Expected layer=None for module 'app' (not a configured layer), "
+        f"got {entry['layer']!r}"
+    )
