@@ -12,6 +12,7 @@
 #   T3 — Graceful degradation: pyan3 отсутствует -> dead_code=[], adapters_failed содержит "pyan3"
 #   T4 — HIGH_CC_METHOD severity: CC=16 -> error, CC=11 -> warning, CC=CC_THRESHOLD -> no event
 #   T5 — DEAD_CODE_NODE confidence: collision_rate<0.35 -> error; >=0.35 -> warning
+#        + enrichment: filepath и layer выводятся из qualified_name (Constraints 3 & 5)
 #   T6 — IMPORT_CYCLE: двунаправленное ребро -> событие IMPORT_CYCLE
 #   T7 — IMPORT_CYCLE false negative (xfail): 3-узловой цикл не обнаруживается (Phase 1)
 #   T8 — Empty config: нет исключений, meta.config_defaults_used=True
@@ -285,13 +286,17 @@ def test_t4_high_cc_method_severity():
 
 
 # ---------------------------------------------------------------------------
-# T5 — DEAD_CODE_NODE confidence -> severity
+# T5 — DEAD_CODE_NODE confidence -> severity + enrichment filepath/layer
 # ---------------------------------------------------------------------------
 
 def test_t5_dead_node_confidence_maps_to_severity():
     """
     collision_rate < 0.35  -> confidence=high -> severity=error
     collision_rate >= 0.35 -> confidence=low  -> severity=warning
+
+    Дополнительно (Constraints 3 & 5 из SOLID_audit.md):
+    - DeadCodeEntry.filepath выводится эвристически из qualified_name
+    - DeadCodeEntry.layer разрешается через module_to_layer_map
     """
     # High confidence (low collision rate)
     ctx_high = {"pyan3": _pyan3_context(dead_nodes=["app.utils.legacy.old_fn"], collision_rate=0.0)}
@@ -312,6 +317,38 @@ def test_t5_dead_node_confidence_maps_to_severity():
     assert len(dead_events_low) == 1
     assert dead_events_low[0]["severity"] == "warning", (
         "Low-confidence dead node should produce severity=warning")
+
+    # --- Constraint 3: filepath выводится из qualified_name ---
+    # "app.utils.legacy.old_fn" -> module="app.utils.legacy" -> filepath="app/utils/legacy.py"
+    # "app.utils" не совпадает ни с одним layer в _base_config() -> layer=None
+    dead_entry = result_high["dead_code"][0]
+    assert dead_entry["filepath"] == "app/utils/legacy.py", (
+        f"Expected filepath='app/utils/legacy.py', got {dead_entry['filepath']!r}")
+    assert dead_entry["layer"] is None, (
+        f"Expected layer=None for unresolvable module 'app.utils.legacy', "
+        f"got {dead_entry['layer']!r}")
+
+    # --- Constraint 5: layer разрешается через module_to_layer_map ---
+    # "app.services.old_service.legacy_fn" -> module="app.services.old_service"
+    # -> matches prefix "app.services" -> layer="services"
+    ctx_layer = {
+        "pyan3": _pyan3_context(
+            dead_nodes=["app.services.old_service.legacy_fn"],
+            collision_rate=0.0,
+        )
+    }
+    result_layer = aggregate_results(ctx_layer, _base_config())
+    dead_layer_entry = result_layer["dead_code"][0]
+    assert dead_layer_entry["filepath"] == "app/services/old_service.py", (
+        f"Expected filepath='app/services/old_service.py', got {dead_layer_entry['filepath']!r}")
+    assert dead_layer_entry["layer"] == "services", (
+        f"Expected layer='services', got {dead_layer_entry['layer']!r}")
+
+    # ViolationEvent.location.layer должен быть заполнен из обогащённой записи
+    dead_ev = result_layer["violations"][0]
+    assert dead_ev["location"]["layer"] == "services", (
+        f"Expected ViolationEvent.location.layer='services', "
+        f"got {dead_ev['location']['layer']!r}")
 
 
 # ---------------------------------------------------------------------------

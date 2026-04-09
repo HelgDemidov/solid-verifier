@@ -99,6 +99,11 @@ def aggregate_results(context: Dict[str, Any], config: Dict[str, Any]) -> Dict[s
     fn_to_class: Dict[str, str] = _resolve_function_to_class(radon_fns, cohesion_classes)
     _attach_tier_to_layers(layer_index, config)
     module_to_layer_map: Dict[str, str] = _build_module_to_layer_map(config)
+    # обогащаем dead_entries: выводим filepath и layer из qualified_name
+    _enrich_dead_code_entries(
+        dead_entries, module_to_layer_map,
+        package_root=config.get("package_root", ""),
+    )
 
     # Step 4 — denormalize cross-metrics
     _attach_cross_metrics(fn_index, class_index, file_index, fn_to_class)
@@ -387,6 +392,40 @@ def _resolve_module_to_layer(module, module_to_layer_map):
         if (module == pfx or module.startswith(pfx + ".")) and len(pfx) > best_len:
             best_len, best = len(pfx), ln
     return best
+
+
+def _enrich_dead_code_entries(
+    dead_entries: List[DeadCodeEntry],
+    module_to_layer_map: Dict[str, str],
+    package_root: str,
+) -> None:
+    """
+    Заполняет DeadCodeEntry.filepath и DeadCodeEntry.layer in-place.
+
+    Алгоритм:
+      qualified_name = "app.utils.legacy.old_fn"
+      module_path   = "app.utils.legacy"  (убираем последний сегмент — имя символа)
+      filepath      = "app/utils/legacy.py"  (замена точек на /, добавление .py)
+      layer         = _resolve_module_to_layer(module_path, module_to_layer_map)
+
+    Edge cases:
+      - Если qualified_name не содержит '.' — filepath = qualified_name + ".py", layer = None
+      - Если module_to_layer_map пустой — layer = None (молча, без исключения)
+
+    Ограничение: filepath — эвристика на основе qualified name;
+    реальный путь файла может отличаться при нестандартной структуре пакета.
+    """
+    for entry in dead_entries:
+        qn = entry.qualified_name
+        if "." in qn:
+            # убираем последний сегмент (имя символа), оставляем путь модуля
+            module, _symbol = qn.rsplit(".", 1)
+            entry.filepath = module.replace(".", "/") + ".py"
+            entry.layer = _resolve_module_to_layer(module, module_to_layer_map)
+        else:
+            # единственный сегмент — нет информации о модуле
+            entry.filepath = qn + ".py"
+            entry.layer = None
 
 
 # ---------------------------------------------------------------------------
