@@ -101,9 +101,11 @@ def aggregate_results(context: Dict[str, Any], config: Dict[str, Any]) -> Dict[s
     _attach_tier_to_layers(layer_index, config)
     module_to_layer_map: Dict[str, str] = _build_module_to_layer_map(config)
     # обогащаем dead_entries: выводим filepath и layer из qualified_name
+    # class_index передается для обнаружения границы класс/метод в qualified name (исправление Area 2)
     _enrich_dead_code_entries(
         dead_entries, module_to_layer_map,
         package_root=config.get("package_root", ""),
+        class_index=class_index,
     )
 
     # Step 4 — denormalize cross-metrics
@@ -421,25 +423,48 @@ def _enrich_dead_code_entries(
     dead_entries: List[DeadCodeEntry],
     module_to_layer_map: Dict[str, str],
     package_root: str,
+    class_index: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
     Заполняет DeadCodeEntry.filepath и DeadCodeEntry.layer in-place.
 
-    Алгоритм:
-      qualified_name = "app.utils.legacy.old_fn"
-      module_path   = "app.utils.legacy"  (убираем последний сегмент — имя символа)
-      filepath      = "app/utils/legacy.py"  (замена точек на /, добавление .py)
-      layer         = _resolve_module_to_layer(module_path, module_to_layer_map)
+    Алгоритм (две фазы):
 
-    Edge cases:
-      - Если qualified_name не содержит '.' — filepath = qualified_name + ".py", layer = None
-      - Если module_to_layer_map пустой — layer = None (молча, без исключения)
+    Фаза 1 (метод класса — N ≥ 3 сегмента) — обнаружение границы класс/метод:
+      qualified_name = "app.services.search_service.SearchService.run"  (5 сегментов)
+      probe: module_parts = ["app", "services", "search_service"], class_candidate = "SearchService"
+      fp_probe = "app/services/search_service.py"
+      class_id_probe = "app/services/search_service.py::SearchService"
+      Если class_id_probe есть в class_index (Cohesion подтвердил) → используем fp_probe.
 
-    Ограничение: filepath — эвристика на основе qualified name;
-    реальный путь файла может отличаться при нестандартной структуре пакета.
+    Фаза 2 (фоллбэк — функция уровня модуля или класс не найден):
+      module, _symbol = qn.rsplit(".", 1)  — старая логика (без изменений)
+
+    Edge cases (без изменений):
+      - N == 1: filepath = qualified_name + ".py", layer = None
+      - N == 2: фоллбэк сразу (недостаточно сегментов для пробы класса)
+      - class_index=None / empty: фаза 1 не выполняется, все записи через фоллбэк
     """
+    _class_idx = class_index or {}
+
     for entry in dead_entries:
         qn = entry.qualified_name
+        segments = qn.split(".")
+
+        # Фаза 1: попытка обнаружить границу модуль.класс.метод (нужно минимум 3 сегмента)
+        if len(segments) >= 3 and _class_idx:
+            class_candidate = segments[-2]        # предпоследний сегмент = имя класса
+            module_parts = segments[:-2]          # все сегменты до класса
+            module_path = ".".join(module_parts)
+            fp_probe = module_path.replace(".", "/") + ".py"
+            class_id_probe = f"{fp_probe}::{class_candidate}"
+            if class_id_probe in _class_idx:
+                # Cohesion подтвердил: это действительно метод класса
+                entry.filepath = fp_probe
+                entry.layer = _resolve_module_to_layer(module_path, module_to_layer_map)
+                continue  # проба удалась — переходим к следующей записи
+
+        # Фаза 2 (фоллбэк): исходная логика — покрывает функции уровня модуля и неразрешенные методы
         if "." in qn:
             # убираем последний сегмент (имя символа), оставляем путь модуля
             module, _symbol = qn.rsplit(".", 1)
