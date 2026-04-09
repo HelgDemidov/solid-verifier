@@ -2034,7 +2034,7 @@
   },
   "aggregated_report": {
     "meta": {
-      "generated_at": "2026-04-09T13:50:04.069197+00:00",
+      "generated_at": "2026-04-09T16:01:19.546378+00:00",
       "adapter_versions_available": [
         "radon",
         "cohesion",
