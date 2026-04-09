@@ -958,3 +958,111 @@ def test_t17_low_cohesion_contract_layer_cross_event():
     result_neg2 = aggregate_results(ctx_ok_cohesion, _base_config())
     contract_neg2 = [v for v in result_neg2["violations"] if v["type"] == "LOW_COHESION_CONTRACT_LAYER"]
     assert len(contract_neg2) == 0, "lcom4 at threshold must not trigger LOW_COHESION_CONTRACT_LAYER"
+
+
+# ---------------------------------------------------------------------------
+# T18 — Исправление подавления SLP_VIOLATION (fix Area 1)
+# Проверяет что SLP-001 и SDP-001 на одной паре слоев генерируют оба события
+# ---------------------------------------------------------------------------
+
+def test_t18_slp_violation_no_longer_suppressed_by_sdp():
+    """
+    При наличии SDP-001 И SLP-001 на одной паре (infrastructure, models)
+    оба события должны быть в violations: SDP_VIOLATION + SLP_VIOLATION.
+    До исправления SLP_VIOLATION подавлялся общим graph_bucket.
+
+    Также проверяет:
+    - Регрессию T1: LAYER_VIOLATION (linter + SDP) по-прежнему генерирует 1 событие с 2 evidence.
+    - Случай linter + SDP + SLP на одной паре: 1 LAYER_VIOLATION с 3 evidence.
+    """
+    # --- SDP + SLP без linter -> 2 отдельных события ---
+    ctx_both_graph = {
+        "import_graph": _graph_context(
+            violations=[
+                {
+                    "rule": "SDP-001", "layer": "infrastructure", "instability": 0.6,
+                    "dependency": "models", "dep_instability": 0.2,
+                    "severity": "error", "message": "SDP violation", "evidence": [],
+                },
+                {
+                    "rule": "SLP-001", "layer": "infrastructure",
+                    "dependency": "models", "skip_distance": 2,
+                    "tier": 2, "dep_tier": 4,
+                    "severity": "error", "message": "SLP violation", "evidence": [],
+                },
+            ]
+        ),
+    }
+    result = aggregate_results(ctx_both_graph, _base_config())
+    violations = result["violations"]
+
+    sdp_events = [v for v in violations if v["type"] == "SDP_VIOLATION"]
+    slp_events = [v for v in violations if v["type"] == "SLP_VIOLATION"]
+
+    assert len(sdp_events) == 1, (
+        f"Expected 1 SDP_VIOLATION, got {len(sdp_events)}. "
+        f"SLP was previously suppressing SDP or vice versa.")
+    assert len(slp_events) == 1, (
+        f"Expected 1 SLP_VIOLATION, got {len(slp_events)}. "
+        f"SLP_VIOLATION was being suppressed by SDP in the old graph_bucket logic.")
+
+    assert sdp_events[0]["id"] != slp_events[0]["id"], "SDP and SLP must have distinct event IDs"
+    assert sdp_events[0]["location"]["from_layer"] == "infrastructure"
+    assert slp_events[0]["metrics"]["skip_distance"] == 2
+    assert slp_events[0]["evidence"][0]["source"] == "import_graph"
+
+    # --- Регрессия T1: linter + SDP -> 1 LAYER_VIOLATION, 2 evidence (без изменений) ---
+    ctx_t1_regression = {
+        "import_graph": _graph_context(
+            edges=[{"source": "routers", "target": "models"}],
+            violations=[{
+                "rule": "SDP-001", "layer": "routers", "instability": 1.0,
+                "dependency": "models", "dep_instability": 0.0,
+                "severity": "error", "message": "SDP violation", "evidence": [],
+            }],
+        ),
+        "import_linter": _linter_context(
+            broken_imports=[{"importer": "app.routers.search", "imported": "app.models.paper"}]
+        ),
+    }
+    result_reg = aggregate_results(ctx_t1_regression, _base_config())
+    layer_violations = [v for v in result_reg["violations"] if v["type"] == "LAYER_VIOLATION"]
+    assert len(layer_violations) == 1, "Regression T1: expected exactly 1 LAYER_VIOLATION"
+    assert layer_violations[0]["strength"] == "strong"
+    assert len(layer_violations[0]["evidence"]) == 2
+    assert {e["source"] for e in layer_violations[0]["evidence"]} == {"import_linter", "import_graph"}
+
+    # --- linter + SDP + SLP на одной паре -> 1 LAYER_VIOLATION с 3 evidence ---
+    ctx_all_three = {
+        "import_graph": _graph_context(
+            violations=[
+                {
+                    "rule": "SDP-001", "layer": "routers", "instability": 1.0,
+                    "dependency": "models", "dep_instability": 0.2,
+                    "severity": "error", "message": "SDP", "evidence": [],
+                },
+                {
+                    "rule": "SLP-001", "layer": "routers",
+                    "dependency": "models", "skip_distance": 3,
+                    "tier": 0, "dep_tier": 4,
+                    "severity": "error", "message": "SLP", "evidence": [],
+                },
+            ]
+        ),
+        "import_linter": _linter_context(
+            broken_imports=[{"importer": "app.routers.search", "imported": "app.models.paper"}]
+        ),
+    }
+    result_all = aggregate_results(ctx_all_three, _base_config())
+    lv_all = [v for v in result_all["violations"] if v["type"] == "LAYER_VIOLATION"]
+    assert len(lv_all) == 1, "linter+SDP+SLP must produce 1 LAYER_VIOLATION (not 3)"
+    assert lv_all[0]["strength"] == "strong"
+    assert len(lv_all[0]["evidence"]) == 3, (
+        f"Expected 3 evidence entries (linter + sdp_graph + slp_graph), "
+        f"got {len(lv_all[0]['evidence'])}")
+    ev_sources = [e["source"] for e in lv_all[0]["evidence"]]
+    assert ev_sources.count("import_linter") == 1
+    assert ev_sources.count("import_graph") == 2
+
+    # --- summary.violations_total консистентен с len(violations) ---
+    assert result["summary"]["violations_total"] == len(result["violations"])
