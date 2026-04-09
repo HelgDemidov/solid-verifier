@@ -2034,7 +2034,7 @@
   },
   "aggregated_report": {
     "meta": {
-      "generated_at": "2026-04-09T16:01:19.546378+00:00",
+      "generated_at": "2026-04-09T16:51:10.274747+00:00",
       "adapter_versions_available": [
         "radon",
         "cohesion",
@@ -2091,9 +2091,9 @@
         "high_confidence_dead": 0,
         "collision_rate": 0.2059
       },
-      "violations_total": 11,
+      "violations_total": 19,
       "strong_violations": 0,
-      "weak_violations": 11
+      "weak_violations": 19
     },
     "entities": {
       "files": [
@@ -3766,6 +3766,302 @@
               "severity": "error",
               "instability": 0.8,
               "dep_instability": 0.2
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::infrastructure::db_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "infrastructure",
+          "to_layer": "db_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 2
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 2,
+              "tier": 2,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::infrastructure::models",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "infrastructure",
+          "to_layer": "models"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 1
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 1,
+              "tier": 2,
+              "dep_tier": 4
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::routers::db_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "routers",
+          "to_layer": "db_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 4
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 4,
+              "tier": 0,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::routers::models",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "routers",
+          "to_layer": "models"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 3
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 3,
+              "tier": 0,
+              "dep_tier": 4
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::routers::web_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "routers",
+          "to_layer": "web_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 4
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 4,
+              "tier": 0,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::services::models",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "services",
+          "to_layer": "models"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 2
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 2,
+              "tier": 1,
+              "dep_tier": 4
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::routers::infrastructure",
+        "type": "SLP_VIOLATION",
+        "severity": "warning",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "routers",
+          "to_layer": "infrastructure"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 1
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "warning",
+              "skip_distance": 1,
+              "tier": 0,
+              "dep_tier": 2
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::services::interfaces",
+        "type": "SLP_VIOLATION",
+        "severity": "warning",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "services",
+          "to_layer": "interfaces"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 1
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "warning",
+              "skip_distance": 1,
+              "tier": 1,
+              "dep_tier": 3
             }
           }
         ],
