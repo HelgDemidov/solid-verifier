@@ -1066,3 +1066,98 @@ def test_t18_slp_violation_no_longer_suppressed_by_sdp():
 
     # --- summary.violations_total консистентен с len(violations) ---
     assert result["summary"]["violations_total"] == len(result["violations"])
+
+
+# ---------------------------------------------------------------------------
+# T19 — Исправление filepath для мертвых методов класса (fix Area 2)
+# Проверяет двухфазный алгоритм _enrich_dead_code_entries
+# ---------------------------------------------------------------------------
+
+def test_t19_dead_code_entry_class_method_filepath_enrichment():
+    """
+    Метод класса 'app.services.search_service.SearchService.run' (5 сегментов):
+    - Фаза 1: class_index содержит 'app/services/search_service.py::SearchService'
+      -> filepath = 'app/services/search_service.py', layer = 'services'
+    - До исправления: filepath = 'app/services/search_service/SearchService.py' (несуществующий путь)
+
+    Негативный кейс без cohesion (class_index пустой):
+    - Фаза 1 не срабатывает, Фаза 2 возвращает старое поведение:
+      filepath = 'app/services/search_service/SearchService.py' (фоллбэк)
+
+    Регрессия T5: 'app.services.old_service.legacy_fn' (4 сегмента):
+    - Фаза 1: probe class_id = 'app/services.py::old_service' NOT in class_index
+      -> Фаза 2: filepath = 'app/services/old_service.py' (прежнее поведение)
+
+    Регрессия T11: 'legacy_module' (1 сегмент):
+    - filepath = 'legacy_module.py', layer = None (без изменений)
+
+    Регрессия T12: 'app.legacy_fn' (2 сегмента):
+    - filepath = 'app.py', layer = None (без изменений)
+    """
+    # --- Позитивный кейс: класс найден в cohesion -> корректный filepath ---
+    context_with_class = {
+        "pyan3": _pyan3_context(
+            dead_nodes=["app.services.search_service.SearchService.run"],
+            collision_rate=0.0,
+        ),
+        "cohesion": _cohesion_context(
+            lcom4=1.0,
+            filepath=_FP,            # app/services/search_service.py
+            class_name="SearchService",
+            lineno=8,
+        ),
+    }
+    result = aggregate_results(context_with_class, _base_config())
+
+    assert len(result["dead_code"]) == 1
+    entry = result["dead_code"][0]
+    assert entry["filepath"] == "app/services/search_service.py", (
+        f"Expected correct class-method filepath, got {entry['filepath']!r}. "
+        f"This was previously returning 'app/services/search_service/SearchService.py'.")
+    assert entry["layer"] == "services", (
+        f"Expected layer='services', got {entry['layer']!r}")
+
+    # --- Негативный кейс: нет cohesion -> class_index пустой -> фоллбэк ---
+    context_no_class = {
+        "pyan3": _pyan3_context(
+            dead_nodes=["app.services.search_service.SearchService.run"],
+            collision_rate=0.0,
+        ),
+        # cohesion отсутствует -> class_index = {} -> фаза 1 не срабатывает
+    }
+    result_no_class = aggregate_results(context_no_class, _base_config())
+    entry_no = result_no_class["dead_code"][0]
+    # Фоллбэк: rsplit(".", 1) -> module = "app.services.search_service.SearchService"
+    assert entry_no["filepath"] == "app/services/search_service/SearchService.py", (
+        f"Without class_index, fallback must yield old (wrong) path, got {entry_no['filepath']!r}")
+
+    # --- Регрессия T5: модульная функция — фоллбэк правильно выдает filepath ---
+    context_module_fn = {
+        "pyan3": _pyan3_context(
+            dead_nodes=["app.services.old_service.legacy_fn"],
+            collision_rate=0.0,
+        ),
+        "cohesion": _cohesion_context(
+            lcom4=1.0, filepath=_FP, class_name="SearchService"
+        ),
+    }
+    result_module = aggregate_results(context_module_fn, _base_config())
+    entry_module = result_module["dead_code"][0]
+    # Фаза 1: probe class_id = "app/services.py::old_service" -> NOT in class_index -> фоллбэк
+    # Фаза 2: module = "app.services.old_service" -> filepath = "app/services/old_service.py"
+    assert entry_module["filepath"] == "app/services/old_service.py", (
+        f"Module-level function regression: expected 'app/services/old_service.py', "
+        f"got {entry_module['filepath']!r}")
+    assert entry_module["layer"] == "services"
+
+    # --- Регрессия T11: односегментное имя ---
+    ctx_single = {"pyan3": _pyan3_context(dead_nodes=["legacy_module"])}
+    r_single = aggregate_results(ctx_single, _base_config())
+    assert r_single["dead_code"][0]["filepath"] == "legacy_module.py"
+    assert r_single["dead_code"][0]["layer"] is None
+
+    # --- Регрессия T12: двухсегментное имя ---
+    ctx_two = {"pyan3": _pyan3_context(dead_nodes=["app.legacy_fn"])}
+    r_two = aggregate_results(ctx_two, _base_config())
+    assert r_two["dead_code"][0]["filepath"] == "app.py"
+    assert r_two["dead_code"][0]["layer"] is None
