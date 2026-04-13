@@ -23,7 +23,7 @@ htmlcov/
 # Build artifacts (setuptools)
 dist/
 build/
-*.egg-info/       # уже есть как *.egg-info/, но build/ и dist/ — нет
+*.egg-info/      
 
 # IDE
 .idea/

@@ -1,14 +1,35 @@
 [importlinter]
 root_packages =
-    app
+    solid_dashboard
 
 [importlinter:contract:layers]
-name = Scopus API layered architecture
+name = SOLID Dashboard layered architecture
 type = layers
-containers = app
+containers = solid_dashboard
 layers =
-    routers
-    services
-    infrastructure
+    pipeline
+    adapters
     interfaces
-    models
+    llm
+    schema
+
+[importlinter:contract:independence-llm-submodules]
+name = LLM submodules independence
+type = independence
+modules =
+    solid_dashboard.llm.analysis
+    solid_dashboard.llm.heuristics
+    solid_dashboard.llm.llm_client
+ignore_imports =
+    solid_dashboard.llm.analysis -> solid_dashboard.llm.types
+    solid_dashboard.llm.heuristics -> solid_dashboard.llm.types
+    solid_dashboard.llm.llm_client -> solid_dashboard.llm.types
+
+[importlinter:contract:adapters-no-direct-pipeline]
+name = Adapters must not import pipeline or report_aggregator
+type = forbidden
+source_modules =
+    solid_dashboard.adapters
+forbidden_modules =
+    solid_dashboard.pipeline
+    solid_dashboard.report_aggregator

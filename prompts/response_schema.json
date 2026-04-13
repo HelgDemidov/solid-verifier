@@ -1,5 +1,5 @@
 {
-  "instruction": "Output ONLY valid JSON matching the schema below. Do not include markdown formatting like ```json, greetings, or explanations outside the JSON object.",
+  "instruction": "Output ONLY a valid JSON object. Do NOT use markdown code fences (```json). Do NOT include any text outside the JSON. The top-level key MUST be 'findings' with an array value. Return {\"findings\": []} if you find no violations.",
   "expected_output": {
     "findings": [
       {

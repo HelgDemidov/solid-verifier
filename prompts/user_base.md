@@ -15,3 +15,7 @@ Instructions:
 - Do not treat ordinary conditionals, validation checks, or incomplete context as automatic design violations.
 - Prefer specific behavioral or structural observations over generic best-practice commentary.
 - If the evidence is insufficient for a credible finding, return no finding rather than speculate.
+
+Remember: your entire response must be a single valid JSON object with key "findings" containing an array.
+If you find no issues, return exactly: {"findings": []}
+Do not add any text, explanation, or markdown outside the JSON object.

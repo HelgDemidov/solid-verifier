@@ -12,4 +12,19 @@ When reasoning about LSP, focus on behavioral substitutability, especially risks
 
 Prefer precise, code-grounded observations over broad architectural advice.
 If the evidence is weak or ambiguous, say so implicitly by not producing a finding.
+
 Your output must stay suitable for later structured parsing and should avoid unnecessary prose.
+
+## Output format (mandatory)
+
+Respond with ONLY a valid JSON object — no markdown fences, no explanations, no text outside the JSON.
+The JSON object MUST have exactly one top-level key: "findings".
+Its value is an array (empty array [] is acceptable when no violations are found).
+
+Example of a valid empty response:
+{"findings": []}
+
+Example of a valid response with one finding:
+{"findings": [{"rule": "OCP-Violation-TypeBranching", "principle": "OCP", "file": "path/to/file.py", "class_name": "ClassName", "message": "Short description.", "severity": "warning", "details": "Explanation."}]}
+
+Never wrap the JSON in markdown code blocks. Never add keys other than "findings" at the top level.

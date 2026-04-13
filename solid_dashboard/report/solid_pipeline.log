@@ -307,3 +307,186 @@ Traceback (most recent call last):
     raise BudgetExhaustedError(
 solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 7460 out of 3000 allowed.
 2026-04-13 18:09:17,026 [WARNING] solid_dashboard.llm.llm_client.llm_adapter: All LLM candidates failed: 15 skipped out of 15. Check model compatibility or prompt configuration.
+2026-04-13 18:33:12,781 [INFO] solid_dashboard.pipeline: Pipeline: Starting analysis. Target root set to: C:\pet_projects\solid_verifier\solid_dashboard
+2026-04-13 18:33:12,782 [INFO] solid_dashboard.pipeline: Running static adapter radon
+2026-04-13 18:33:15,186 [INFO] solid_dashboard.pipeline: Running static adapter cohesion
+2026-04-13 18:33:15,353 [INFO] solid_dashboard.pipeline: Running static adapter import_graph
+2026-04-13 18:33:15,378 [INFO] grimp.adaptors.caching: No cache file: .grimp_cache\solid_dashboard.meta.json.
+2026-04-13 18:33:15,378 [INFO] grimp.adaptors.caching: No cache file: .grimp_cache\e1ca3e7f42a8a83cd177b033e4fd8084d4abc563.data.json.
+2026-04-13 18:33:15,399 [INFO] grimp.adaptors.caching: Wrote data cache file .grimp_cache\e1ca3e7f42a8a83cd177b033e4fd8084d4abc563.data.json.
+2026-04-13 18:33:15,401 [INFO] grimp.adaptors.caching: Wrote meta cache file .grimp_cache\solid_dashboard.meta.json.
+2026-04-13 18:33:15,401 [INFO] solid_dashboard.pipeline: Running static adapter import_linter
+2026-04-13 18:33:16,225 [INFO] solid_dashboard.pipeline: Running static adapter pyan3
+2026-04-13 18:33:17,504 [INFO] solid_dashboard.pipeline: Running static adapter heuristics
+2026-04-13 18:33:17,912 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: ProjectMap built with 62 classes, 3 interfaces; 15 OCPLSP candidates identified
+2026-04-13 18:33:17,912 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: analysis_root=C:\pet_projects\solid_verifier\solid_dashboard, ignore_dirs=['.git', '.venv', '__pycache__', '.mypy_cache', '.pytest_cache', '.idea', '.vscode', 'tests', 'report', 'build', 'dist', '.solid-cache'], input_paths_count=41
+2026-04-13 18:33:17,912 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: sample input_paths=['C:\\pet_projects\\solid_verifier\\solid_dashboard\\config.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\defaults.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\pipeline.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\report_aggregator.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\schema.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\__init__.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\__main__.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\class_classifier.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\heuristics_adapter.py']
+2026-04-13 18:33:17,928 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: ProjectMap classes=62 interfaces=3
+2026-04-13 18:33:17,928 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: findings=20 candidates=15
+2026-04-13 18:33:17,928 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: sample classes=['RadonFunctionMetrics', 'MaintainabilityFileMetrics', 'MaintainabilityResult', 'RadonResult', 'CohesionClassMetrics', 'CohesionResult', 'ComplexitySummary', 'MaintainabilitySummary', 'CohesionSummary', 'ImportsSummary', 'DeadCodeSummary', 'AggregatedSummary', 'FileMetrics', 'ClassMetrics', 'FunctionMetrics']
+2026-04-13 18:33:17,928 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: sample candidates=['CohesionAdapter', '_MethodUsageVisitor', 'ImportGraphAdapter', 'RadonAdapter', 'LlmSolidAdapter', 'HeuristicsAdapter', 'ImportLinterAdapter', 'Pyan3Adapter', 'OpenRouterProvider', 'LlmError']
+2026-04-13 18:33:17,928 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: context['heuristics'] prepared with keys=['project_map', 'project_map_summary', 'candidates', 'findings', 'warning']
+2026-04-13 18:33:17,943 [INFO] solid_dashboard.pipeline: Pipeline: aggregated_report built — violations=68, adapters_succeeded=['radon', 'cohesion', 'import_graph', 'import_linter', 'pyan3']
+2026-04-13 18:33:17,943 [INFO] solid_dashboard.pipeline: LLM analysis is enabled. Initializing LLM layer...
+2026-04-13 18:33:17,944 [INFO] solid_dashboard.pipeline: Pipeline LLM precheck: heuristics_present=True, project_map_present=True, classes=62, interfaces=3, candidates_present=True, candidates_count=15
+2026-04-13 18:33:17,944 [INFO] solid_dashboard.pipeline: Pipeline LLM candidates sample: ['CohesionAdapter', '_MethodUsageVisitor', 'ImportGraphAdapter', 'RadonAdapter', 'LlmSolidAdapter', 'HeuristicsAdapter', 'ImportLinterAdapter', 'Pyan3Adapter', 'OpenRouterProvider', 'LlmError']
+2026-04-13 18:33:18,688 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouterProvider initialized with endpoint=https://openrouter.ai/api/v1/chat/completions, has_api_key=True
+2026-04-13 18:33:18,688 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:18,703 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=e5070f78804ea4b057e5b205db89bb9c3a34028f6329d3db3992cef33ca5b1c2
+2026-04-13 18:33:18,703 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 18:33:21,431 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 18:33:21,550 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=836
+2026-04-13 18:33:21,550 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:21,550 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=a5265bc958533ca86c1dfe8edc163852d39aac1b8c098ad47ede06248336f8ea
+2026-04-13 18:33:21,550 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 18:33:22,566 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 18:33:22,685 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=823
+2026-04-13 18:33:22,708 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:22,708 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=f370fb03030dcf17d78ade5ac621b522f5ec0eb6db99a700316a5eaeda1e3cb6
+2026-04-13 18:33:22,708 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 18:33:23,656 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 18:33:24,082 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=823
+2026-04-13 18:33:24,105 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,105 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=8dd87c4744d23bee688be027e4738d21c2c73fccf1257bb40686fc1519aafea1
+2026-04-13 18:33:24,114 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,116 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,119 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'RadonAdapter': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,127 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,127 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=3c1eb57a02682328c4d3301c0a06997fcb81e5c93fe042c49256847ea7d0811d
+2026-04-13 18:33:24,137 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,137 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,137 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'LlmSolidAdapter': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,149 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,151 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=a89f9f21e8e0afb78548e0bcfa64640a2a10e9ce28279ce82ffd40456992ed2b
+2026-04-13 18:33:24,151 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,154 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,154 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'HeuristicsAdapter': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,154 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,154 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=c5f08f28f2e90f65dbfe65b1f9897898f4c1ce2463e7da5d42d4ac5be8fd956b
+2026-04-13 18:33:24,220 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,255 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,283 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'ImportLinterAdapter': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,314 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,316 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=0df1af0b446ef9352f04f6a3edc785337aa58da9bdc437426299bf8abca2425f
+2026-04-13 18:33:24,316 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,317 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,317 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'Pyan3Adapter': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,323 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,324 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=002c0505dcc954359e962932b50366958898c1850d277642d7e97188bfe121e4
+2026-04-13 18:33:24,324 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,325 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,325 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'OpenRouterProvider': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,337 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,346 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=307242cb324d6ff132f4a96f5e9281785f1aadeb33175df5a9ab23dd1f424aed
+2026-04-13 18:33:24,348 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,350 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,351 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'LlmError': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,361 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,362 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=1778b56cc99c1dee689abfbd46bd980e78f6b3363ec84f60a884999eb6e8922b
+2026-04-13 18:33:24,363 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,363 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,363 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'RetryableError': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,367 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,368 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=639409fb516c89bd53bca060268d5b5a6f1a0b38e39935189b68c3a59b894471
+2026-04-13 18:33:24,368 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,369 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,370 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'NonRetryableError': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,377 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,377 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=5588fa102234c4bc347e6c3f545a1e67b48e9c4bbbbba2107961505e05566dfb
+2026-04-13 18:33:24,378 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,378 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,379 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'BudgetExhaustedError': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,380 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,380 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=5a26242006794add94fdf39629ff261fcba927a6a2369e96111b5e376c37a4c0
+2026-04-13 18:33:24,380 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,380 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,380 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'LlmUnavailableError': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.
+2026-04-13 18:33:24,389 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Missing placeholder '"findings"' in user_base.md. Using fallback user prompt.
+2026-04-13 18:33:24,390 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=ae8be64ab934e64baa31a6a80878c7490512c77b32f528e984261bdd20f2ee2c
+2026-04-13 18:33:24,390 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 16920 / 10000 tokens
+2026-04-13 18:33:24,391 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 16920 / 10000 tokens
+2026-04-13 18:33:24,391 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'ClassRole': Token budget exhausted: used 16920 out of 10000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 64, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 16920 out of 10000 allowed.

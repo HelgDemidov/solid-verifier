@@ -1,8 +1,8 @@
 {
   "radon": {
-    "total_items": 166,
-    "mean_cc": 7.68,
-    "high_complexity_count": 45,
+    "total_items": 165,
+    "mean_cc": 7.66,
+    "high_complexity_count": 44,
     "items": [
       {
         "name": "run",
@@ -398,15 +398,6 @@
         "rank": "C",
         "lineno": 422,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-        "parameter_count": 3
-      },
-      {
-        "name": "print_tree",
-        "type": "function",
-        "complexity": 11,
-        "rank": "C",
-        "lineno": 11,
-        "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py",
         "parameter_count": 3
       },
       {
@@ -1497,8 +1488,8 @@
       }
     ],
     "maintainability": {
-      "total_files": 45,
-      "mean_mi": 75.42,
+      "total_files": 41,
+      "mean_mi": 73.64,
       "low_mi_count": 1,
       "files": [
         {
@@ -1637,11 +1628,6 @@
           "rank": "A"
         },
         {
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py",
-          "mi": 82.88,
-          "rank": "A"
-        },
-        {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\cache.py",
           "mi": 83.95,
           "rank": "A"
@@ -1654,11 +1640,6 @@
         {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\factory.py",
           "mi": 86.39,
-          "rank": "A"
-        },
-        {
-          "filepath": "C:\\pet_projects\\solid_verifier\\run_solid_dashboard.py",
-          "mi": 91.71,
           "rank": "A"
         },
         {
@@ -1713,16 +1694,6 @@
         },
         {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\__init__.py",
-          "mi": 100.0,
-          "rank": "A"
-        },
-        {
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\differ.py",
-          "mi": 100.0,
-          "rank": "A"
-        },
-        {
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\generator.py",
           "mi": 100.0,
           "rank": "A"
         }
@@ -1876,58 +1847,79 @@
   "import_graph": {
     "nodes": [
       {
-        "id": "routers",
-        "label": "routers",
+        "id": "pipeline",
+        "label": "pipeline",
         "ca": 0,
-        "ce": 0,
-        "instability": 0.0
+        "ce": 5,
+        "instability": 1.0
       },
       {
-        "id": "services",
-        "label": "services",
-        "ca": 0,
-        "ce": 0,
-        "instability": 0.0
-      },
-      {
-        "id": "infrastructure",
-        "label": "infrastructure",
-        "ca": 0,
-        "ce": 0,
-        "instability": 0.0
+        "id": "adapters",
+        "label": "adapters",
+        "ca": 1,
+        "ce": 6,
+        "instability": 0.86
       },
       {
         "id": "interfaces",
         "label": "interfaces",
+        "ca": 2,
+        "ce": 0,
+        "instability": 0.0
+      },
+      {
+        "id": "llm",
+        "label": "llm",
+        "ca": 3,
+        "ce": 2,
+        "instability": 0.4
+      },
+      {
+        "id": "schema",
+        "label": "schema",
+        "ca": 2,
+        "ce": 1,
+        "instability": 0.33
+      },
+      {
+        "id": "report",
+        "label": "report",
         "ca": 0,
         "ce": 0,
         "instability": 0.0
       },
       {
-        "id": "models",
-        "label": "models",
-        "ca": 0,
+        "id": "ast_libs",
+        "label": "ast_libs",
+        "ca": 2,
         "ce": 0,
         "instability": 0.0
       },
       {
-        "id": "core",
-        "label": "core",
-        "ca": 0,
+        "id": "analysis_libs",
+        "label": "analysis_libs",
+        "ca": 1,
         "ce": 0,
         "instability": 0.0
       },
       {
-        "id": "schemas",
-        "label": "schemas",
-        "ca": 0,
+        "id": "graph_libs",
+        "label": "graph_libs",
+        "ca": 1,
         "ce": 0,
         "instability": 0.0
       },
       {
-        "id": "db_libs",
-        "label": "db_libs",
-        "ca": 0,
+        "id": "linter_libs",
+        "label": "linter_libs",
+        "ca": 1,
+        "ce": 0,
+        "instability": 0.0
+      },
+      {
+        "id": "llm_libs",
+        "label": "llm_libs",
+        "ca": 1,
         "ce": 0,
         "instability": 0.0
       },
@@ -1939,39 +1931,390 @@
         "instability": 0.0
       }
     ],
-    "edges": [],
-    "violations": [],
+    "edges": [
+      {
+        "source": "adapters",
+        "target": "analysis_libs"
+      },
+      {
+        "source": "adapters",
+        "target": "ast_libs"
+      },
+      {
+        "source": "adapters",
+        "target": "interfaces"
+      },
+      {
+        "source": "adapters",
+        "target": "linter_libs"
+      },
+      {
+        "source": "adapters",
+        "target": "llm"
+      },
+      {
+        "source": "adapters",
+        "target": "schema"
+      },
+      {
+        "source": "llm",
+        "target": "ast_libs"
+      },
+      {
+        "source": "llm",
+        "target": "llm_libs"
+      },
+      {
+        "source": "pipeline",
+        "target": "adapters"
+      },
+      {
+        "source": "pipeline",
+        "target": "graph_libs"
+      },
+      {
+        "source": "pipeline",
+        "target": "interfaces"
+      },
+      {
+        "source": "pipeline",
+        "target": "llm"
+      },
+      {
+        "source": "pipeline",
+        "target": "schema"
+      },
+      {
+        "source": "schema",
+        "target": "llm"
+      }
+    ],
+    "violations": [
+      {
+        "rule": "SDP-001",
+        "layer": "adapters",
+        "instability": 0.86,
+        "dependency": "analysis_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "adapters (I=0.86) depends on analysis_libs (I=0.0), but analysis_libs is less stable than adapters (violation margin: 0.86, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "adapters",
+        "instability": 0.86,
+        "dependency": "ast_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "adapters (I=0.86) depends on ast_libs (I=0.0), but ast_libs is less stable than adapters (violation margin: 0.86, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "adapters",
+        "instability": 0.86,
+        "dependency": "interfaces",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "adapters (I=0.86) depends on interfaces (I=0.0), but interfaces is less stable than adapters (violation margin: 0.86, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "adapters",
+        "instability": 0.86,
+        "dependency": "linter_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "adapters (I=0.86) depends on linter_libs (I=0.0), but linter_libs is less stable than adapters (violation margin: 0.86, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "adapters",
+        "instability": 0.86,
+        "dependency": "schema",
+        "dep_instability": 0.33,
+        "severity": "error",
+        "message": "adapters (I=0.86) depends on schema (I=0.33), but schema is less stable than adapters (violation margin: 0.53, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "llm",
+        "instability": 0.4,
+        "dependency": "ast_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "llm (I=0.4) depends on ast_libs (I=0.0), but ast_libs is less stable than llm (violation margin: 0.4, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "llm",
+        "instability": 0.4,
+        "dependency": "llm_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "llm (I=0.4) depends on llm_libs (I=0.0), but llm_libs is less stable than llm (violation margin: 0.4, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "pipeline",
+        "instability": 1.0,
+        "dependency": "adapters",
+        "dep_instability": 0.86,
+        "severity": "error",
+        "message": "pipeline (I=1.0) depends on adapters (I=0.86), but adapters is less stable than pipeline (violation margin: 0.14, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "pipeline",
+        "instability": 1.0,
+        "dependency": "graph_libs",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "pipeline (I=1.0) depends on graph_libs (I=0.0), but graph_libs is less stable than pipeline (violation margin: 1.0, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "pipeline",
+        "instability": 1.0,
+        "dependency": "interfaces",
+        "dep_instability": 0.0,
+        "severity": "error",
+        "message": "pipeline (I=1.0) depends on interfaces (I=0.0), but interfaces is less stable than pipeline (violation margin: 1.0, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "pipeline",
+        "instability": 1.0,
+        "dependency": "llm",
+        "dep_instability": 0.4,
+        "severity": "error",
+        "message": "pipeline (I=1.0) depends on llm (I=0.4), but llm is less stable than pipeline (violation margin: 0.6, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SDP-001",
+        "layer": "pipeline",
+        "instability": 1.0,
+        "dependency": "schema",
+        "dep_instability": 0.33,
+        "severity": "error",
+        "message": "pipeline (I=1.0) depends on schema (I=0.33), but schema is less stable than pipeline (violation margin: 0.67, tolerance: 0.1)",
+        "evidence": []
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "adapters",
+        "tier": 1,
+        "dependency": "analysis_libs",
+        "dep_tier": 5,
+        "skip_distance": 3,
+        "severity": "error",
+        "message": "adapters (tier=1) depends directly on analysis_libs (tier=5), skipping 3 tier(s): ['interfaces', 'llm', 'schema']",
+        "evidence": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "adapters",
+        "tier": 1,
+        "dependency": "ast_libs",
+        "dep_tier": 5,
+        "skip_distance": 3,
+        "severity": "error",
+        "message": "adapters (tier=1) depends directly on ast_libs (tier=5), skipping 3 tier(s): ['interfaces', 'llm', 'schema']",
+        "evidence": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "adapters",
+        "tier": 1,
+        "dependency": "linter_libs",
+        "dep_tier": 5,
+        "skip_distance": 3,
+        "severity": "error",
+        "message": "adapters (tier=1) depends directly on linter_libs (tier=5), skipping 3 tier(s): ['interfaces', 'llm', 'schema']",
+        "evidence": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "adapters",
+        "tier": 1,
+        "dependency": "llm",
+        "dep_tier": 3,
+        "skip_distance": 1,
+        "severity": "error",
+        "message": "adapters (tier=1) depends directly on llm (tier=3), skipping 1 tier(s): ['interfaces']",
+        "evidence": [
+          2
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "adapters",
+        "tier": 1,
+        "dependency": "schema",
+        "dep_tier": 4,
+        "skip_distance": 2,
+        "severity": "error",
+        "message": "adapters (tier=1) depends directly on schema (tier=4), skipping 2 tier(s): ['interfaces', 'llm']",
+        "evidence": [
+          2,
+          3
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "llm",
+        "tier": 3,
+        "dependency": "ast_libs",
+        "dep_tier": 5,
+        "skip_distance": 1,
+        "severity": "warning",
+        "message": "llm (tier=3) depends directly on ast_libs (tier=5), skipping 1 tier(s): ['schema']",
+        "evidence": [
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "llm",
+        "tier": 3,
+        "dependency": "llm_libs",
+        "dep_tier": 5,
+        "skip_distance": 1,
+        "severity": "warning",
+        "message": "llm (tier=3) depends directly on llm_libs (tier=5), skipping 1 tier(s): ['schema']",
+        "evidence": [
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "pipeline",
+        "tier": 0,
+        "dependency": "graph_libs",
+        "dep_tier": 5,
+        "skip_distance": 4,
+        "severity": "error",
+        "message": "pipeline (tier=0) depends directly on graph_libs (tier=5), skipping 4 tier(s): ['adapters', 'interfaces', 'llm', 'schema']",
+        "evidence": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "pipeline",
+        "tier": 0,
+        "dependency": "interfaces",
+        "dep_tier": 2,
+        "skip_distance": 1,
+        "severity": "warning",
+        "message": "pipeline (tier=0) depends directly on interfaces (tier=2), skipping 1 tier(s): ['adapters']",
+        "evidence": [
+          1
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "pipeline",
+        "tier": 0,
+        "dependency": "llm",
+        "dep_tier": 3,
+        "skip_distance": 2,
+        "severity": "error",
+        "message": "pipeline (tier=0) depends directly on llm (tier=3), skipping 2 tier(s): ['adapters', 'interfaces']",
+        "evidence": [
+          1,
+          2
+        ]
+      },
+      {
+        "rule": "SLP-001",
+        "layer": "pipeline",
+        "tier": 0,
+        "dependency": "schema",
+        "dep_tier": 4,
+        "skip_distance": 3,
+        "severity": "error",
+        "message": "pipeline (tier=0) depends directly on schema (tier=4), skipping 3 tier(s): ['adapters', 'interfaces', 'llm']",
+        "evidence": [
+          1,
+          2,
+          3
+        ]
+      }
+    ],
     "debug_info": {
-      "package": "solid_verifier",
-      "total_modules": 139,
+      "package": "solid_dashboard",
+      "total_modules": 66,
       "layer_prefixes_used": {
-        "routers": [
-          "solid_verifier.routers"
+        "pipeline": [
+          "solid_dashboard.pipeline",
+          "solid_dashboard.report_aggregator",
+          "solid_dashboard.__main__"
         ],
-        "services": [
-          "solid_verifier.services"
-        ],
-        "infrastructure": [
-          "solid_verifier.infrastructure"
+        "adapters": [
+          "solid_dashboard.adapters"
         ],
         "interfaces": [
-          "solid_verifier.interfaces"
+          "solid_dashboard.interfaces"
         ],
-        "models": [
-          "solid_verifier.models"
+        "llm": [
+          "solid_dashboard.llm"
+        ],
+        "schema": [
+          "solid_dashboard.schema",
+          "solid_dashboard.defaults",
+          "solid_dashboard.config"
         ]
       },
       "utility_layer_prefixes_used": {
-        "core": [
-          "solid_verifier.core"
-        ],
-        "schemas": [
-          "solid_verifier.schemas"
+        "report": [
+          "solid_dashboard.report"
         ]
       },
       "external_layer_prefixes_used": {
-        "db_libs": [
-          "sqlalchemy"
+        "ast_libs": [
+          "ast",
+          "astroid"
+        ],
+        "analysis_libs": [
+          "radon",
+          "lizard"
+        ],
+        "graph_libs": [
+          "pyan3",
+          "networkx"
+        ],
+        "linter_libs": [
+          "grimp"
+        ],
+        "llm_libs": [
+          "openai",
+          "httpx"
         ],
         "web_libs": [
           "fastapi",
@@ -1980,7 +2323,7 @@
       },
       "sdp_tolerance_used": 0.1,
       "sdp_exceptions_count": 1,
-      "skip_layer_violations_count": 0,
+      "skip_layer_violations_count": 11,
       "interface_layers_used": [
         "interfaces"
       ]
@@ -1988,19 +2331,18 @@
   },
   "import_linter": {
     "is_success": false,
-    "error": ".importlinter not found at C:\\pet_projects\\.importlinter",
-    "contracts_checked": 0,
-    "broken_contracts": 0,
+    "contracts_checked": 1,
+    "broken_contracts": 1,
     "kept_contracts": 0,
     "violations": [],
     "violation_details": [],
-    "raw_output": ""
+    "raw_output": "=============\nImport Linter\n=============\n\n\nNo matches for ignored import solid_dashboard.llm.analysis -> \nsolid_dashboard.llm.types."
   },
   "pyan3": {
     "is_success": true,
-    "node_count": 249,
-    "edge_count": 854,
-    "edge_count_high": 815,
+    "node_count": 247,
+    "edge_count": 852,
+    "edge_count_high": 813,
     "edge_count_low": 39,
     "nodes": [
       "AggregatedReport",
@@ -2220,7 +2562,6 @@
       "load_config",
       "load_llm_config",
       "main",
-      "print_tree",
       "run_pipeline",
       "solid_dashboard.__main__",
       "solid_dashboard.adapters",
@@ -2250,7 +2591,6 @@
       "solid_dashboard.llm.llm_client.llm_adapter",
       "solid_dashboard.llm.llm_client.provider",
       "solid_dashboard.pipeline",
-      "solid_dashboard.report.solid_project_tree",
       "solid_dashboard.report_aggregator"
     ],
     "edges": [
@@ -5660,11 +6000,6 @@
         "confidence": "high"
       },
       {
-        "from": "print_tree",
-        "to": "IAnalyzer.name",
-        "confidence": "high"
-      },
-      {
         "from": "run_pipeline",
         "to": "IAnalyzer",
         "confidence": "high"
@@ -6430,11 +6765,6 @@
         "confidence": "high"
       },
       {
-        "from": "solid_dashboard.report.solid_project_tree",
-        "to": "print_tree",
-        "confidence": "high"
-      },
-      {
         "from": "solid_dashboard.report_aggregator",
         "to": "AggregatedReport",
         "confidence": "high"
@@ -6527,7 +6857,7 @@
     ],
     "dead_node_count": 0,
     "dead_nodes": [],
-    "root_node_count": 40,
+    "root_node_count": 39,
     "root_nodes": [
       "CohesionAdapter.run",
       "CohesionResult",
@@ -6567,19 +6897,18 @@
       "solid_dashboard.llm.llm_client.llm_adapter",
       "solid_dashboard.llm.llm_client.provider",
       "solid_dashboard.pipeline",
-      "solid_dashboard.report.solid_project_tree",
       "solid_dashboard.report_aggregator"
     ],
     "suspicious_blocks": [
       "check",
       "identify_candidates"
     ],
-    "collision_rate": 0.008,
-    "raw_output": "AggregatedReport\n    [U] AggregatedSummary\n    [U] DeadCodeEntry\n    [U] EntitiesSection\n    [U] ReportMeta\n    [U] ViolationEvent\nAggregatedSummary\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeSummary\n    [U] ImportsSummary\n    [U] MaintainabilitySummary\nBudgetExhaustedError\n    [U] LlmError\nBudgetExhaustedError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nClassInfo\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] MethodSignature\nCohesionAdapter\n    [U] IAnalyzer\nCohesionAdapter._build_class_info\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_method_info\n    [U] CohesionAdapter._extract_name_from_ann_assign\n    [U] CohesionAdapter._extract_names_from_assign\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] classify_class\nCohesionAdapter._build_method_info\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] CohesionAdapter._classify_decorator\n    [U] CohesionAdapter._is_empty_method\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] MethodInfo\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._collect_classes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_class_info\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._populate_method_usage\n    [U] CohesionAdapter._repopulate_method_usage\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\nCohesionAdapter._collect_instance_attributes_from_init\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._extract_instance_attr_from_target\n    [U] IAnalyzer.name\nCohesionAdapter._compute_lcom4\n    [U] ClassInfo\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] dfs\nCohesionAdapter._enrich_with_ancestor_attributes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._resolve_classdef\n    [U] IAnalyzer.name\nCohesionAdapter._populate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._repopulate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._resolve_classdef\n    [U] FileCache.get\n    [U] LlmCache.get\nCohesionAdapter.run\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_classes\n    [U] CohesionAdapter._compute_lcom4\n    [U] CohesionAdapter.name\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\nCohesionResult\n    [U] CohesionClassMetrics\nEntitiesSection\n    [U] ClassMetrics\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\nFileCache.get\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nFileCache.set\n    [U] FileCache\n    [U] LlmResponse\nFinding\n    [U] FindingDetails\nHeuristicResult\n    [U] Finding\n    [U] LlmCandidate\nHeuristicsAdapter\n    [U] IAnalyzer\nHeuristicsAdapter.run\n    [U] FileCache.get\n    [U] HeuristicsAdapter.name\n    [U] LlmCache.get\n    [U] build_project_map\n    [U] identify_candidates\nImportGraphAdapter\n    [U] IAnalyzer\nImportGraphAdapter._build_layer_graph\n    [U] FileCache.set\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_nodes_with_stability\n    [U] ImportGraphAdapter._is_ignored\n    [U] ImportGraphAdapter._resolve_external_layer\n    [U] ImportGraphAdapter._resolve_internal_layer\n    [U] LlmCache.set\nImportGraphAdapter._detect_sdp_violations\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._detect_skip_layer_violations\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportGraphAdapter._get_interface_layer_names\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._resolve_tier_map\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.name\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_layer_graph\n    [U] ImportGraphAdapter._detect_sdp_violations\n    [U] ImportGraphAdapter._detect_skip_layer_violations\n    [U] ImportGraphAdapter._get_interface_layer_names\n    [U] ImportGraphAdapter._normalize_layer_config\n    [U] ImportGraphAdapter._resolve_tier_map\n    [U] LlmCache.get\nImportLinterAdapter\n    [U] IAnalyzer\nImportLinterAdapter.generate_synced_config\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportLinterAdapter.run\n    [U] IAnalyzer.run\n    [U] ImportLinterAdapter\n    [U] ImportLinterAdapter._error_message\n    [U] ImportLinterAdapter._parse_contract_stats\n    [U] ImportLinterAdapter._parse_violations\n    [U] ImportLinterAdapter.generate_synced_config\nInterfaceInfo\n    [U] MethodSignature\nLlmAnalysisInput\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmAnalysisOutput\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmMetadata\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmCache.get\n    [U] LlmResponse\nLlmCache.set\n    [U] LlmResponse\nLlmError.__str__\n    [U] LlmError\nLlmGateway\n    [U] LlmCache\n    [U] LlmProvider\n    [U] TokenBudgetController\nLlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] Message\nLlmGateway.analyze\n    [U] BudgetExhaustedError\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmGateway\n    [U] LlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] TokenBudgetController.is_exhausted\n    [U] TokenBudgetController.record_tokens\n    [U] _MethodUsageVisitor.__init__\nLlmProvider.chat\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] Message\nLlmSolidAdapter\n    [U] LlmConfig\n    [U] LlmGateway\nLlmSolidAdapter._build_context\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmSolidAdapter._build_prompt_and_options\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmOptions\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._parse_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmCandidate\n    [U] LlmSolidAdapter._extract_json_content\n    [U] LlmSolidAdapter._validate_finding\n    [U] LlmSolidAdapter._validate_structure\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ParseResult\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_finding\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmCache.get\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_structure\n    [U] FileCache.get\n    [U] LlmCache.get\nLlmSolidAdapter.analyze\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmMetadata\n    [U] LlmSolidAdapter\n    [U] LlmSolidAdapter._build_context\n    [U] LlmSolidAdapter._build_prompt_and_options\n    [U] LlmSolidAdapter._parse_response\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmUnavailableError\n    [U] LlmError\nLlmUnavailableError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nMaintainabilityResult\n    [U] MaintainabilityFileMetrics\nMethodInfo\n    [U] FileCache.set\n    [U] LlmCache.set\nNonRetryableError\n    [U] LlmError\nOpenRouterProvider.__init__\n    [U] OpenRouterProvider\nOpenRouterProvider._build_payload\n    [U] LlmOptions\n    [U] Message\nOpenRouterProvider._handle_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._parse_success\n    [U] OpenRouterProvider._raise_non_retryable\n    [U] OpenRouterProvider._raise_retryable\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._parse_success\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_non_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.chat\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._build_payload\n    [U] OpenRouterProvider._handle_response\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.close\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\nParseResult\n    [U] Finding\nProjectMap\n    [U] ClassInfo\n    [U] InterfaceInfo\nPyan3Adapter\n    [U] IAnalyzer\nPyan3Adapter.run\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] Pyan3Adapter\n    [U] Pyan3Adapter._error\n    [U] _detect_suspicious_blocks\nRadonAdapter\n    [U] IAnalyzer\nRadonAdapter._run_mi\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\nRadonAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmGateway.analyze\n    [U] RadonAdapter\n    [U] RadonAdapter._run_mi\nRadonResult\n    [U] MaintainabilityResult\n    [U] RadonFunctionMetrics\nRetryableError\n    [U] LlmError\nTokenBudgetController.is_exhausted\n    [U] TokenBudgetController\n    [U] TokenBudgetController.is_exhausted\nTokenBudgetController.record_tokens\n    [U] TokenBudgetController\nViolationEvent\n    [U] EvidenceItem\n    [U] ViolationLocation\n    [U] ViolationMetrics\n_MethodUsageVisitor.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor._register_self_like_names\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor.visit_AsyncFunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_MethodUsageVisitor.visit_Attribute\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_Call\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_FunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_annotation_to_str\n    [U] _annotation_to_str\n_attach_tier_to_layers\n    [U] _resolve_tier_map\n_build_file_index\n    [U] FileMetrics\n_build_import_aliases\n    [U] IAnalyzer.name\n_compute_method_cc\n    [U] _iter_method_nodes\n_compute_summary\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ViolationEvent\n_count_isinstance_branches\n    [U] _has_isinstance_call\n_create_gateway\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_provider\n_create_provider\n    [U] LlmConfig\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n_deduplicate_candidates\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmCandidate\n_deduplicate_findings\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] _priority\n_deduplicate_violations\n    [U] ViolationEvent\n_detect_import_cycles\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_detect_suspicious_blocks\n    [U] FileCache.set\n    [U] LlmCache.set\n_emit_cc_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_cohesion_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_risk_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_layer_node_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_low_cohesion_contract_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_low_mi_violating_layer_events\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_mi_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_overloaded_class_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_unstable_cohesion_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_enrich_dead_code_entries\n    [U] DeadCodeEntry\n    [U] _resolve_module_to_layer\n_extract_method_signatures\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] MethodSignature\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _annotation_to_str\n    [U] _is_abstract_method\n_extract_top_level_imports\n    [U] IAnalyzer.name\n_is_abstract_class\n    [U] ClassInfo\n    [U] IAnalyzer.name\n    [U] ProjectMap\n_is_pure_interface\n    [U] _is_trivial_body\n_is_trivial_body\n    [U] _is_docstring_node\n_make_finding\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] Finding\n    [U] FindingDetails\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n_merge_layer_violations\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_normalize_cohesion\n    [U] ClassMetrics\n_normalize_import_graph\n    [U] LayerMetrics\n_normalize_pyan3\n    [U] DeadCodeEntry\n_normalize_radon\n    [U] FunctionMetrics\n_parent_is_pure_interface\n    [U] ClassInfo\n    [U] ClassRole\n    [U] IAnalyzer.name\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] classify_class\n_parse_class_ast\n    [U] IAnalyzer.name\n_priority\n    [U] Finding\n_resolve_function_to_class\n    [U] ClassMetrics\n_safe_normalize\n    [U] _is_error_result\n_should_exclude_path\n    [U] _normalize_path_for_matching\n_to_jsonable\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _to_jsonable\n_validate_config\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\naggregate_results\n    [U] AggregatedReport\n    [U] ClassMetrics\n    [U] EntitiesSection\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] _attach_cross_metrics\n    [U] _attach_tier_to_layers\n    [U] _build_class_index\n    [U] _build_file_index\n    [U] _build_function_index\n    [U] _build_layer_index\n    [U] _build_module_to_layer_map\n    [U] _compute_summary\n    [U] _deduplicate_violations\n    [U] _detect_import_cycles\n    [U] _emit_cc_events\n    [U] _emit_cohesion_events\n    [U] _emit_dead_code_events\n    [U] _emit_dead_code_risk_events\n    [U] _emit_dead_layer_node_events\n    [U] _emit_low_cohesion_contract_layer_events\n    [U] _emit_low_mi_violating_layer_events\n    [U] _emit_mi_events\n    [U] _emit_overloaded_class_events\n    [U] _emit_unstable_cohesion_layer_events\n    [U] _enrich_dead_code_entries\n    [U] _merge_layer_violations\n    [U] _normalize_cohesion\n    [U] _normalize_import_graph\n    [U] _normalize_import_linter\n    [U] _normalize_pyan3\n    [U] _normalize_radon\n    [U] _resolve_function_to_class\n    [U] _safe_normalize\nbuild_project_map\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] InterfaceInfo\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _extract_bases\n    [U] _extract_class_source\n    [U] _extract_method_signatures\n    [U] _extract_top_level_imports\n    [U] _is_interface\ncheck\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassRole\n    [U] ClassRole\n    [U] ClassRole\n    [U] FileCache.set\n    [U] FileCache.set\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] _compute_method_cc\n    [U] _count_elif_chain\n    [U] _count_isinstance_branches\n    [U] _has_dataclass_decorator\n    [U] _is_abstract_class\n    [U] _is_abstract_class\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _parent_is_pure_interface\n    [U] classify_class\n    [U] classify_class\n    [U] classify_class\nclassify_class\n    [U] ClassRole\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] _compute_infra_score\n    [U] _extract_base_names\n    [U] _is_pure_interface\ncreate_llm_adapter\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_gateway\n    [U] _validate_config\ndfs\n    [U] FileCache.set\n    [U] LlmCache.set\nidentify_candidates\n    [U] BudgetExhaustedError.__init__\n    [U] ClassRole\n    [U] FileCache.__init__\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _build_import_aliases\n    [U] _compute_priority\n    [U] _deduplicate_candidates\n    [U] _deduplicate_findings\n    [U] _determine_candidate_type\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] classify_class\nload_llm_config\n    [U] LlmConfig\n    [U] _resolve_path_from_config\nmain\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] FileCache.__init__\n    [U] HeuristicsAdapter\n    [U] HeuristicsAdapter.name\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _to_jsonable\n    [U] load_config\n    [U] run_pipeline\nprint_tree\n    [U] IAnalyzer.name\n    [U] print_tree\nrun_pipeline\n    [U] IAnalyzer\n    [U] IAnalyzer.name\n    [U] IAnalyzer.run\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.__main__\n    [U] CohesionAdapter\n    [U] HeuristicsAdapter\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] load_config\n    [U] main\n    [U] run_pipeline\nsolid_dashboard.adapters\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] MethodInfo\n    [U] classify_class\nsolid_dashboard.adapters.cohesion_adapter\n    [U] IAnalyzer\n    [U] classify_class\nsolid_dashboard.adapters.heuristics_adapter\n    [U] IAnalyzer\n    [U] build_project_map\n    [U] identify_candidates\nsolid_dashboard.adapters.import_graph_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.import_linter_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.pyan3_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.radon_adapter\n    [U] IAnalyzer\nsolid_dashboard.config\n    [U] LlmConfig\nsolid_dashboard.llm\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] HeuristicResult\n    [U] InterfaceInfo\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmMetadata\n    [U] LlmResponse\n    [U] MethodSignature\n    [U] ParseResult\n    [U] ProjectMap\n    [U] build_project_map\nsolid_dashboard.llm.analysis.ast_parser\n    [U] ClassInfo\n    [U] InterfaceInfo\n    [U] MethodSignature\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics\n    [U] identify_candidates\nsolid_dashboard.llm.heuristics._runner\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] classify_class\n    [U] solid_dashboard.llm.heuristics.lsp_h_001\n    [U] solid_dashboard.llm.heuristics.lsp_h_002\n    [U] solid_dashboard.llm.heuristics.lsp_h_003\n    [U] solid_dashboard.llm.heuristics.lsp_h_004\n    [U] solid_dashboard.llm.heuristics.ocp_h_001\n    [U] solid_dashboard.llm.heuristics.ocp_h_002\n    [U] solid_dashboard.llm.heuristics.ocp_h_004\nsolid_dashboard.llm.heuristics._shared\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics.lsp_h_001\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_002\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_003\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] _make_finding\n    [U] _parse_class_ast\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_001\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _count_elif_chain\n    [U] _has_isinstance_call\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_002\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _compute_method_cc\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.llm_client.cache\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.factory\n    [U] FileCache\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmSolidAdapter\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.gateway\n    [U] BudgetExhaustedError\n    [U] LlmCache\n    [U] LlmOptions\n    [U] LlmProvider\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] Message\n    [U] NonRetryableError\n    [U] RetryableError\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.interfaces\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.llm_adapter\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmMetadata\n    [U] LlmOptions\n    [U] Message\n    [U] NonRetryableError\n    [U] ParseResult\n    [U] ProjectMap\n    [U] RetryableError\nsolid_dashboard.llm.llm_client.provider\n    [U] LlmResponse\n    [U] NonRetryableError\n    [U] RetryableError\nsolid_dashboard.pipeline\n    [U] IAnalyzer\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.report.solid_project_tree\n    [U] print_tree\nsolid_dashboard.report_aggregator\n    [U] AggregatedReport\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] EntitiesSection\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n"
+    "collision_rate": 0.0081,
+    "raw_output": "AggregatedReport\n    [U] AggregatedSummary\n    [U] DeadCodeEntry\n    [U] EntitiesSection\n    [U] ReportMeta\n    [U] ViolationEvent\nAggregatedSummary\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeSummary\n    [U] ImportsSummary\n    [U] MaintainabilitySummary\nBudgetExhaustedError\n    [U] LlmError\nBudgetExhaustedError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nClassInfo\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] MethodSignature\nCohesionAdapter\n    [U] IAnalyzer\nCohesionAdapter._build_class_info\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_method_info\n    [U] CohesionAdapter._extract_name_from_ann_assign\n    [U] CohesionAdapter._extract_names_from_assign\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] classify_class\nCohesionAdapter._build_method_info\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] CohesionAdapter._classify_decorator\n    [U] CohesionAdapter._is_empty_method\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] MethodInfo\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._collect_classes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_class_info\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._populate_method_usage\n    [U] CohesionAdapter._repopulate_method_usage\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\nCohesionAdapter._collect_instance_attributes_from_init\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._extract_instance_attr_from_target\n    [U] IAnalyzer.name\nCohesionAdapter._compute_lcom4\n    [U] ClassInfo\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] dfs\nCohesionAdapter._enrich_with_ancestor_attributes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._resolve_classdef\n    [U] IAnalyzer.name\nCohesionAdapter._populate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._repopulate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._resolve_classdef\n    [U] FileCache.get\n    [U] LlmCache.get\nCohesionAdapter.run\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_classes\n    [U] CohesionAdapter._compute_lcom4\n    [U] CohesionAdapter.name\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\nCohesionResult\n    [U] CohesionClassMetrics\nEntitiesSection\n    [U] ClassMetrics\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\nFileCache.get\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nFileCache.set\n    [U] FileCache\n    [U] LlmResponse\nFinding\n    [U] FindingDetails\nHeuristicResult\n    [U] Finding\n    [U] LlmCandidate\nHeuristicsAdapter\n    [U] IAnalyzer\nHeuristicsAdapter.run\n    [U] FileCache.get\n    [U] HeuristicsAdapter.name\n    [U] LlmCache.get\n    [U] build_project_map\n    [U] identify_candidates\nImportGraphAdapter\n    [U] IAnalyzer\nImportGraphAdapter._build_layer_graph\n    [U] FileCache.set\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_nodes_with_stability\n    [U] ImportGraphAdapter._is_ignored\n    [U] ImportGraphAdapter._resolve_external_layer\n    [U] ImportGraphAdapter._resolve_internal_layer\n    [U] LlmCache.set\nImportGraphAdapter._detect_sdp_violations\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._detect_skip_layer_violations\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportGraphAdapter._get_interface_layer_names\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._resolve_tier_map\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.name\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_layer_graph\n    [U] ImportGraphAdapter._detect_sdp_violations\n    [U] ImportGraphAdapter._detect_skip_layer_violations\n    [U] ImportGraphAdapter._get_interface_layer_names\n    [U] ImportGraphAdapter._normalize_layer_config\n    [U] ImportGraphAdapter._resolve_tier_map\n    [U] LlmCache.get\nImportLinterAdapter\n    [U] IAnalyzer\nImportLinterAdapter.generate_synced_config\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportLinterAdapter.run\n    [U] IAnalyzer.run\n    [U] ImportLinterAdapter\n    [U] ImportLinterAdapter._error_message\n    [U] ImportLinterAdapter._parse_contract_stats\n    [U] ImportLinterAdapter._parse_violations\n    [U] ImportLinterAdapter.generate_synced_config\nInterfaceInfo\n    [U] MethodSignature\nLlmAnalysisInput\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmAnalysisOutput\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmMetadata\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmCache.get\n    [U] LlmResponse\nLlmCache.set\n    [U] LlmResponse\nLlmError.__str__\n    [U] LlmError\nLlmGateway\n    [U] LlmCache\n    [U] LlmProvider\n    [U] TokenBudgetController\nLlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] Message\nLlmGateway.analyze\n    [U] BudgetExhaustedError\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmGateway\n    [U] LlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] TokenBudgetController.is_exhausted\n    [U] TokenBudgetController.record_tokens\n    [U] _MethodUsageVisitor.__init__\nLlmProvider.chat\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] Message\nLlmSolidAdapter\n    [U] LlmConfig\n    [U] LlmGateway\nLlmSolidAdapter._build_context\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmSolidAdapter._build_prompt_and_options\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmOptions\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._parse_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmCandidate\n    [U] LlmSolidAdapter._extract_json_content\n    [U] LlmSolidAdapter._validate_finding\n    [U] LlmSolidAdapter._validate_structure\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ParseResult\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_finding\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmCache.get\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_structure\n    [U] FileCache.get\n    [U] LlmCache.get\nLlmSolidAdapter.analyze\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmMetadata\n    [U] LlmSolidAdapter\n    [U] LlmSolidAdapter._build_context\n    [U] LlmSolidAdapter._build_prompt_and_options\n    [U] LlmSolidAdapter._parse_response\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmUnavailableError\n    [U] LlmError\nLlmUnavailableError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nMaintainabilityResult\n    [U] MaintainabilityFileMetrics\nMethodInfo\n    [U] FileCache.set\n    [U] LlmCache.set\nNonRetryableError\n    [U] LlmError\nOpenRouterProvider.__init__\n    [U] OpenRouterProvider\nOpenRouterProvider._build_payload\n    [U] LlmOptions\n    [U] Message\nOpenRouterProvider._handle_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._parse_success\n    [U] OpenRouterProvider._raise_non_retryable\n    [U] OpenRouterProvider._raise_retryable\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._parse_success\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_non_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.chat\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._build_payload\n    [U] OpenRouterProvider._handle_response\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.close\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\nParseResult\n    [U] Finding\nProjectMap\n    [U] ClassInfo\n    [U] InterfaceInfo\nPyan3Adapter\n    [U] IAnalyzer\nPyan3Adapter.run\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] Pyan3Adapter\n    [U] Pyan3Adapter._error\n    [U] _detect_suspicious_blocks\nRadonAdapter\n    [U] IAnalyzer\nRadonAdapter._run_mi\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\nRadonAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmGateway.analyze\n    [U] RadonAdapter\n    [U] RadonAdapter._run_mi\nRadonResult\n    [U] MaintainabilityResult\n    [U] RadonFunctionMetrics\nRetryableError\n    [U] LlmError\nTokenBudgetController.is_exhausted\n    [U] TokenBudgetController\n    [U] TokenBudgetController.is_exhausted\nTokenBudgetController.record_tokens\n    [U] TokenBudgetController\nViolationEvent\n    [U] EvidenceItem\n    [U] ViolationLocation\n    [U] ViolationMetrics\n_MethodUsageVisitor.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor._register_self_like_names\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor.visit_AsyncFunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_MethodUsageVisitor.visit_Attribute\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_Call\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_FunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_annotation_to_str\n    [U] _annotation_to_str\n_attach_tier_to_layers\n    [U] _resolve_tier_map\n_build_file_index\n    [U] FileMetrics\n_build_import_aliases\n    [U] IAnalyzer.name\n_compute_method_cc\n    [U] _iter_method_nodes\n_compute_summary\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ViolationEvent\n_count_isinstance_branches\n    [U] _has_isinstance_call\n_create_gateway\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_provider\n_create_provider\n    [U] LlmConfig\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n_deduplicate_candidates\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmCandidate\n_deduplicate_findings\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] _priority\n_deduplicate_violations\n    [U] ViolationEvent\n_detect_import_cycles\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_detect_suspicious_blocks\n    [U] FileCache.set\n    [U] LlmCache.set\n_emit_cc_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_cohesion_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_risk_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_layer_node_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_low_cohesion_contract_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_low_mi_violating_layer_events\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_mi_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_overloaded_class_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_unstable_cohesion_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_enrich_dead_code_entries\n    [U] DeadCodeEntry\n    [U] _resolve_module_to_layer\n_extract_method_signatures\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] MethodSignature\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _annotation_to_str\n    [U] _is_abstract_method\n_extract_top_level_imports\n    [U] IAnalyzer.name\n_is_abstract_class\n    [U] ClassInfo\n    [U] IAnalyzer.name\n    [U] ProjectMap\n_is_pure_interface\n    [U] _is_trivial_body\n_is_trivial_body\n    [U] _is_docstring_node\n_make_finding\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] Finding\n    [U] FindingDetails\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n_merge_layer_violations\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_normalize_cohesion\n    [U] ClassMetrics\n_normalize_import_graph\n    [U] LayerMetrics\n_normalize_pyan3\n    [U] DeadCodeEntry\n_normalize_radon\n    [U] FunctionMetrics\n_parent_is_pure_interface\n    [U] ClassInfo\n    [U] ClassRole\n    [U] IAnalyzer.name\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] classify_class\n_parse_class_ast\n    [U] IAnalyzer.name\n_priority\n    [U] Finding\n_resolve_function_to_class\n    [U] ClassMetrics\n_safe_normalize\n    [U] _is_error_result\n_should_exclude_path\n    [U] _normalize_path_for_matching\n_to_jsonable\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _to_jsonable\n_validate_config\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\naggregate_results\n    [U] AggregatedReport\n    [U] ClassMetrics\n    [U] EntitiesSection\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] _attach_cross_metrics\n    [U] _attach_tier_to_layers\n    [U] _build_class_index\n    [U] _build_file_index\n    [U] _build_function_index\n    [U] _build_layer_index\n    [U] _build_module_to_layer_map\n    [U] _compute_summary\n    [U] _deduplicate_violations\n    [U] _detect_import_cycles\n    [U] _emit_cc_events\n    [U] _emit_cohesion_events\n    [U] _emit_dead_code_events\n    [U] _emit_dead_code_risk_events\n    [U] _emit_dead_layer_node_events\n    [U] _emit_low_cohesion_contract_layer_events\n    [U] _emit_low_mi_violating_layer_events\n    [U] _emit_mi_events\n    [U] _emit_overloaded_class_events\n    [U] _emit_unstable_cohesion_layer_events\n    [U] _enrich_dead_code_entries\n    [U] _merge_layer_violations\n    [U] _normalize_cohesion\n    [U] _normalize_import_graph\n    [U] _normalize_import_linter\n    [U] _normalize_pyan3\n    [U] _normalize_radon\n    [U] _resolve_function_to_class\n    [U] _safe_normalize\nbuild_project_map\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] InterfaceInfo\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _extract_bases\n    [U] _extract_class_source\n    [U] _extract_method_signatures\n    [U] _extract_top_level_imports\n    [U] _is_interface\ncheck\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassRole\n    [U] ClassRole\n    [U] ClassRole\n    [U] FileCache.set\n    [U] FileCache.set\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] _compute_method_cc\n    [U] _count_elif_chain\n    [U] _count_isinstance_branches\n    [U] _has_dataclass_decorator\n    [U] _is_abstract_class\n    [U] _is_abstract_class\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _parent_is_pure_interface\n    [U] classify_class\n    [U] classify_class\n    [U] classify_class\nclassify_class\n    [U] ClassRole\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] _compute_infra_score\n    [U] _extract_base_names\n    [U] _is_pure_interface\ncreate_llm_adapter\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_gateway\n    [U] _validate_config\ndfs\n    [U] FileCache.set\n    [U] LlmCache.set\nidentify_candidates\n    [U] BudgetExhaustedError.__init__\n    [U] ClassRole\n    [U] FileCache.__init__\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _build_import_aliases\n    [U] _compute_priority\n    [U] _deduplicate_candidates\n    [U] _deduplicate_findings\n    [U] _determine_candidate_type\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] classify_class\nload_llm_config\n    [U] LlmConfig\n    [U] _resolve_path_from_config\nmain\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] FileCache.__init__\n    [U] HeuristicsAdapter\n    [U] HeuristicsAdapter.name\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _to_jsonable\n    [U] load_config\n    [U] run_pipeline\nrun_pipeline\n    [U] IAnalyzer\n    [U] IAnalyzer.name\n    [U] IAnalyzer.run\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.__main__\n    [U] CohesionAdapter\n    [U] HeuristicsAdapter\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] load_config\n    [U] main\n    [U] run_pipeline\nsolid_dashboard.adapters\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] MethodInfo\n    [U] classify_class\nsolid_dashboard.adapters.cohesion_adapter\n    [U] IAnalyzer\n    [U] classify_class\nsolid_dashboard.adapters.heuristics_adapter\n    [U] IAnalyzer\n    [U] build_project_map\n    [U] identify_candidates\nsolid_dashboard.adapters.import_graph_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.import_linter_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.pyan3_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.radon_adapter\n    [U] IAnalyzer\nsolid_dashboard.config\n    [U] LlmConfig\nsolid_dashboard.llm\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] HeuristicResult\n    [U] InterfaceInfo\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmMetadata\n    [U] LlmResponse\n    [U] MethodSignature\n    [U] ParseResult\n    [U] ProjectMap\n    [U] build_project_map\nsolid_dashboard.llm.analysis.ast_parser\n    [U] ClassInfo\n    [U] InterfaceInfo\n    [U] MethodSignature\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics\n    [U] identify_candidates\nsolid_dashboard.llm.heuristics._runner\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] classify_class\n    [U] solid_dashboard.llm.heuristics.lsp_h_001\n    [U] solid_dashboard.llm.heuristics.lsp_h_002\n    [U] solid_dashboard.llm.heuristics.lsp_h_003\n    [U] solid_dashboard.llm.heuristics.lsp_h_004\n    [U] solid_dashboard.llm.heuristics.ocp_h_001\n    [U] solid_dashboard.llm.heuristics.ocp_h_002\n    [U] solid_dashboard.llm.heuristics.ocp_h_004\nsolid_dashboard.llm.heuristics._shared\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics.lsp_h_001\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_002\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_003\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] _make_finding\n    [U] _parse_class_ast\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_001\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _count_elif_chain\n    [U] _has_isinstance_call\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_002\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _compute_method_cc\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.llm_client.cache\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.factory\n    [U] FileCache\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmSolidAdapter\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.gateway\n    [U] BudgetExhaustedError\n    [U] LlmCache\n    [U] LlmOptions\n    [U] LlmProvider\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] Message\n    [U] NonRetryableError\n    [U] RetryableError\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.interfaces\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.llm_adapter\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmMetadata\n    [U] LlmOptions\n    [U] Message\n    [U] NonRetryableError\n    [U] ParseResult\n    [U] ProjectMap\n    [U] RetryableError\nsolid_dashboard.llm.llm_client.provider\n    [U] LlmResponse\n    [U] NonRetryableError\n    [U] RetryableError\nsolid_dashboard.pipeline\n    [U] IAnalyzer\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.report_aggregator\n    [U] AggregatedReport\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] EntitiesSection\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n"
   },
   "heuristics": {
     "project_map_summary": {
-      "classes": 63,
+      "classes": 62,
       "interfaces": 3
     },
     "heuristic_findings": [
@@ -7076,7 +7405,7 @@
   },
   "aggregated_report": {
     "meta": {
-      "generated_at": "2026-04-13T16:09:12.718071+00:00",
+      "generated_at": "2026-04-13T16:33:17.938177+00:00",
       "adapter_versions_available": [
         "radon",
         "cohesion",
@@ -7088,34 +7417,33 @@
         "radon",
         "cohesion",
         "import_graph",
+        "import_linter",
         "pyan3"
       ],
-      "adapters_failed": [
-        "import_linter"
-      ],
+      "adapters_failed": [],
       "lizard_used": true,
       "config_defaults_used": false
     },
     "summary": {
       "complexity": {
-        "total_items": 166,
-        "mean_cc": 7.68,
-        "high_complexity_count": 45,
+        "total_items": 165,
+        "mean_cc": 7.66,
+        "high_complexity_count": 44,
         "rank_distribution": {
           "F": 2,
           "E": 1,
           "D": 6,
-          "C": 36,
+          "C": 35,
           "B": 39,
           "A": 82
         }
       },
       "maintainability": {
-        "total_files": 45,
-        "mean_mi": 75.42,
+        "total_files": 41,
+        "mean_mi": 73.64,
         "low_mi_count": 1,
         "rank_distribution": {
-          "A": 44,
+          "A": 40,
           "C": 1
         }
       },
@@ -7128,34 +7456,23 @@
         "low_cohesion_threshold": 1
       },
       "imports": {
-        "contracts_checked": 0,
-        "broken_contracts": 0,
-        "sdp_violations": 0,
-        "slp_violations": 0,
+        "contracts_checked": 1,
+        "broken_contracts": 1,
+        "sdp_violations": 12,
+        "slp_violations": 11,
         "import_cycles": 0
       },
       "dead_code": {
         "dead_node_count": 0,
         "high_confidence_dead": 0,
-        "collision_rate": 0.008
+        "collision_rate": 0.0081
       },
-      "violations_total": 46,
+      "violations_total": 68,
       "strong_violations": 0,
-      "weak_violations": 46
+      "weak_violations": 68
     },
     "entities": {
       "files": [
-        {
-          "file_id": "C:\\pet_projects\\solid_verifier\\run_solid_dashboard.py",
-          "filepath": "C:\\pet_projects\\solid_verifier\\run_solid_dashboard.py",
-          "mi": 91.71,
-          "mi_rank": "A",
-          "function_count": 0,
-          "mean_cc": 0.0,
-          "max_cc": 0,
-          "high_cc_count": 0,
-          "class_count": 0
-        },
         {
           "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\__init__.py",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\__init__.py",
@@ -7582,39 +7899,6 @@
           "function_count": 1,
           "mean_cc": 20.0,
           "max_cc": 20,
-          "high_cc_count": 1,
-          "class_count": 0
-        },
-        {
-          "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\differ.py",
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\differ.py",
-          "mi": 100.0,
-          "mi_rank": "A",
-          "function_count": 0,
-          "mean_cc": 0.0,
-          "max_cc": 0,
-          "high_cc_count": 0,
-          "class_count": 0
-        },
-        {
-          "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\generator.py",
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\generator.py",
-          "mi": 100.0,
-          "mi_rank": "A",
-          "function_count": 0,
-          "mean_cc": 0.0,
-          "max_cc": 0,
-          "high_cc_count": 0,
-          "class_count": 0
-        },
-        {
-          "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py",
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py",
-          "mi": 82.88,
-          "mi_rank": "A",
-          "function_count": 1,
-          "mean_cc": 11.0,
-          "max_cc": 11,
           "high_cc_count": 1,
           "class_count": 0
         },
@@ -9530,19 +9814,6 @@
           "class_lcom4": null
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py::11::print_tree",
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py",
-          "name": "print_tree",
-          "type": "function",
-          "lineno": 11,
-          "cc": 11,
-          "rank": "C",
-          "parameter_count": 3,
-          "class_id": null,
-          "file_mi": 82.88,
-          "class_lcom4": null
-        },
-        {
           "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report_aggregator.py::1032::_emit_low_cohesion_contract_layer_events",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report_aggregator.py",
           "name": "_emit_low_cohesion_contract_layer_events",
@@ -10000,24 +10271,24 @@
       ],
       "layers": [
         {
-          "layer_id": "core",
-          "layer_name": "core",
-          "label": "core",
-          "tier": null,
-          "ca": 0,
-          "ce": 0,
-          "instability": 0.0,
-          "sdp_violation_count": 0,
-          "slp_violation_count": 0,
+          "layer_id": "adapters",
+          "layer_name": "adapters",
+          "label": "adapters",
+          "tier": 1,
+          "ca": 1,
+          "ce": 6,
+          "instability": 0.86,
+          "sdp_violation_count": 5,
+          "slp_violation_count": 5,
           "linter_broken_imports": 0,
-          "is_utility_layer": true
+          "is_utility_layer": false
         },
         {
-          "layer_id": "db_libs",
-          "layer_name": "db_libs",
-          "label": "db_libs",
+          "layer_id": "analysis_libs",
+          "layer_name": "analysis_libs",
+          "label": "analysis_libs",
           "tier": null,
-          "ca": 0,
+          "ca": 1,
           "ce": 0,
           "instability": 0.0,
           "sdp_violation_count": 0,
@@ -10026,11 +10297,24 @@
           "is_utility_layer": false
         },
         {
-          "layer_id": "infrastructure",
-          "layer_name": "infrastructure",
-          "label": "infrastructure",
-          "tier": 2,
-          "ca": 0,
+          "layer_id": "ast_libs",
+          "layer_name": "ast_libs",
+          "label": "ast_libs",
+          "tier": null,
+          "ca": 2,
+          "ce": 0,
+          "instability": 0.0,
+          "sdp_violation_count": 0,
+          "slp_violation_count": 0,
+          "linter_broken_imports": 0,
+          "is_utility_layer": false
+        },
+        {
+          "layer_id": "graph_libs",
+          "layer_name": "graph_libs",
+          "label": "graph_libs",
+          "tier": null,
+          "ca": 1,
           "ce": 0,
           "instability": 0.0,
           "sdp_violation_count": 0,
@@ -10042,8 +10326,47 @@
           "layer_id": "interfaces",
           "layer_name": "interfaces",
           "label": "interfaces",
+          "tier": 2,
+          "ca": 2,
+          "ce": 0,
+          "instability": 0.0,
+          "sdp_violation_count": 0,
+          "slp_violation_count": 0,
+          "linter_broken_imports": 0,
+          "is_utility_layer": false
+        },
+        {
+          "layer_id": "linter_libs",
+          "layer_name": "linter_libs",
+          "label": "linter_libs",
+          "tier": null,
+          "ca": 1,
+          "ce": 0,
+          "instability": 0.0,
+          "sdp_violation_count": 0,
+          "slp_violation_count": 0,
+          "linter_broken_imports": 0,
+          "is_utility_layer": false
+        },
+        {
+          "layer_id": "llm",
+          "layer_name": "llm",
+          "label": "llm",
           "tier": 3,
-          "ca": 0,
+          "ca": 3,
+          "ce": 2,
+          "instability": 0.4,
+          "sdp_violation_count": 2,
+          "slp_violation_count": 2,
+          "linter_broken_imports": 0,
+          "is_utility_layer": false
+        },
+        {
+          "layer_id": "llm_libs",
+          "layer_name": "llm_libs",
+          "label": "llm_libs",
+          "tier": null,
+          "ca": 1,
           "ce": 0,
           "instability": 0.0,
           "sdp_violation_count": 0,
@@ -10052,35 +10375,22 @@
           "is_utility_layer": false
         },
         {
-          "layer_id": "models",
-          "layer_name": "models",
-          "label": "models",
-          "tier": 4,
-          "ca": 0,
-          "ce": 0,
-          "instability": 0.0,
-          "sdp_violation_count": 0,
-          "slp_violation_count": 0,
-          "linter_broken_imports": 0,
-          "is_utility_layer": false
-        },
-        {
-          "layer_id": "routers",
-          "layer_name": "routers",
-          "label": "routers",
+          "layer_id": "pipeline",
+          "layer_name": "pipeline",
+          "label": "pipeline",
           "tier": 0,
           "ca": 0,
-          "ce": 0,
-          "instability": 0.0,
-          "sdp_violation_count": 0,
-          "slp_violation_count": 0,
+          "ce": 5,
+          "instability": 1.0,
+          "sdp_violation_count": 5,
+          "slp_violation_count": 4,
           "linter_broken_imports": 0,
           "is_utility_layer": false
         },
         {
-          "layer_id": "schemas",
-          "layer_name": "schemas",
-          "label": "schemas",
+          "layer_id": "report",
+          "layer_name": "report",
+          "label": "report",
           "tier": null,
           "ca": 0,
           "ce": 0,
@@ -10091,13 +10401,13 @@
           "is_utility_layer": true
         },
         {
-          "layer_id": "services",
-          "layer_name": "services",
-          "label": "services",
-          "tier": 1,
-          "ca": 0,
-          "ce": 0,
-          "instability": 0.0,
+          "layer_id": "schema",
+          "layer_name": "schema",
+          "label": "schema",
+          "tier": 4,
+          "ca": 2,
+          "ce": 1,
+          "instability": 0.33,
           "sdp_violation_count": 0,
           "slp_violation_count": 0,
           "linter_broken_imports": 0,
@@ -10833,6 +11143,734 @@
               "mi": 7.68,
               "rank": "C",
               "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report_aggregator.py"
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::adapters::analysis_libs",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "analysis_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.86,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.86,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::adapters::ast_libs",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "ast_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.86,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.86,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::adapters::interfaces",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "interfaces"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.86,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.86,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::adapters::linter_libs",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "linter_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.86,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.86,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::adapters::schema",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "schema"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.86,
+          "dep_instability": 0.33,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.86,
+              "dep_instability": 0.33
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::llm::ast_libs",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "llm",
+          "to_layer": "ast_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.4,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.4,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::llm::llm_libs",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "llm",
+          "to_layer": "llm_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 0.4,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 0.4,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::pipeline::adapters",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "adapters"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 1.0,
+          "dep_instability": 0.86,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 1.0,
+              "dep_instability": 0.86
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::pipeline::graph_libs",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "graph_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 1.0,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 1.0,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::pipeline::interfaces",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "interfaces"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 1.0,
+          "dep_instability": 0.0,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 1.0,
+              "dep_instability": 0.0
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::pipeline::llm",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "llm"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 1.0,
+          "dep_instability": 0.4,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 1.0,
+              "dep_instability": 0.4
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SDP_VIOLATION::pipeline::schema",
+        "type": "SDP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "schema"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": 1.0,
+          "dep_instability": 0.33,
+          "skip_distance": null
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SDP-001",
+              "severity": "error",
+              "instability": 1.0,
+              "dep_instability": 0.33
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::adapters::analysis_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "analysis_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 3
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 3,
+              "tier": 1,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::adapters::ast_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "ast_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 3
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 3,
+              "tier": 1,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::adapters::linter_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "linter_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 3
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 3,
+              "tier": 1,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::adapters::llm",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "llm"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 1
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 1,
+              "tier": 1,
+              "dep_tier": 3
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::adapters::schema",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "adapters",
+          "to_layer": "schema"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 2
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 2,
+              "tier": 1,
+              "dep_tier": 4
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::pipeline::graph_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "graph_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 4
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 4,
+              "tier": 0,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::pipeline::llm",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "llm"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 2
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 2,
+              "tier": 0,
+              "dep_tier": 3
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::pipeline::schema",
+        "type": "SLP_VIOLATION",
+        "severity": "error",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "schema"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 3
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "error",
+              "skip_distance": 3,
+              "tier": 0,
+              "dep_tier": 4
             }
           }
         ],
@@ -11739,36 +12777,111 @@
         "strength": "weak"
       },
       {
-        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py::11::print_tree",
-        "type": "HIGH_CC_METHOD",
+        "id": "SLP_VIOLATION::llm::ast_libs",
+        "type": "SLP_VIOLATION",
         "severity": "warning",
         "location": {
-          "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\report\\solid_project_tree.py",
-          "lineno": 11,
-          "name": "print_tree",
+          "filepath": null,
+          "lineno": null,
+          "name": null,
           "class_name": null,
           "layer": null,
-          "from_layer": null,
-          "to_layer": null
+          "from_layer": "llm",
+          "to_layer": "ast_libs"
         },
         "metrics": {
-          "cc": 11,
-          "rank": "C",
-          "parameter_count": 3,
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
           "mi": null,
           "lcom4": null,
           "instability": null,
           "dep_instability": null,
-          "skip_distance": null
+          "skip_distance": 1
         },
         "evidence": [
           {
-            "source": "radon",
+            "source": "import_graph",
             "details": {
-              "complexity": 11,
-              "rank": "C",
-              "type": "function",
-              "lineno": 11
+              "rule": "SLP-001",
+              "severity": "warning",
+              "skip_distance": 1,
+              "tier": 3,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::llm::llm_libs",
+        "type": "SLP_VIOLATION",
+        "severity": "warning",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "llm",
+          "to_layer": "llm_libs"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 1
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "warning",
+              "skip_distance": 1,
+              "tier": 3,
+              "dep_tier": 5
+            }
+          }
+        ],
+        "strength": "weak"
+      },
+      {
+        "id": "SLP_VIOLATION::pipeline::interfaces",
+        "type": "SLP_VIOLATION",
+        "severity": "warning",
+        "location": {
+          "filepath": null,
+          "lineno": null,
+          "name": null,
+          "class_name": null,
+          "layer": null,
+          "from_layer": "pipeline",
+          "to_layer": "interfaces"
+        },
+        "metrics": {
+          "cc": null,
+          "rank": null,
+          "parameter_count": null,
+          "mi": null,
+          "lcom4": null,
+          "instability": null,
+          "dep_instability": null,
+          "skip_distance": 1
+        },
+        "evidence": [
+          {
+            "source": "import_graph",
+            "details": {
+              "rule": "SLP-001",
+              "severity": "warning",
+              "skip_distance": 1,
+              "tier": 0,
+              "dep_tier": 2
             }
           }
         ],
@@ -11781,13 +12894,13 @@
     "status": "success",
     "findings": [],
     "metadata": {
-      "candidates_processed": 0,
-      "candidates_skipped": 15,
-      "tokens_used": 7460,
+      "candidates_processed": 3,
+      "candidates_skipped": 12,
+      "tokens_used": 16920,
       "cache_hits": 0,
-      "parse_failures": 1,
+      "parse_failures": 0,
       "parse_partials": 0,
-      "parse_warnings": 1
+      "parse_warnings": 0
     }
   }
 }
