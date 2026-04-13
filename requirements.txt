@@ -1,7 +1,7 @@
-grimp>=2.3,<3.0
+grimp>=3.14,<4.0
 radon>=6.0,<7.0
 pydantic>=2.0,<3.0
-import-linter==2.11 # Актуальная версия import-linter
+import-linter==2.11  # актуальная версия import-linter
 pyan3>=2.2,<3.0  # статический call-graph для Python 3.10–3.14
 lizard==1.17.10
 httpx>=0.27,<2.0
