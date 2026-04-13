@@ -1,7 +1,7 @@
 {
   "radon": {
     "total_items": 165,
-    "mean_cc": 7.67,
+    "mean_cc": 7.69,
     "high_complexity_count": 44,
     "items": [
       {
@@ -81,7 +81,7 @@
         "type": "method",
         "complexity": 21,
         "rank": "D",
-        "lineno": 366,
+        "lineno": 369,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
         "parameter_count": 3
       },
@@ -252,7 +252,7 @@
         "type": "method",
         "complexity": 14,
         "rank": "C",
-        "lineno": 170,
+        "lineno": 173,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
         "parameter_count": 4
       },
@@ -396,7 +396,7 @@
         "type": "method",
         "complexity": 11,
         "rank": "C",
-        "lineno": 447,
+        "lineno": 450,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
         "parameter_count": 3
       },
@@ -495,7 +495,7 @@
         "type": "method",
         "complexity": 9,
         "rank": "B",
-        "lineno": 317,
+        "lineno": 320,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
         "parameter_count": 2
       },
@@ -732,6 +732,15 @@
         "lineno": 231,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\heuristics\\_shared.py",
         "parameter_count": 1
+      },
+      {
+        "name": "_build_context",
+        "type": "method",
+        "complexity": 6,
+        "rank": "B",
+        "lineno": 134,
+        "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
+        "parameter_count": 5
       },
       {
         "name": "__init__",
@@ -1094,20 +1103,11 @@
         "parameter_count": 1
       },
       {
-        "name": "_build_context",
-        "type": "method",
-        "complexity": 3,
-        "rank": "A",
-        "lineno": 129,
-        "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-        "parameter_count": 3
-      },
-      {
         "name": "_validate_structure",
         "type": "method",
         "complexity": 3,
         "rank": "A",
-        "lineno": 353,
+        "lineno": 356,
         "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
         "parameter_count": 2
       },
@@ -1489,7 +1489,7 @@
     ],
     "maintainability": {
       "total_files": 41,
-      "mean_mi": 73.63,
+      "mean_mi": 73.61,
       "low_mi_count": 1,
       "files": [
         {
@@ -1509,7 +1509,7 @@
         },
         {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-          "mi": 42.09,
+          "mi": 41.33,
           "rank": "A"
         },
         {
@@ -1554,7 +1554,7 @@
         },
         {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\types.py",
-          "mi": 63.03,
+          "mi": 62.79,
           "rank": "A"
         },
         {
@@ -1569,7 +1569,7 @@
         },
         {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\pipeline.py",
-          "mi": 68.1,
+          "mi": 67.99,
           "rank": "A"
         },
         {
@@ -2341,8 +2341,8 @@
   "pyan3": {
     "is_success": true,
     "node_count": 247,
-    "edge_count": 852,
-    "edge_count_high": 813,
+    "edge_count": 854,
+    "edge_count_high": 815,
     "edge_count_low": 39,
     "nodes": [
       "AggregatedReport",
@@ -3436,6 +3436,11 @@
       },
       {
         "from": "LlmAnalysisInput",
+        "to": "Finding",
+        "confidence": "high"
+      },
+      {
+        "from": "LlmAnalysisInput",
         "to": "LlmCandidate",
         "confidence": "high"
       },
@@ -3652,6 +3657,11 @@
       {
         "from": "LlmSolidAdapter",
         "to": "LlmGateway",
+        "confidence": "high"
+      },
+      {
+        "from": "LlmSolidAdapter._build_context",
+        "to": "Finding",
         "confidence": "high"
       },
       {
@@ -6904,7 +6914,7 @@
       "identify_candidates"
     ],
     "collision_rate": 0.0081,
-    "raw_output": "AggregatedReport\n    [U] AggregatedSummary\n    [U] DeadCodeEntry\n    [U] EntitiesSection\n    [U] ReportMeta\n    [U] ViolationEvent\nAggregatedSummary\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeSummary\n    [U] ImportsSummary\n    [U] MaintainabilitySummary\nBudgetExhaustedError\n    [U] LlmError\nBudgetExhaustedError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nClassInfo\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] MethodSignature\nCohesionAdapter\n    [U] IAnalyzer\nCohesionAdapter._build_class_info\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_method_info\n    [U] CohesionAdapter._extract_name_from_ann_assign\n    [U] CohesionAdapter._extract_names_from_assign\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] classify_class\nCohesionAdapter._build_method_info\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] CohesionAdapter._classify_decorator\n    [U] CohesionAdapter._is_empty_method\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] MethodInfo\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._collect_classes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_class_info\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._populate_method_usage\n    [U] CohesionAdapter._repopulate_method_usage\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\nCohesionAdapter._collect_instance_attributes_from_init\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._extract_instance_attr_from_target\n    [U] IAnalyzer.name\nCohesionAdapter._compute_lcom4\n    [U] ClassInfo\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] dfs\nCohesionAdapter._enrich_with_ancestor_attributes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._resolve_classdef\n    [U] IAnalyzer.name\nCohesionAdapter._populate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._repopulate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._resolve_classdef\n    [U] FileCache.get\n    [U] LlmCache.get\nCohesionAdapter.run\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_classes\n    [U] CohesionAdapter._compute_lcom4\n    [U] CohesionAdapter.name\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\nCohesionResult\n    [U] CohesionClassMetrics\nEntitiesSection\n    [U] ClassMetrics\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\nFileCache.get\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nFileCache.set\n    [U] FileCache\n    [U] LlmResponse\nFinding\n    [U] FindingDetails\nHeuristicResult\n    [U] Finding\n    [U] LlmCandidate\nHeuristicsAdapter\n    [U] IAnalyzer\nHeuristicsAdapter.run\n    [U] FileCache.get\n    [U] HeuristicsAdapter.name\n    [U] LlmCache.get\n    [U] build_project_map\n    [U] identify_candidates\nImportGraphAdapter\n    [U] IAnalyzer\nImportGraphAdapter._build_layer_graph\n    [U] FileCache.set\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_nodes_with_stability\n    [U] ImportGraphAdapter._is_ignored\n    [U] ImportGraphAdapter._resolve_external_layer\n    [U] ImportGraphAdapter._resolve_internal_layer\n    [U] LlmCache.set\nImportGraphAdapter._detect_sdp_violations\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._detect_skip_layer_violations\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportGraphAdapter._get_interface_layer_names\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._resolve_tier_map\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.name\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_layer_graph\n    [U] ImportGraphAdapter._detect_sdp_violations\n    [U] ImportGraphAdapter._detect_skip_layer_violations\n    [U] ImportGraphAdapter._get_interface_layer_names\n    [U] ImportGraphAdapter._normalize_layer_config\n    [U] ImportGraphAdapter._resolve_tier_map\n    [U] LlmCache.get\nImportLinterAdapter\n    [U] IAnalyzer\nImportLinterAdapter.generate_synced_config\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportLinterAdapter.run\n    [U] IAnalyzer.run\n    [U] ImportLinterAdapter\n    [U] ImportLinterAdapter._error_message\n    [U] ImportLinterAdapter._parse_contract_stats\n    [U] ImportLinterAdapter._parse_violations\n    [U] ImportLinterAdapter.generate_synced_config\nInterfaceInfo\n    [U] MethodSignature\nLlmAnalysisInput\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmAnalysisOutput\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmMetadata\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmCache.get\n    [U] LlmResponse\nLlmCache.set\n    [U] LlmResponse\nLlmError.__str__\n    [U] LlmError\nLlmGateway\n    [U] LlmCache\n    [U] LlmProvider\n    [U] TokenBudgetController\nLlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] Message\nLlmGateway.analyze\n    [U] BudgetExhaustedError\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmGateway\n    [U] LlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] TokenBudgetController.is_exhausted\n    [U] TokenBudgetController.record_tokens\n    [U] _MethodUsageVisitor.__init__\nLlmProvider.chat\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] Message\nLlmSolidAdapter\n    [U] LlmConfig\n    [U] LlmGateway\nLlmSolidAdapter._build_context\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmSolidAdapter._build_prompt_and_options\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmOptions\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._parse_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmCandidate\n    [U] LlmSolidAdapter._extract_json_content\n    [U] LlmSolidAdapter._validate_finding\n    [U] LlmSolidAdapter._validate_structure\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ParseResult\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_finding\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmCache.get\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_structure\n    [U] FileCache.get\n    [U] LlmCache.get\nLlmSolidAdapter.analyze\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmMetadata\n    [U] LlmSolidAdapter\n    [U] LlmSolidAdapter._build_context\n    [U] LlmSolidAdapter._build_prompt_and_options\n    [U] LlmSolidAdapter._parse_response\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmUnavailableError\n    [U] LlmError\nLlmUnavailableError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nMaintainabilityResult\n    [U] MaintainabilityFileMetrics\nMethodInfo\n    [U] FileCache.set\n    [U] LlmCache.set\nNonRetryableError\n    [U] LlmError\nOpenRouterProvider.__init__\n    [U] OpenRouterProvider\nOpenRouterProvider._build_payload\n    [U] LlmOptions\n    [U] Message\nOpenRouterProvider._handle_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._parse_success\n    [U] OpenRouterProvider._raise_non_retryable\n    [U] OpenRouterProvider._raise_retryable\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._parse_success\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_non_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.chat\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._build_payload\n    [U] OpenRouterProvider._handle_response\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.close\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\nParseResult\n    [U] Finding\nProjectMap\n    [U] ClassInfo\n    [U] InterfaceInfo\nPyan3Adapter\n    [U] IAnalyzer\nPyan3Adapter.run\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] Pyan3Adapter\n    [U] Pyan3Adapter._error\n    [U] _detect_suspicious_blocks\nRadonAdapter\n    [U] IAnalyzer\nRadonAdapter._run_mi\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\nRadonAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmGateway.analyze\n    [U] RadonAdapter\n    [U] RadonAdapter._run_mi\nRadonResult\n    [U] MaintainabilityResult\n    [U] RadonFunctionMetrics\nRetryableError\n    [U] LlmError\nTokenBudgetController.is_exhausted\n    [U] TokenBudgetController\n    [U] TokenBudgetController.is_exhausted\nTokenBudgetController.record_tokens\n    [U] TokenBudgetController\nViolationEvent\n    [U] EvidenceItem\n    [U] ViolationLocation\n    [U] ViolationMetrics\n_MethodUsageVisitor.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor._register_self_like_names\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor.visit_AsyncFunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_MethodUsageVisitor.visit_Attribute\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_Call\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_FunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_annotation_to_str\n    [U] _annotation_to_str\n_attach_tier_to_layers\n    [U] _resolve_tier_map\n_build_file_index\n    [U] FileMetrics\n_build_import_aliases\n    [U] IAnalyzer.name\n_compute_method_cc\n    [U] _iter_method_nodes\n_compute_summary\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ViolationEvent\n_count_isinstance_branches\n    [U] _has_isinstance_call\n_create_gateway\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_provider\n_create_provider\n    [U] LlmConfig\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n_deduplicate_candidates\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmCandidate\n_deduplicate_findings\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] _priority\n_deduplicate_violations\n    [U] ViolationEvent\n_detect_import_cycles\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_detect_suspicious_blocks\n    [U] FileCache.set\n    [U] LlmCache.set\n_emit_cc_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_cohesion_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_risk_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_layer_node_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_low_cohesion_contract_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_low_mi_violating_layer_events\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_mi_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_overloaded_class_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_unstable_cohesion_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_enrich_dead_code_entries\n    [U] DeadCodeEntry\n    [U] _resolve_module_to_layer\n_extract_method_signatures\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] MethodSignature\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _annotation_to_str\n    [U] _is_abstract_method\n_extract_top_level_imports\n    [U] IAnalyzer.name\n_is_abstract_class\n    [U] ClassInfo\n    [U] IAnalyzer.name\n    [U] ProjectMap\n_is_pure_interface\n    [U] _is_trivial_body\n_is_trivial_body\n    [U] _is_docstring_node\n_make_finding\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] Finding\n    [U] FindingDetails\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n_merge_layer_violations\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_normalize_cohesion\n    [U] ClassMetrics\n_normalize_import_graph\n    [U] LayerMetrics\n_normalize_pyan3\n    [U] DeadCodeEntry\n_normalize_radon\n    [U] FunctionMetrics\n_parent_is_pure_interface\n    [U] ClassInfo\n    [U] ClassRole\n    [U] IAnalyzer.name\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] classify_class\n_parse_class_ast\n    [U] IAnalyzer.name\n_priority\n    [U] Finding\n_resolve_function_to_class\n    [U] ClassMetrics\n_safe_normalize\n    [U] _is_error_result\n_should_exclude_path\n    [U] _normalize_path_for_matching\n_to_jsonable\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _to_jsonable\n_validate_config\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\naggregate_results\n    [U] AggregatedReport\n    [U] ClassMetrics\n    [U] EntitiesSection\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] _attach_cross_metrics\n    [U] _attach_tier_to_layers\n    [U] _build_class_index\n    [U] _build_file_index\n    [U] _build_function_index\n    [U] _build_layer_index\n    [U] _build_module_to_layer_map\n    [U] _compute_summary\n    [U] _deduplicate_violations\n    [U] _detect_import_cycles\n    [U] _emit_cc_events\n    [U] _emit_cohesion_events\n    [U] _emit_dead_code_events\n    [U] _emit_dead_code_risk_events\n    [U] _emit_dead_layer_node_events\n    [U] _emit_low_cohesion_contract_layer_events\n    [U] _emit_low_mi_violating_layer_events\n    [U] _emit_mi_events\n    [U] _emit_overloaded_class_events\n    [U] _emit_unstable_cohesion_layer_events\n    [U] _enrich_dead_code_entries\n    [U] _merge_layer_violations\n    [U] _normalize_cohesion\n    [U] _normalize_import_graph\n    [U] _normalize_import_linter\n    [U] _normalize_pyan3\n    [U] _normalize_radon\n    [U] _resolve_function_to_class\n    [U] _safe_normalize\nbuild_project_map\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] InterfaceInfo\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _extract_bases\n    [U] _extract_class_source\n    [U] _extract_method_signatures\n    [U] _extract_top_level_imports\n    [U] _is_interface\ncheck\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassRole\n    [U] ClassRole\n    [U] ClassRole\n    [U] FileCache.set\n    [U] FileCache.set\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] _compute_method_cc\n    [U] _count_elif_chain\n    [U] _count_isinstance_branches\n    [U] _has_dataclass_decorator\n    [U] _is_abstract_class\n    [U] _is_abstract_class\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _parent_is_pure_interface\n    [U] classify_class\n    [U] classify_class\n    [U] classify_class\nclassify_class\n    [U] ClassRole\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] _compute_infra_score\n    [U] _extract_base_names\n    [U] _is_pure_interface\ncreate_llm_adapter\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_gateway\n    [U] _validate_config\ndfs\n    [U] FileCache.set\n    [U] LlmCache.set\nidentify_candidates\n    [U] BudgetExhaustedError.__init__\n    [U] ClassRole\n    [U] FileCache.__init__\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _build_import_aliases\n    [U] _compute_priority\n    [U] _deduplicate_candidates\n    [U] _deduplicate_findings\n    [U] _determine_candidate_type\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] classify_class\nload_llm_config\n    [U] LlmConfig\n    [U] _resolve_path_from_config\nmain\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] FileCache.__init__\n    [U] HeuristicsAdapter\n    [U] HeuristicsAdapter.name\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _to_jsonable\n    [U] load_config\n    [U] run_pipeline\nrun_pipeline\n    [U] IAnalyzer\n    [U] IAnalyzer.name\n    [U] IAnalyzer.run\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.__main__\n    [U] CohesionAdapter\n    [U] HeuristicsAdapter\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] load_config\n    [U] main\n    [U] run_pipeline\nsolid_dashboard.adapters\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] MethodInfo\n    [U] classify_class\nsolid_dashboard.adapters.cohesion_adapter\n    [U] IAnalyzer\n    [U] classify_class\nsolid_dashboard.adapters.heuristics_adapter\n    [U] IAnalyzer\n    [U] build_project_map\n    [U] identify_candidates\nsolid_dashboard.adapters.import_graph_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.import_linter_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.pyan3_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.radon_adapter\n    [U] IAnalyzer\nsolid_dashboard.config\n    [U] LlmConfig\nsolid_dashboard.llm\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] HeuristicResult\n    [U] InterfaceInfo\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmMetadata\n    [U] LlmResponse\n    [U] MethodSignature\n    [U] ParseResult\n    [U] ProjectMap\n    [U] build_project_map\nsolid_dashboard.llm.analysis.ast_parser\n    [U] ClassInfo\n    [U] InterfaceInfo\n    [U] MethodSignature\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics\n    [U] identify_candidates\nsolid_dashboard.llm.heuristics._runner\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] classify_class\n    [U] solid_dashboard.llm.heuristics.lsp_h_001\n    [U] solid_dashboard.llm.heuristics.lsp_h_002\n    [U] solid_dashboard.llm.heuristics.lsp_h_003\n    [U] solid_dashboard.llm.heuristics.lsp_h_004\n    [U] solid_dashboard.llm.heuristics.ocp_h_001\n    [U] solid_dashboard.llm.heuristics.ocp_h_002\n    [U] solid_dashboard.llm.heuristics.ocp_h_004\nsolid_dashboard.llm.heuristics._shared\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics.lsp_h_001\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_002\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_003\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] _make_finding\n    [U] _parse_class_ast\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_001\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _count_elif_chain\n    [U] _has_isinstance_call\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_002\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _compute_method_cc\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.llm_client.cache\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.factory\n    [U] FileCache\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmSolidAdapter\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.gateway\n    [U] BudgetExhaustedError\n    [U] LlmCache\n    [U] LlmOptions\n    [U] LlmProvider\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] Message\n    [U] NonRetryableError\n    [U] RetryableError\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.interfaces\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.llm_adapter\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmMetadata\n    [U] LlmOptions\n    [U] Message\n    [U] NonRetryableError\n    [U] ParseResult\n    [U] ProjectMap\n    [U] RetryableError\nsolid_dashboard.llm.llm_client.provider\n    [U] LlmResponse\n    [U] NonRetryableError\n    [U] RetryableError\nsolid_dashboard.pipeline\n    [U] IAnalyzer\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.report_aggregator\n    [U] AggregatedReport\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] EntitiesSection\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n"
+    "raw_output": "AggregatedReport\n    [U] AggregatedSummary\n    [U] DeadCodeEntry\n    [U] EntitiesSection\n    [U] ReportMeta\n    [U] ViolationEvent\nAggregatedSummary\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeSummary\n    [U] ImportsSummary\n    [U] MaintainabilitySummary\nBudgetExhaustedError\n    [U] LlmError\nBudgetExhaustedError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nClassInfo\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] MethodSignature\nCohesionAdapter\n    [U] IAnalyzer\nCohesionAdapter._build_class_info\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_method_info\n    [U] CohesionAdapter._extract_name_from_ann_assign\n    [U] CohesionAdapter._extract_names_from_assign\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] classify_class\nCohesionAdapter._build_method_info\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] CohesionAdapter._classify_decorator\n    [U] CohesionAdapter._is_empty_method\n    [U] FileCache.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] MethodInfo\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._collect_classes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._build_class_info\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._populate_method_usage\n    [U] CohesionAdapter._repopulate_method_usage\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\nCohesionAdapter._collect_instance_attributes_from_init\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._extract_instance_attr_from_target\n    [U] IAnalyzer.name\nCohesionAdapter._compute_lcom4\n    [U] ClassInfo\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] dfs\nCohesionAdapter._enrich_with_ancestor_attributes\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_instance_attributes_from_init\n    [U] CohesionAdapter._enrich_with_ancestor_attributes\n    [U] CohesionAdapter._resolve_classdef\n    [U] IAnalyzer.name\nCohesionAdapter._populate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._repopulate_method_usage\n    [U] ClassInfo\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] MethodInfo\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\nCohesionAdapter._resolve_classdef\n    [U] FileCache.get\n    [U] LlmCache.get\nCohesionAdapter.run\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] CohesionAdapter._collect_classes\n    [U] CohesionAdapter._compute_lcom4\n    [U] CohesionAdapter.name\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.get\n    [U] LlmCache.set\nCohesionResult\n    [U] CohesionClassMetrics\nEntitiesSection\n    [U] ClassMetrics\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\nFileCache.get\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nFileCache.set\n    [U] FileCache\n    [U] LlmResponse\nFinding\n    [U] FindingDetails\nHeuristicResult\n    [U] Finding\n    [U] LlmCandidate\nHeuristicsAdapter\n    [U] IAnalyzer\nHeuristicsAdapter.run\n    [U] FileCache.get\n    [U] HeuristicsAdapter.name\n    [U] LlmCache.get\n    [U] build_project_map\n    [U] identify_candidates\nImportGraphAdapter\n    [U] IAnalyzer\nImportGraphAdapter._build_layer_graph\n    [U] FileCache.set\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_nodes_with_stability\n    [U] ImportGraphAdapter._is_ignored\n    [U] ImportGraphAdapter._resolve_external_layer\n    [U] ImportGraphAdapter._resolve_internal_layer\n    [U] LlmCache.set\nImportGraphAdapter._detect_sdp_violations\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._detect_skip_layer_violations\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportGraphAdapter._get_interface_layer_names\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter._resolve_tier_map\n    [U] FileCache.get\n    [U] LlmCache.get\nImportGraphAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.name\n    [U] ImportGraphAdapter\n    [U] ImportGraphAdapter._build_layer_graph\n    [U] ImportGraphAdapter._detect_sdp_violations\n    [U] ImportGraphAdapter._detect_skip_layer_violations\n    [U] ImportGraphAdapter._get_interface_layer_names\n    [U] ImportGraphAdapter._normalize_layer_config\n    [U] ImportGraphAdapter._resolve_tier_map\n    [U] LlmCache.get\nImportLinterAdapter\n    [U] IAnalyzer\nImportLinterAdapter.generate_synced_config\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\nImportLinterAdapter.run\n    [U] IAnalyzer.run\n    [U] ImportLinterAdapter\n    [U] ImportLinterAdapter._error_message\n    [U] ImportLinterAdapter._parse_contract_stats\n    [U] ImportLinterAdapter._parse_violations\n    [U] ImportLinterAdapter.generate_synced_config\nInterfaceInfo\n    [U] MethodSignature\nLlmAnalysisInput\n    [U] Finding\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmAnalysisOutput\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmMetadata\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmCache.get\n    [U] LlmResponse\nLlmCache.set\n    [U] LlmResponse\nLlmError.__str__\n    [U] LlmError\nLlmGateway\n    [U] LlmCache\n    [U] LlmProvider\n    [U] TokenBudgetController\nLlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] Message\nLlmGateway.analyze\n    [U] BudgetExhaustedError\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmGateway\n    [U] LlmGateway._build_cache_key\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] TokenBudgetController.is_exhausted\n    [U] TokenBudgetController.record_tokens\n    [U] _MethodUsageVisitor.__init__\nLlmProvider.chat\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] Message\nLlmSolidAdapter\n    [U] LlmConfig\n    [U] LlmGateway\nLlmSolidAdapter._build_context\n    [U] Finding\n    [U] LlmCandidate\n    [U] ProjectMap\nLlmSolidAdapter._build_prompt_and_options\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmOptions\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._parse_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmCandidate\n    [U] LlmSolidAdapter._extract_json_content\n    [U] LlmSolidAdapter._validate_finding\n    [U] LlmSolidAdapter._validate_structure\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ParseResult\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_finding\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmCache.get\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmSolidAdapter._validate_structure\n    [U] FileCache.get\n    [U] LlmCache.get\nLlmSolidAdapter.analyze\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] Finding\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmMetadata\n    [U] LlmSolidAdapter\n    [U] LlmSolidAdapter._build_context\n    [U] LlmSolidAdapter._build_prompt_and_options\n    [U] LlmSolidAdapter._parse_response\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nLlmUnavailableError\n    [U] LlmError\nLlmUnavailableError.__init__\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmError\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nMaintainabilityResult\n    [U] MaintainabilityFileMetrics\nMethodInfo\n    [U] FileCache.set\n    [U] LlmCache.set\nNonRetryableError\n    [U] LlmError\nOpenRouterProvider.__init__\n    [U] OpenRouterProvider\nOpenRouterProvider._build_payload\n    [U] LlmOptions\n    [U] Message\nOpenRouterProvider._handle_response\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._parse_success\n    [U] OpenRouterProvider._raise_non_retryable\n    [U] OpenRouterProvider._raise_retryable\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._parse_success\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] LlmCache.get\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_non_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider._raise_retryable\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.chat\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmOptions\n    [U] LlmResponse\n    [U] LlmUnavailableError.__init__\n    [U] Message\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n    [U] OpenRouterProvider._build_payload\n    [U] OpenRouterProvider._handle_response\n    [U] RetryableError\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\nOpenRouterProvider.close\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\nParseResult\n    [U] Finding\nProjectMap\n    [U] ClassInfo\n    [U] InterfaceInfo\nPyan3Adapter\n    [U] IAnalyzer\nPyan3Adapter.run\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] Pyan3Adapter\n    [U] Pyan3Adapter._error\n    [U] _detect_suspicious_blocks\nRadonAdapter\n    [U] IAnalyzer\nRadonAdapter._run_mi\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\nRadonAdapter.run\n    [U] FileCache.get\n    [U] IAnalyzer.run\n    [U] LlmCache.get\n    [U] LlmGateway.analyze\n    [U] RadonAdapter\n    [U] RadonAdapter._run_mi\nRadonResult\n    [U] MaintainabilityResult\n    [U] RadonFunctionMetrics\nRetryableError\n    [U] LlmError\nTokenBudgetController.is_exhausted\n    [U] TokenBudgetController\n    [U] TokenBudgetController.is_exhausted\nTokenBudgetController.record_tokens\n    [U] TokenBudgetController\nViolationEvent\n    [U] EvidenceItem\n    [U] ViolationLocation\n    [U] ViolationMetrics\n_MethodUsageVisitor.__init__\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor._register_self_like_names\n    [U] FileCache.set\n    [U] LlmCache.set\n_MethodUsageVisitor.visit_AsyncFunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_MethodUsageVisitor.visit_Attribute\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_Call\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n_MethodUsageVisitor.visit_FunctionDef\n    [U] _MethodUsageVisitor\n    [U] _MethodUsageVisitor.__init__\n    [U] _MethodUsageVisitor._register_self_like_names\n_annotation_to_str\n    [U] _annotation_to_str\n_attach_tier_to_layers\n    [U] _resolve_tier_map\n_build_file_index\n    [U] FileMetrics\n_build_import_aliases\n    [U] IAnalyzer.name\n_compute_method_cc\n    [U] _iter_method_nodes\n_compute_summary\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ViolationEvent\n_count_isinstance_branches\n    [U] _has_isinstance_call\n_create_gateway\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_provider\n_create_provider\n    [U] LlmConfig\n    [U] OpenRouterProvider\n    [U] OpenRouterProvider.__init__\n_deduplicate_candidates\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] LlmCandidate\n_deduplicate_findings\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] _priority\n_deduplicate_violations\n    [U] ViolationEvent\n_detect_import_cycles\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_detect_suspicious_blocks\n    [U] FileCache.set\n    [U] LlmCache.set\n_emit_cc_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_cohesion_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_code_risk_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_dead_layer_node_events\n    [U] DeadCodeEntry\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_low_cohesion_contract_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_low_mi_violating_layer_events\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_emit_mi_events\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_overloaded_class_events\n    [U] EvidenceItem\n    [U] FunctionMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n_emit_unstable_cohesion_layer_events\n    [U] ClassMetrics\n    [U] EvidenceItem\n    [U] LayerMetrics\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _filepath_to_module\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_enrich_dead_code_entries\n    [U] DeadCodeEntry\n    [U] _resolve_module_to_layer\n_extract_method_signatures\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] MethodSignature\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _annotation_to_str\n    [U] _is_abstract_method\n_extract_top_level_imports\n    [U] IAnalyzer.name\n_is_abstract_class\n    [U] ClassInfo\n    [U] IAnalyzer.name\n    [U] ProjectMap\n_is_pure_interface\n    [U] _is_trivial_body\n_is_trivial_body\n    [U] _is_docstring_node\n_make_finding\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] Finding\n    [U] FindingDetails\n    [U] IAnalyzer.name\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n_merge_layer_violations\n    [U] EvidenceItem\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n    [U] _make_event_id\n    [U] _resolve_module_to_layer\n_normalize_cohesion\n    [U] ClassMetrics\n_normalize_import_graph\n    [U] LayerMetrics\n_normalize_pyan3\n    [U] DeadCodeEntry\n_normalize_radon\n    [U] FunctionMetrics\n_parent_is_pure_interface\n    [U] ClassInfo\n    [U] ClassRole\n    [U] IAnalyzer.name\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] classify_class\n_parse_class_ast\n    [U] IAnalyzer.name\n_priority\n    [U] Finding\n_resolve_function_to_class\n    [U] ClassMetrics\n_safe_normalize\n    [U] _is_error_result\n_should_exclude_path\n    [U] _normalize_path_for_matching\n_to_jsonable\n    [U] FileCache.set\n    [U] LlmCache.set\n    [U] _to_jsonable\n_validate_config\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmUnavailableError.__init__\n    [U] NonRetryableError\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\naggregate_results\n    [U] AggregatedReport\n    [U] ClassMetrics\n    [U] EntitiesSection\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] LayerMetrics\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] _attach_cross_metrics\n    [U] _attach_tier_to_layers\n    [U] _build_class_index\n    [U] _build_file_index\n    [U] _build_function_index\n    [U] _build_layer_index\n    [U] _build_module_to_layer_map\n    [U] _compute_summary\n    [U] _deduplicate_violations\n    [U] _detect_import_cycles\n    [U] _emit_cc_events\n    [U] _emit_cohesion_events\n    [U] _emit_dead_code_events\n    [U] _emit_dead_code_risk_events\n    [U] _emit_dead_layer_node_events\n    [U] _emit_low_cohesion_contract_layer_events\n    [U] _emit_low_mi_violating_layer_events\n    [U] _emit_mi_events\n    [U] _emit_overloaded_class_events\n    [U] _emit_unstable_cohesion_layer_events\n    [U] _enrich_dead_code_entries\n    [U] _merge_layer_violations\n    [U] _normalize_cohesion\n    [U] _normalize_import_graph\n    [U] _normalize_import_linter\n    [U] _normalize_pyan3\n    [U] _normalize_radon\n    [U] _resolve_function_to_class\n    [U] _safe_normalize\nbuild_project_map\n    [U] BudgetExhaustedError.__init__\n    [U] ClassInfo\n    [U] FileCache.__init__\n    [U] FileCache.get\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] InterfaceInfo\n    [U] LlmCache.get\n    [U] LlmCache.set\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _extract_bases\n    [U] _extract_class_source\n    [U] _extract_method_signatures\n    [U] _extract_top_level_imports\n    [U] _is_interface\ncheck\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassInfo\n    [U] ClassRole\n    [U] ClassRole\n    [U] ClassRole\n    [U] FileCache.set\n    [U] FileCache.set\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] Finding\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] ProjectMap\n    [U] _compute_method_cc\n    [U] _count_elif_chain\n    [U] _count_isinstance_branches\n    [U] _has_dataclass_decorator\n    [U] _is_abstract_class\n    [U] _is_abstract_class\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _make_finding\n    [U] _parent_is_pure_interface\n    [U] classify_class\n    [U] classify_class\n    [U] classify_class\nclassify_class\n    [U] ClassRole\n    [U] FileCache.set\n    [U] IAnalyzer.name\n    [U] LlmCache.set\n    [U] _compute_infra_score\n    [U] _extract_base_names\n    [U] _is_pure_interface\ncreate_llm_adapter\n    [U] BudgetExhaustedError.__init__\n    [U] FileCache.__init__\n    [U] LlmConfig\n    [U] LlmSolidAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _create_gateway\n    [U] _validate_config\ndfs\n    [U] FileCache.set\n    [U] LlmCache.set\nidentify_candidates\n    [U] BudgetExhaustedError.__init__\n    [U] ClassRole\n    [U] FileCache.__init__\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] ProjectMap\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _build_import_aliases\n    [U] _compute_priority\n    [U] _deduplicate_candidates\n    [U] _deduplicate_findings\n    [U] _determine_candidate_type\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] check\n    [U] classify_class\nload_llm_config\n    [U] LlmConfig\n    [U] _resolve_path_from_config\nmain\n    [U] BudgetExhaustedError.__init__\n    [U] CohesionAdapter\n    [U] FileCache.__init__\n    [U] HeuristicsAdapter\n    [U] HeuristicsAdapter.name\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] LlmUnavailableError.__init__\n    [U] OpenRouterProvider.__init__\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] TokenBudgetController.__init__\n    [U] _MethodUsageVisitor.__init__\n    [U] _to_jsonable\n    [U] load_config\n    [U] run_pipeline\nrun_pipeline\n    [U] IAnalyzer\n    [U] IAnalyzer.name\n    [U] IAnalyzer.run\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.__main__\n    [U] CohesionAdapter\n    [U] HeuristicsAdapter\n    [U] ImportGraphAdapter\n    [U] ImportLinterAdapter\n    [U] Pyan3Adapter\n    [U] RadonAdapter\n    [U] load_config\n    [U] main\n    [U] run_pipeline\nsolid_dashboard.adapters\n    [U] ClassInfo\n    [U] CohesionAdapter\n    [U] MethodInfo\n    [U] classify_class\nsolid_dashboard.adapters.cohesion_adapter\n    [U] IAnalyzer\n    [U] classify_class\nsolid_dashboard.adapters.heuristics_adapter\n    [U] IAnalyzer\n    [U] build_project_map\n    [U] identify_candidates\nsolid_dashboard.adapters.import_graph_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.import_linter_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.pyan3_adapter\n    [U] IAnalyzer\nsolid_dashboard.adapters.radon_adapter\n    [U] IAnalyzer\nsolid_dashboard.config\n    [U] LlmConfig\nsolid_dashboard.llm\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] HeuristicResult\n    [U] InterfaceInfo\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmMetadata\n    [U] LlmResponse\n    [U] MethodSignature\n    [U] ParseResult\n    [U] ProjectMap\n    [U] build_project_map\nsolid_dashboard.llm.analysis.ast_parser\n    [U] ClassInfo\n    [U] InterfaceInfo\n    [U] MethodSignature\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics\n    [U] identify_candidates\nsolid_dashboard.llm.heuristics._runner\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] HeuristicResult\n    [U] LlmCandidate\n    [U] ProjectMap\n    [U] _parse_class_ast\n    [U] _should_exclude_path\n    [U] classify_class\n    [U] solid_dashboard.llm.heuristics.lsp_h_001\n    [U] solid_dashboard.llm.heuristics.lsp_h_002\n    [U] solid_dashboard.llm.heuristics.lsp_h_003\n    [U] solid_dashboard.llm.heuristics.lsp_h_004\n    [U] solid_dashboard.llm.heuristics.ocp_h_001\n    [U] solid_dashboard.llm.heuristics.ocp_h_002\n    [U] solid_dashboard.llm.heuristics.ocp_h_004\nsolid_dashboard.llm.heuristics._shared\n    [U] ClassInfo\n    [U] Finding\n    [U] FindingDetails\n    [U] ProjectMap\nsolid_dashboard.llm.heuristics.lsp_h_001\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_002\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _is_abstract_class\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_003\n    [U] ClassInfo\n    [U] Finding\n    [U] ProjectMap\n    [U] _make_finding\nsolid_dashboard.llm.heuristics.lsp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] FileCache.set\n    [U] Finding\n    [U] LlmCache.set\n    [U] ProjectMap\n    [U] _make_finding\n    [U] _parse_class_ast\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_001\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _count_elif_chain\n    [U] _has_isinstance_call\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_002\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.heuristics.ocp_h_004\n    [U] ClassInfo\n    [U] ClassRole\n    [U] Finding\n    [U] _compute_method_cc\n    [U] _iter_method_nodes\n    [U] _make_finding\n    [U] classify_class\nsolid_dashboard.llm.llm_client.cache\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.factory\n    [U] FileCache\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmSolidAdapter\n    [U] NonRetryableError\n    [U] OpenRouterProvider\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.gateway\n    [U] BudgetExhaustedError\n    [U] LlmCache\n    [U] LlmOptions\n    [U] LlmProvider\n    [U] LlmResponse\n    [U] LlmUnavailableError\n    [U] Message\n    [U] NonRetryableError\n    [U] RetryableError\n    [U] TokenBudgetController\nsolid_dashboard.llm.llm_client.interfaces\n    [U] LlmResponse\nsolid_dashboard.llm.llm_client.llm_adapter\n    [U] Finding\n    [U] FindingDetails\n    [U] LlmAnalysisInput\n    [U] LlmAnalysisOutput\n    [U] LlmCandidate\n    [U] LlmConfig\n    [U] LlmGateway\n    [U] LlmMetadata\n    [U] LlmOptions\n    [U] Message\n    [U] NonRetryableError\n    [U] ParseResult\n    [U] ProjectMap\n    [U] RetryableError\nsolid_dashboard.llm.llm_client.provider\n    [U] LlmResponse\n    [U] NonRetryableError\n    [U] RetryableError\nsolid_dashboard.pipeline\n    [U] IAnalyzer\n    [U] LlmAnalysisInput\n    [U] aggregate_results\n    [U] create_llm_adapter\n    [U] load_llm_config\nsolid_dashboard.report_aggregator\n    [U] AggregatedReport\n    [U] AggregatedSummary\n    [U] ClassMetrics\n    [U] CohesionSummary\n    [U] ComplexitySummary\n    [U] DeadCodeEntry\n    [U] DeadCodeSummary\n    [U] EntitiesSection\n    [U] EvidenceItem\n    [U] FileMetrics\n    [U] FunctionMetrics\n    [U] ImportsSummary\n    [U] LayerMetrics\n    [U] MaintainabilitySummary\n    [U] ReportMeta\n    [U] ViolationEvent\n    [U] ViolationLocation\n    [U] ViolationMetrics\n"
   },
   "heuristics": {
     "project_map_summary": {
@@ -7311,7 +7321,7 @@
       {
         "class_name": "LlmSolidAdapter",
         "file_path": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-        "source_code": "class LlmSolidAdapter:\n    \"\"\"\n    Ядро LLM-анализа.\n\n    Получает LlmGateway и LlmConfig через DI.\n    Здесь только оркестрация: контекст → промпт → Gateway → парсинг.\n    \"\"\"\n\n    gateway: LlmGateway\n    config: LlmConfig\n\n    def analyze(self, analysis_input: LlmAnalysisInput) -> LlmAnalysisOutput:\n        project_map = analysis_input.project_map\n        candidates = sorted(\n            analysis_input.candidates,\n            key=lambda c: c.priority,\n            reverse=True,\n        )\n\n        all_findings: list[Finding] = []\n        processed = 0\n        skipped = 0\n        tokens_used = 0\n        cache_hits = 0\n\n        parse_failures = 0      # NEW\n        parse_partials = 0      # NEW\n        parse_warnings = 0      # NEW\n\n        for candidate in candidates:\n            try:\n                context = self._build_context(project_map, candidate)\n                messages, options = self._build_prompt_and_options(context, candidate)\n                response = self.gateway.analyze(messages, options)\n\n                # парсим ответ LLM через ACL-B\n                parse_result = self._parse_response(response, candidate)\n\n                # Агрегируем warnings ACL-B\n                parse_warnings += len(parse_result.warnings)\n\n                if parse_result.status == \"failure\":\n                    # HTTP-уровень ок, но JSON/контент не соответствует контракту\n                    parse_failures += 1\n                    skipped += 1\n                else:\n                    # success или partial считаем обработанными\n                    if parse_result.status == \"partial\":\n                        parse_partials += 1\n\n                    all_findings.extend(parse_result.findings)\n                    processed += 1\n\n                # Токены и cache\n                tokens_for_call = getattr(response, \"tokens_used\", 0)\n                if tokens_for_call == 0:\n                    cache_hits += 1\n                else:\n                    tokens_used += tokens_for_call\n\n            except (RetryableError, NonRetryableError) as exc:\n                logger.warning(\n                    \"LLM error for candidate '%s' (%s), skipping. %s: %s\",\n                    candidate.class_name,\n                    candidate.candidate_type,\n                    type(exc).__name__,\n                    exc,\n                )\n                skipped += 1\n            except Exception as exc:\n                logger.exception(\n                    \"Unexpected error in LlmSolidAdapter for candidate '%s': %s\",\n                    candidate.class_name,\n                    exc,\n                )\n                skipped += 1\n\n        if candidates and processed == 0:\n            logger.warning(\n                \"All LLM candidates failed: %d skipped out of %d. \"\n                \"Check model compatibility or prompt configuration.\",\n                skipped,\n                len(candidates),\n            )\n\n        metadata = LlmMetadata(\n            candidates_processed=processed,\n            candidates_skipped=skipped,\n            tokens_used=tokens_used,\n            cache_hits=cache_hits,\n            parse_failures=parse_failures,     # NEW\n            parse_partials=parse_partials,     # NEW\n            parse_warnings=parse_warnings,     # NEW\n        )\n        return LlmAnalysisOutput(findings=all_findings, metadata=metadata)\n\n    # --- Context Assembler (минимальная версия, будет расширена на Шаге 5.x) ---\n\n    def _build_context(self, project_map: ProjectMap, candidate: LlmCandidate) -> dict:\n        \"\"\"\n        Минимальный контекст: только фокус-класс.\n        Поля соответствуют LlmCandidate в types.py: class_name, file_path,\n        source_code, candidate_type.\n\n        Дефект A — поле \"findings\" добавлено как пустая строка для совместимости\n                   с {findings} в user_base.md; также передаётся в _build_prompt_and_options\n                   через context для подстановки в шаблон.\n        Дефект B — source_code обрезается до SOURCE_CODE_MAX_LINES строк\n                   перед вставкой в промпт, предотвращая BudgetExhaustedError.\n        \"\"\"\n        SOURCE_CODE_MAX_LINES = 200  # жёсткий лимит: Вариант 2\n\n        # project_map принимается для совместимости с будущими шагами расширения\n        raw_source = candidate.source_code or \"\"\n        lines = raw_source.splitlines()\n\n        if len(lines) > SOURCE_CODE_MAX_LINES:\n            trimmed = lines[:SOURCE_CODE_MAX_LINES]\n            trimmed.append(\n                f\"# ... [truncated: показаны {SOURCE_CODE_MAX_LINES} из {len(lines)} строк]\"\n            )\n            source_code = \"\\n\".join(trimmed)\n            logger.debug(\n                \"source_code for '%s' truncated: %d → %d lines.\",\n                candidate.class_name,\n                len(lines),\n                SOURCE_CODE_MAX_LINES,\n            )\n        else:\n            source_code = raw_source\n\n        return {\n            \"class_name\": candidate.class_name,\n            \"file_path\": candidate.file_path,\n            \"source_code\": source_code,         # обрезанный вариант (Дефект B)\n            \"candidate_type\": candidate.candidate_type,\n            \"findings\": \"\",                     # заглушка для {findings} в шаблоне (Дефект A)\n        }\n\n    def _build_prompt_and_options(\n        self,\n        context: dict,\n        candidate: \"LlmCandidate\",\n    ) -> tuple[Sequence[Message], LlmOptions]:\n        \"\"\"\n        Строит итоговый промпт для LLM, объединяя контекст и шаблоны из файловой системы.\n\n        Использует:\n        - system.md      — роль и общие правила анализа SOLID;\n        - user_base.md   — базовый пользовательский промпт для одного класса;\n        - user_ocp_section.md / user_lsp_section.md — доп. секции в зависимости от типа кандидата;\n        - response_schema.json — описание ожидаемого JSON-ответа.\n        \"\"\"\n        prompts_dir = Path(self.config.prompts_dir)\n\n        # --- System prompt ---\n\n        system_path = prompts_dir / \"system.md\"\n        try:\n            system_text = system_path.read_text(encoding=\"utf-8\")\n        except Exception as exc:\n            logger.warning(\n                \"Failed to read system.md from %s: %s. Using fallback.\",\n                prompts_dir,\n                exc,\n            )\n            system_text = (\n                \"You are a SOLID principles expert. \"\n                \"Analyze Python code for potential OCP and LSP issues.\"\n            )\n\n        # --- Base user prompt template ---\n\n        user_base_path = prompts_dir / \"user_base.md\"\n        try:\n            user_template = user_base_path.read_text(encoding=\"utf-8\")\n        except Exception as exc:\n            logger.warning(\n                \"Failed to read user_base.md from %s: %s. Using fallback.\",\n                prompts_dir,\n                exc,\n            )\n            user_template = (\n                \"Analyze the following Python class for {candidate_type} issues.\\n\"\n                \"Class: {class_name}\\n\"\n                \"File: {file_path}\\n\"\n                \"```python\\n{source_code}\\n```\"\n            )\n\n        # --- Optional OCP / LSP focus sections ---\n\n        ocp_section_text = \"\"\n        lsp_section_text = \"\"\n\n        # комментарий: OCP-секция добавляется только для кандидатов с типом ocp или both\n        if candidate.candidate_type in (\"ocp\", \"both\"):\n            ocp_path = prompts_dir / \"user_ocp_section.md\"\n            try:\n                ocp_section_text = ocp_path.read_text(encoding=\"utf-8\")\n            except Exception as exc:\n                logger.warning(\n                    \"Failed to read user_ocp_section.md from %s: %s. Skipping OCP section.\",\n                    prompts_dir,\n                    exc,\n                )\n\n        # комментарий: LSP-секция добавляется только для кандидатов с типом lsp или both\n        if candidate.candidate_type in (\"lsp\", \"both\"):\n            lsp_path = prompts_dir / \"user_lsp_section.md\"\n            try:\n                lsp_section_text = lsp_path.read_text(encoding=\"utf-8\")\n            except Exception as exc:\n                logger.warning(\n                    \"Failed to read user_lsp_section.md from %s: %s. Skipping LSP section.\",\n                    prompts_dir,\n                    exc,\n                )\n\n        # --- Response schema (JSON) ---\n\n        schema_suffix = \"\"\n        schema_path = prompts_dir / \"response_schema.json\"\n        try:\n            raw = schema_path.read_text(encoding=\"utf-8\")\n            # комментарий: предполагаем простую структуру {\"instruction\": \"...\", ...}\n            # и используем только поле instruction; при ошибках парсинга fallback — пустой суффикс.\n            import json  # локальный импорт, чтобы не тянуть json глобально, если LLM отключен\n\n            data = json.loads(raw)\n            instruction = data.get(\"instruction\")\n            if isinstance(instruction, str) and instruction.strip():\n                schema_suffix = \"\\n\\n\" + instruction.strip()\n        except Exception as exc:\n            logger.warning(\n                \"Failed to read or parse response_schema.json from %s: %s. \"\n                \"Proceeding without explicit schema instruction.\",\n                prompts_dir,\n                exc,\n            )\n\n        # --- Формирование итогового user-промпта ---\n\n        try:\n            base_user_text = user_template.format(\n                candidate_type=context[\"candidate_type\"],\n                class_name=context[\"class_name\"],\n                file_path=context[\"file_path\"],\n                source_code=context[\"source_code\"],   # Дефект B: теперь обрезанная версия\n                findings=context[\"findings\"],          # Дефект A: устраняет KeyError\n            )\n        except KeyError as exc:\n            logger.error(\n                \"Missing placeholder %s in user_base.md. Using fallback user prompt.\",\n                exc,\n            )\n            base_user_text = (\n                f\"Analyze the following Python class for {candidate.candidate_type} issues.\\n\"\n                f\"Class: {candidate.class_name}\\n\"\n                f\"File: {candidate.file_path}\\n\"\n                f\"```python\\n{context['source_code']}\\n```\"  # Дефект B: из context\n            )\n\n        # комментарий: собираем итоговый текст пользователя по слоям:\n        # базовый промпт → OCP/LSP‑фокусы → инструкция по JSON-схеме\n        user_parts = [base_user_text]\n        if ocp_section_text:\n            user_parts.append(\"\\n\\n\" + ocp_section_text.strip())\n        if lsp_section_text:\n            user_parts.append(\"\\n\\n\" + lsp_section_text.strip())\n        if schema_suffix:\n            user_parts.append(schema_suffix)\n\n        user_text = \"\".join(user_parts)\n\n        # --- Messages + options для Gateway ---\n\n        messages: List[Message] = [\n            Message(role=\"system\", content=system_text),\n            Message(role=\"user\", content=user_text),\n        ]\n        options = LlmOptions(model=self.config.model)\n\n        return messages, options\n\n    # --- Response Parser (ACL-B) ---\n\n    def _extract_json_content(self, text: str) -> dict | None:\n        \"\"\"\n        Слой 1: Извлечение сырого JSON из текста ответа LLM.\n        Пытается распарсить напрямую, очистить от markdown-тегов или найти блок { ... }.\n        \"\"\"\n        if not text:\n            return None\n\n        text = text.strip()\n        \n        # Попытка 1: Прямой парсинг (если модель вернула идеальный JSON)\n        try:\n            return json.loads(text)\n        except json.JSONDecodeError:\n            pass\n\n        # Попытка 2: Вырезка markdown-блока (```json ... ``` или ``` ... ```)\n        # re.DOTALL позволяет символу '.' совпадать с переносами строк\n        match = re.search(r\"```(?:json)?\\s*(.*?)\\s*```\", text, re.DOTALL)\n        if match:\n            try:\n                return json.loads(match.group(1).strip())\n            except json.JSONDecodeError:\n                pass\n\n        # Попытка 3: Экстренный поиск первого '{' и последнего '}'\n        start_idx = text.find(\"{\")\n        end_idx = text.rfind(\"}\")\n        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:\n            try:\n                return json.loads(text[start_idx : end_idx + 1])\n            except json.JSONDecodeError:\n                pass\n\n        return None\n\n    def _validate_structure(self, data: dict) -> list[dict] | None:\n        \"\"\"\n        Слой 2: Минимальная проверка ожидаемой структуры ответа.\n        \"\"\"\n        if not isinstance(data, dict):\n            return None\n        \n        findings = data.get(\"findings\")\n        if not isinstance(findings, list):\n            return None\n            \n        return findings\n\n    def _validate_finding(self, raw: dict, candidate: LlmCandidate) -> Finding | None:\n        \"\"\"\n        Слой 3: Валидация конкретной находки и маппинг в доменные\n        Finding / FindingDetails.\n        \"\"\"\n        if not isinstance(raw, dict):\n            return None\n\n        # message — минимально обязательное содержимое finding;\n        # без него finding теряет смысл для отчета.\n        raw_message = raw.get(\"message\")\n        if not isinstance(raw_message, str) or not raw_message.strip():\n            return None\n        message = raw_message.strip()\n\n        # нормализуем severity в поддерживаемый набор;\n        # неизвестные значения понижаем до warning как безопасный дефолт.\n        raw_severity = str(raw.get(\"severity\", \"\")).lower()\n        severity = raw_severity if raw_severity in (\"error\", \"warning\", \"info\") else \"warning\"\n\n        # principle — смысловое поле details, а не top-level поля Finding.\n        # Сначала доверяем явному ответу модели, потом используем candidate_type как fallback.\n        raw_principle = str(raw.get(\"principle\", \"\")).upper()\n        if raw_principle not in (\"OCP\", \"LSP\"):\n            if candidate.candidate_type == \"ocp\":\n                raw_principle = \"OCP\"\n            elif candidate.candidate_type == \"lsp\":\n                raw_principle = \"LSP\"\n            else:\n                # для candidate_type=\"both\" без явного principle\n                # finding неоднозначен, поэтому лучше пропустить его.\n                return None\n\n        # rule генерируем сами по внутреннему соглашению проекта,\n        # чтобы не зависеть от капризов LLM и сохранить единый naming contract.\n        rule = f\"{raw_principle}-LLM-001\"\n\n        # explanation допускает два возможных имени поля в JSON:\n        # \"explanation\" как целевое и \"details\" как совместимость с ранними промптами.\n        raw_explanation = raw.get(\"explanation\")\n        if not isinstance(raw_explanation, str) or not raw_explanation.strip():\n            raw_explanation = raw.get(\"details\")\n        explanation = raw_explanation.strip() if isinstance(raw_explanation, str) and raw_explanation.strip() else None\n\n        raw_suggestion = raw.get(\"suggestion\")\n        suggestion = raw_suggestion.strip() if isinstance(raw_suggestion, str) and raw_suggestion.strip() else None\n\n        raw_method_name = raw.get(\"method_name\")\n        method_name = raw_method_name.strip() if isinstance(raw_method_name, str) and raw_method_name.strip() else None\n\n        raw_analyzed_with = raw.get(\"analyzed_with\")\n        analyzed_with = None\n        if isinstance(raw_analyzed_with, list):\n            cleaned = [\n                item.strip()\n                for item in raw_analyzed_with\n                if isinstance(item, str) and item.strip()\n            ]\n            if cleaned:\n                analyzed_with = cleaned\n\n        details = FindingDetails(\n            principle=raw_principle,\n            explanation=explanation,\n            suggestion=suggestion,\n            analyzed_with=analyzed_with,\n            heuristic_corroboration=True,\n            method_name=method_name,\n        )\n\n        return Finding(\n            rule=rule,\n            file=candidate.file_path,\n            severity=severity,\n            message=message,\n            source=\"llm\",\n            class_name=candidate.class_name,\n            line=None,\n            details=details,\n        )\n\n    def _parse_response(self, response, candidate: LlmCandidate) -> ParseResult:\n        # warnings собираем по мере прохождения слоев ACL-B\n        warnings: list[str] = []\n\n        raw_content = getattr(response, \"content\", \"\")\n\n        # 1. Извлекаем JSON-словарь\n        parsed_data = self._extract_json_content(raw_content)\n        if not parsed_data:\n            msg = (\n                f\"Failed to extract JSON from LLM response for candidate \"\n                f\"'{candidate.class_name}'. Raw snippet: \"\n                f\"{raw_content[:100].replace('\\\\n', ' ')}...\"\n            )\n            logger.warning(msg)\n            warnings.append(msg)\n\n            return ParseResult(\n                findings=[],\n                warnings=warnings,\n                status=\"failure\",\n            )\n\n        # 2. Проверяем наличие ключа findings\n        raw_findings = self._validate_structure(parsed_data)\n        if raw_findings is None:\n            keys = list(parsed_data.keys())\n            msg = (\n                f\"LLM response for candidate '{candidate.class_name}' \"\n                f\"missing 'findings' array. Parsed keys: {keys}\"\n            )\n            logger.warning(msg)\n            warnings.append(msg)\n\n            return ParseResult(\n                findings=[],\n                warnings=warnings,\n                status=\"failure\",\n            )\n\n        # 3. Маппим каждый finding\n        valid_findings: list[Finding] = []\n        dropped_count = 0\n\n        for raw_item in raw_findings:\n            finding = self._validate_finding(raw_item, candidate)\n            if finding:\n                valid_findings.append(finding)\n            else:\n                dropped_count += 1\n\n        if not valid_findings and len(raw_findings) > 0:\n            msg = (\n                f\"Extracted {len(raw_findings)} items for candidate \"\n                f\"'{candidate.class_name}', but none were valid findings.\"\n            )\n            logger.warning(msg)\n            warnings.append(msg)\n\n        # Определяем статус\n        if not valid_findings and not raw_findings:\n            # JSON и структура корректны, просто модель не нашла нарушений.\n            status: ParseStatus = \"success\"\n        elif dropped_count == 0:\n            status = \"success\"\n        elif dropped_count < len(raw_findings):\n            status = \"partial\"\n        else:\n            # формально сюда мы уже зашли в ветке \"none valid\", но оставляем на случай\n            status = \"failure\"\n\n        return ParseResult(\n            findings=valid_findings,\n            warnings=warnings,\n            status=status,\n        )",
+        "source_code": "class LlmSolidAdapter:\n    \"\"\"\n    Ядро LLM-анализа.\n\n    Получает LlmGateway и LlmConfig через DI.\n    Здесь только оркестрация: контекст → промпт → Gateway → парсинг.\n    \"\"\"\n\n    gateway: LlmGateway\n    config: LlmConfig\n\n    def analyze(self, analysis_input: LlmAnalysisInput) -> LlmAnalysisOutput:\n        project_map = analysis_input.project_map\n        candidates = sorted(\n            analysis_input.candidates,\n            key=lambda c: c.priority,\n            reverse=True,\n        )\n\n        all_findings: list[Finding] = []\n        processed = 0\n        skipped = 0\n        tokens_used = 0\n        cache_hits = 0\n\n        parse_failures = 0      # NEW\n        parse_partials = 0      # NEW\n        parse_warnings = 0      # NEW\n\n        for candidate in candidates:\n            try:\n                # передаём полный список heuristic_findings; фильтрация по candidate — внутри метода\n                context = self._build_context(\n                    project_map,\n                    candidate,\n                    analysis_input.heuristic_findings,\n                )\n                messages, options = self._build_prompt_and_options(context, candidate)\n                response = self.gateway.analyze(messages, options)\n\n                # парсим ответ LLM через ACL-B\n                parse_result = self._parse_response(response, candidate)\n\n                # Агрегируем warnings ACL-B\n                parse_warnings += len(parse_result.warnings)\n\n                if parse_result.status == \"failure\":\n                    # HTTP-уровень ок, но JSON/контент не соответствует контракту\n                    parse_failures += 1\n                    skipped += 1\n                else:\n                    # success или partial считаем обработанными\n                    if parse_result.status == \"partial\":\n                        parse_partials += 1\n\n                    all_findings.extend(parse_result.findings)\n                    processed += 1\n\n                # Токены и cache\n                tokens_for_call = getattr(response, \"tokens_used\", 0)\n                if tokens_for_call == 0:\n                    cache_hits += 1\n                else:\n                    tokens_used += tokens_for_call\n\n            except (RetryableError, NonRetryableError) as exc:\n                logger.warning(\n                    \"LLM error for candidate '%s' (%s), skipping. %s: %s\",\n                    candidate.class_name,\n                    candidate.candidate_type,\n                    type(exc).__name__,\n                    exc,\n                )\n                skipped += 1\n            except Exception as exc:\n                logger.exception(\n                    \"Unexpected error in LlmSolidAdapter for candidate '%s': %s\",\n                    candidate.class_name,\n                    exc,\n                )\n                skipped += 1\n\n        if candidates and processed == 0:\n            logger.warning(\n                \"All LLM candidates failed: %d skipped out of %d. \"\n                \"Check model compatibility or prompt configuration.\",\n                skipped,\n                len(candidates),\n            )\n\n        metadata = LlmMetadata(\n            candidates_processed=processed,\n            candidates_skipped=skipped,\n            tokens_used=tokens_used,\n            cache_hits=cache_hits,\n            parse_failures=parse_failures,     # NEW\n            parse_partials=parse_partials,     # NEW\n            parse_warnings=parse_warnings,     # NEW\n        )\n        return LlmAnalysisOutput(findings=all_findings, metadata=metadata)\n\n    # --- Context Assembler (минимальная версия, будет расширена на Шаге 5.x) ---\n\n    def _build_context(\n        self,\n        project_map: ProjectMap,\n        candidate: LlmCandidate,\n        heuristic_findings: list[Finding],\n    ) -> dict:\n        \"\"\"\n        Контекст для одного кандидата: данные класса + эвристические сигналы.\n        project_map зарезервирован для расширения на Шаге 5.x (родители, интерфейсы, соседи).\n        heuristic_findings — полный список Finding из HeuristicsAdapter; здесь фильтруется\n        по class_name текущего кандидата.\n        \"\"\"\n        # фильтруем findings только для текущего кандидата;\n        # class_name может быть None (статические findings), поэтому используем getattr\n        candidate_findings = [\n            f for f in heuristic_findings\n            if getattr(f, \"class_name\", None) == candidate.class_name\n        ]\n\n        # форматируем отфильтрованные findings в текст для подстановки в промпт;\n        # fallback-строка гарантирует, что {findings} в шаблоне никогда не останется пустым\n        if candidate_findings:\n            lines = []\n            for f in candidate_findings:\n                detail = getattr(f, \"details\", None)\n                principle = getattr(detail, \"principle\", \"?\") if detail else \"?\"\n                lines.append(f\"- [{principle}] {f.message} (rule: {f.rule})\")\n            findings_text = \"\\n\".join(lines)\n        else:\n            findings_text = \"No static heuristic signals found for this class.\"\n\n        return {\n            \"class_name\": candidate.class_name,\n            \"file_path\": candidate.file_path,\n            \"source_code\": candidate.source_code,\n            \"candidate_type\": candidate.candidate_type,\n            \"findings\": findings_text,  # подставляется как {findings} в user_base.md\n        }\n\n    def _build_prompt_and_options(\n        self,\n        context: dict,\n        candidate: \"LlmCandidate\",\n    ) -> tuple[Sequence[Message], LlmOptions]:\n        \"\"\"\n        Строит итоговый промпт для LLM, объединяя контекст и шаблоны из файловой системы.\n\n        Использует:\n        - system.md      — роль и общие правила анализа SOLID;\n        - user_base.md   — базовый пользовательский промпт для одного класса;\n        - user_ocp_section.md / user_lsp_section.md — доп. секции в зависимости от типа кандидата;\n        - response_schema.json — описание ожидаемого JSON-ответа.\n        \"\"\"\n        prompts_dir = Path(self.config.prompts_dir)\n\n        # --- System prompt ---\n\n        system_path = prompts_dir / \"system.md\"\n        try:\n            system_text = system_path.read_text(encoding=\"utf-8\")\n        except Exception as exc:\n            logger.warning(\n                \"Failed to read system.md from %s: %s. Using fallback.\",\n                prompts_dir,\n                exc,\n            )\n            system_text = (\n                \"You are a SOLID principles expert. \"\n                \"Analyze Python code for potential OCP and LSP issues.\"\n            )\n\n        # --- Base user prompt template ---\n\n        user_base_path = prompts_dir / \"user_base.md\"\n        try:\n            user_template = user_base_path.read_text(encoding=\"utf-8\")\n        except Exception as exc:\n            logger.warning(\n                \"Failed to read user_base.md from %s: %s. Using fallback.\",\n                prompts_dir,\n                exc,\n            )\n            user_template = (\n                \"Analyze the following Python class for {candidate_type} issues.\\n\"\n                \"Class: {class_name}\\n\"\n                \"File: {file_path}\\n\"\n                \"```python\\n{source_code}\\n```\"\n            )\n\n        # --- Optional OCP / LSP focus sections ---\n\n        ocp_section_text = \"\"\n        lsp_section_text = \"\"\n\n        # комментарий: OCP-секция добавляется только для кандидатов с типом ocp или both\n        if candidate.candidate_type in (\"ocp\", \"both\"):\n            ocp_path = prompts_dir / \"user_ocp_section.md\"\n            try:\n                ocp_section_text = ocp_path.read_text(encoding=\"utf-8\")\n            except Exception as exc:\n                logger.warning(\n                    \"Failed to read user_ocp_section.md from %s: %s. Skipping OCP section.\",\n                    prompts_dir,\n                    exc,\n                )\n\n        # комментарий: LSP-секция добавляется только для кандидатов с типом lsp или both\n        if candidate.candidate_type in (\"lsp\", \"both\"):\n            lsp_path = prompts_dir / \"user_lsp_section.md\"\n            try:\n                lsp_section_text = lsp_path.read_text(encoding=\"utf-8\")\n            except Exception as exc:\n                logger.warning(\n                    \"Failed to read user_lsp_section.md from %s: %s. Skipping LSP section.\",\n                    prompts_dir,\n                    exc,\n                )\n\n        # --- Response schema (JSON) ---\n\n        schema_suffix = \"\"\n        schema_path = prompts_dir / \"response_schema.json\"\n        try:\n            raw = schema_path.read_text(encoding=\"utf-8\")\n            # комментарий: предполагаем простую структуру {\"instruction\": \"...\", ...}\n            # и используем только поле instruction; при ошибках парсинга fallback — пустой суффикс.\n            import json  # локальный импорт, чтобы не тянуть json глобально, если LLM отключен\n\n            data = json.loads(raw)\n            instruction = data.get(\"instruction\")\n            if isinstance(instruction, str) and instruction.strip():\n                schema_suffix = \"\\n\\n\" + instruction.strip()\n        except Exception as exc:\n            logger.warning(\n                \"Failed to read or parse response_schema.json from %s: %s. \"\n                \"Proceeding without explicit schema instruction.\",\n                prompts_dir,\n                exc,\n            )\n\n        # --- Формирование итогового user-промпта ---\n\n        try:\n            base_user_text = user_template.format(\n                candidate_type=candidate.candidate_type,\n                class_name=candidate.class_name,\n                file_path=candidate.file_path,\n                source_code=candidate.source_code,\n                findings=context.get(\"findings\", \"No static signals.\"),\n            )\n        except KeyError as exc:\n            logger.error(\n                \"Missing placeholder %s in user_base.md. Using fallback user prompt.\",\n                exc,\n            )\n            base_user_text = (\n                f\"Analyze the following Python class for {candidate.candidate_type} issues.\\n\"\n                f\"Class: {candidate.class_name}\\n\"\n                f\"File: {candidate.file_path}\\n\"\n                f\"```python\\n{context['source_code']}\\n```\"  # Дефект B: из context\n            )\n\n        # комментарий: собираем итоговый текст пользователя по слоям:\n        # базовый промпт → OCP/LSP‑фокусы → инструкция по JSON-схеме\n        user_parts = [base_user_text]\n        if ocp_section_text:\n            user_parts.append(\"\\n\\n\" + ocp_section_text.strip())\n        if lsp_section_text:\n            user_parts.append(\"\\n\\n\" + lsp_section_text.strip())\n        if schema_suffix:\n            user_parts.append(schema_suffix)\n\n        user_text = \"\".join(user_parts)\n\n        # --- Messages + options для Gateway ---\n\n        messages: List[Message] = [\n            Message(role=\"system\", content=system_text),\n            Message(role=\"user\", content=user_text),\n        ]\n        options = LlmOptions(model=self.config.model)\n\n        return messages, options\n\n    # --- Response Parser (ACL-B) ---\n\n    def _extract_json_content(self, text: str) -> dict | None:\n        \"\"\"\n        Слой 1: Извлечение сырого JSON из текста ответа LLM.\n        Пытается распарсить напрямую, очистить от markdown-тегов или найти блок { ... }.\n        \"\"\"\n        if not text:\n            return None\n\n        text = text.strip()\n        \n        # Попытка 1: Прямой парсинг (если модель вернула идеальный JSON)\n        try:\n            return json.loads(text)\n        except json.JSONDecodeError:\n            pass\n\n        # Попытка 2: Вырезка markdown-блока (```json ... ``` или ``` ... ```)\n        # re.DOTALL позволяет символу '.' совпадать с переносами строк\n        match = re.search(r\"```(?:json)?\\s*(.*?)\\s*```\", text, re.DOTALL)\n        if match:\n            try:\n                return json.loads(match.group(1).strip())\n            except json.JSONDecodeError:\n                pass\n\n        # Попытка 3: Экстренный поиск первого '{' и последнего '}'\n        start_idx = text.find(\"{\")\n        end_idx = text.rfind(\"}\")\n        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:\n            try:\n                return json.loads(text[start_idx : end_idx + 1])\n            except json.JSONDecodeError:\n                pass\n\n        return None\n\n    def _validate_structure(self, data: dict) -> list[dict] | None:\n        \"\"\"\n        Слой 2: Минимальная проверка ожидаемой структуры ответа.\n        \"\"\"\n        if not isinstance(data, dict):\n            return None\n        \n        findings = data.get(\"findings\")\n        if not isinstance(findings, list):\n            return None\n            \n        return findings\n\n    def _validate_finding(self, raw: dict, candidate: LlmCandidate) -> Finding | None:\n        \"\"\"\n        Слой 3: Валидация конкретной находки и маппинг в доменные\n        Finding / FindingDetails.\n        \"\"\"\n        if not isinstance(raw, dict):\n            return None\n\n        # message — минимально обязательное содержимое finding;\n        # без него finding теряет смысл для отчета.\n        raw_message = raw.get(\"message\")\n        if not isinstance(raw_message, str) or not raw_message.strip():\n            return None\n        message = raw_message.strip()\n\n        # нормализуем severity в поддерживаемый набор;\n        # неизвестные значения понижаем до warning как безопасный дефолт.\n        raw_severity = str(raw.get(\"severity\", \"\")).lower()\n        severity = raw_severity if raw_severity in (\"error\", \"warning\", \"info\") else \"warning\"\n\n        # principle — смысловое поле details, а не top-level поля Finding.\n        # Сначала доверяем явному ответу модели, потом используем candidate_type как fallback.\n        raw_principle = str(raw.get(\"principle\", \"\")).upper()\n        if raw_principle not in (\"OCP\", \"LSP\"):\n            if candidate.candidate_type == \"ocp\":\n                raw_principle = \"OCP\"\n            elif candidate.candidate_type == \"lsp\":\n                raw_principle = \"LSP\"\n            else:\n                # для candidate_type=\"both\" без явного principle\n                # finding неоднозначен, поэтому лучше пропустить его.\n                return None\n\n        # rule генерируем сами по внутреннему соглашению проекта,\n        # чтобы не зависеть от капризов LLM и сохранить единый naming contract.\n        rule = f\"{raw_principle}-LLM-001\"\n\n        # explanation допускает два возможных имени поля в JSON:\n        # \"explanation\" как целевое и \"details\" как совместимость с ранними промптами.\n        raw_explanation = raw.get(\"explanation\")\n        if not isinstance(raw_explanation, str) or not raw_explanation.strip():\n            raw_explanation = raw.get(\"details\")\n        explanation = raw_explanation.strip() if isinstance(raw_explanation, str) and raw_explanation.strip() else None\n\n        raw_suggestion = raw.get(\"suggestion\")\n        suggestion = raw_suggestion.strip() if isinstance(raw_suggestion, str) and raw_suggestion.strip() else None\n\n        raw_method_name = raw.get(\"method_name\")\n        method_name = raw_method_name.strip() if isinstance(raw_method_name, str) and raw_method_name.strip() else None\n\n        raw_analyzed_with = raw.get(\"analyzed_with\")\n        analyzed_with = None\n        if isinstance(raw_analyzed_with, list):\n            cleaned = [\n                item.strip()\n                for item in raw_analyzed_with\n                if isinstance(item, str) and item.strip()\n            ]\n            if cleaned:\n                analyzed_with = cleaned\n\n        details = FindingDetails(\n            principle=raw_principle,\n            explanation=explanation,\n            suggestion=suggestion,\n            analyzed_with=analyzed_with,\n            heuristic_corroboration=True,\n            method_name=method_name,\n        )\n\n        return Finding(\n            rule=rule,\n            file=candidate.file_path,\n            severity=severity,\n            message=message,\n            source=\"llm\",\n            class_name=candidate.class_name,\n            line=None,\n            details=details,\n        )\n\n    def _parse_response(self, response, candidate: LlmCandidate) -> ParseResult:\n        # warnings собираем по мере прохождения слоев ACL-B\n        warnings: list[str] = []\n\n        raw_content = getattr(response, \"content\", \"\")\n\n        # 1. Извлекаем JSON-словарь\n        parsed_data = self._extract_json_content(raw_content)\n        if not parsed_data:\n            msg = (\n                f\"Failed to extract JSON from LLM response for candidate \"\n                f\"'{candidate.class_name}'. Raw snippet: \"\n                f\"{raw_content[:100].replace('\\\\n', ' ')}...\"\n            )\n            logger.warning(msg)\n            warnings.append(msg)\n\n            return ParseResult(\n                findings=[],\n                warnings=warnings,\n                status=\"failure\",\n            )\n\n        # 2. Проверяем наличие ключа findings\n        raw_findings = self._validate_structure(parsed_data)\n        if raw_findings is None:\n            keys = list(parsed_data.keys())\n            msg = (\n                f\"LLM response for candidate '{candidate.class_name}' \"\n                f\"missing 'findings' array. Parsed keys: {keys}\"\n            )\n            logger.warning(msg)\n            warnings.append(msg)\n\n            return ParseResult(\n                findings=[],\n                warnings=warnings,\n                status=\"failure\",\n            )\n\n        # 3. Маппим каждый finding\n        valid_findings: list[Finding] = []\n        dropped_count = 0\n\n        for raw_item in raw_findings:\n            finding = self._validate_finding(raw_item, candidate)\n            if finding:\n                valid_findings.append(finding)\n            else:\n                dropped_count += 1\n\n        if not valid_findings and len(raw_findings) > 0:\n            msg = (\n                f\"Extracted {len(raw_findings)} items for candidate \"\n                f\"'{candidate.class_name}', but none were valid findings.\"\n            )\n            logger.warning(msg)\n            warnings.append(msg)\n\n        # Определяем статус\n        if not valid_findings and not raw_findings:\n            # JSON и структура корректны, просто модель не нашла нарушений.\n            status: ParseStatus = \"success\"\n        elif dropped_count == 0:\n            status = \"success\"\n        elif dropped_count < len(raw_findings):\n            status = \"partial\"\n        else:\n            # формально сюда мы уже зашли в ветке \"none valid\", но оставляем на случай\n            status = \"failure\"\n\n        return ParseResult(\n            findings=valid_findings,\n            warnings=warnings,\n            status=status,\n        )",
         "candidate_type": "ocp",
         "heuristic_reasons": [
           "OCP-H-004",
@@ -7405,7 +7415,7 @@
   },
   "aggregated_report": {
     "meta": {
-      "generated_at": "2026-04-13T16:58:43.455956+00:00",
+      "generated_at": "2026-04-13T18:41:27.229391+00:00",
       "adapter_versions_available": [
         "radon",
         "cohesion",
@@ -7427,20 +7437,20 @@
     "summary": {
       "complexity": {
         "total_items": 165,
-        "mean_cc": 7.67,
+        "mean_cc": 7.69,
         "high_complexity_count": 44,
         "rank_distribution": {
           "F": 2,
           "E": 1,
           "D": 6,
           "C": 35,
-          "B": 39,
-          "A": 82
+          "B": 40,
+          "A": 81
         }
       },
       "maintainability": {
         "total_files": 41,
-        "mean_mi": 73.63,
+        "mean_mi": 73.61,
         "low_mi_count": 1,
         "rank_distribution": {
           "A": 40,
@@ -7861,10 +7871,10 @@
         {
           "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-          "mi": 42.09,
+          "mi": 41.33,
           "mi_rank": "A",
           "function_count": 7,
-          "mean_cc": 10.0,
+          "mean_cc": 10.43,
           "max_cc": 21,
           "high_cc_count": 3,
           "class_count": 1
@@ -7883,7 +7893,7 @@
         {
           "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\types.py",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\types.py",
-          "mi": 63.03,
+          "mi": 62.79,
           "mi_rank": "A",
           "function_count": 0,
           "mean_cc": 0.0,
@@ -7894,7 +7904,7 @@
         {
           "file_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\pipeline.py",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\pipeline.py",
-          "mi": 68.1,
+          "mi": 67.99,
           "mi_rank": "A",
           "function_count": 1,
           "mean_cc": 20.0,
@@ -8102,9 +8112,9 @@
           "methods_count": 7,
           "excluded_from_aggregation": true,
           "label": "LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "max_method_cc": 21,
-          "mean_method_cc": 10.0
+          "mean_method_cc": 10.43
         },
         {
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\provider.py::OpenRouterProvider",
@@ -9593,68 +9603,68 @@
           "class_lcom4": null
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::129::_build_context",
+          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::134::_build_context",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "name": "_build_context",
           "type": "method",
-          "lineno": 129,
-          "cc": 3,
-          "rank": "A",
-          "parameter_count": 3,
+          "lineno": 134,
+          "cc": 6,
+          "rank": "B",
+          "parameter_count": 5,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::170::_build_prompt_and_options",
+          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::173::_build_prompt_and_options",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "name": "_build_prompt_and_options",
           "type": "method",
-          "lineno": 170,
+          "lineno": 173,
           "cc": 14,
           "rank": "C",
           "parameter_count": 4,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::317::_extract_json_content",
+          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::320::_extract_json_content",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "name": "_extract_json_content",
           "type": "method",
-          "lineno": 317,
+          "lineno": 320,
           "cc": 9,
           "rank": "B",
           "parameter_count": 2,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::353::_validate_structure",
+          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::356::_validate_structure",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "name": "_validate_structure",
           "type": "method",
-          "lineno": 353,
+          "lineno": 356,
           "cc": 3,
           "rank": "A",
           "parameter_count": 2,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::366::_validate_finding",
+          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::369::_validate_finding",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "name": "_validate_finding",
           "type": "method",
-          "lineno": 366,
+          "lineno": 369,
           "cc": 21,
           "rank": "D",
           "parameter_count": 3,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
@@ -9667,20 +9677,20 @@
           "rank": "B",
           "parameter_count": 2,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
-          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::447::_parse_response",
+          "function_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::450::_parse_response",
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
           "name": "_parse_response",
           "type": "method",
-          "lineno": 447,
+          "lineno": 450,
           "cc": 11,
           "rank": "C",
           "parameter_count": 3,
           "class_id": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::LlmSolidAdapter",
-          "file_mi": 42.09,
+          "file_mi": 41.33,
           "class_lcom4": 1.0
         },
         {
@@ -9810,7 +9820,7 @@
           "rank": "C",
           "parameter_count": 4,
           "class_id": null,
-          "file_mi": 68.1,
+          "file_mi": 67.99,
           "class_lcom4": null
         },
         {
@@ -10718,12 +10728,12 @@
         "strength": "weak"
       },
       {
-        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::366::_validate_finding",
+        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::369::_validate_finding",
         "type": "HIGH_CC_METHOD",
         "severity": "error",
         "location": {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-          "lineno": 366,
+          "lineno": 369,
           "name": "_validate_finding",
           "class_name": "LlmSolidAdapter",
           "layer": null,
@@ -10747,7 +10757,7 @@
               "complexity": 21,
               "rank": "D",
               "type": "method",
-              "lineno": 366
+              "lineno": 369
             }
           }
         ],
@@ -12165,12 +12175,12 @@
         "strength": "weak"
       },
       {
-        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::170::_build_prompt_and_options",
+        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::173::_build_prompt_and_options",
         "type": "HIGH_CC_METHOD",
         "severity": "warning",
         "location": {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-          "lineno": 170,
+          "lineno": 173,
           "name": "_build_prompt_and_options",
           "class_name": "LlmSolidAdapter",
           "layer": null,
@@ -12194,7 +12204,7 @@
               "complexity": 14,
               "rank": "C",
               "type": "method",
-              "lineno": 170
+              "lineno": 173
             }
           }
         ],
@@ -12741,12 +12751,12 @@
         "strength": "weak"
       },
       {
-        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::447::_parse_response",
+        "id": "HIGH_CC_METHOD::C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py::450::_parse_response",
         "type": "HIGH_CC_METHOD",
         "severity": "warning",
         "location": {
           "filepath": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
-          "lineno": 447,
+          "lineno": 450,
           "name": "_parse_response",
           "class_name": "LlmSolidAdapter",
           "layer": null,
@@ -12770,7 +12780,7 @@
               "complexity": 11,
               "rank": "C",
               "type": "method",
-              "lineno": 447
+              "lineno": 450
             }
           }
         ],
@@ -12892,11 +12902,318 @@
   },
   "llm": {
     "status": "success",
-    "findings": [],
+    "findings": [
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_collect_classes' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 12 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_enrich_with_ancestor_attributes' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 7 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_build_class_info' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 6 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_is_empty_method' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 17 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_classify_decorator' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 9 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_extract_names_from_assign' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 6 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_collect_instance_attributes_from_init' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 10 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_populate_method_usage' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 5 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_repopulate_method_usage' uses isinstance() for type dispatch, increasing modification risk when adding new class types.",
+        "source": "llm",
+        "class_name": "CohesionAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity 5 and uses isinstance() to handle different class types, which may require modifying this method to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "LSP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "__init__ does not call super().__init__()",
+        "source": "llm",
+        "class_name": "_MethodUsageVisitor",
+        "line": null,
+        "details": {
+          "principle": "LSP",
+          "explanation": "The constructor does not initialize the parent class, potentially leaving its state uninitialized.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method 'visit_Call' contains a type-dispatch chain.",
+        "source": "llm",
+        "class_name": "_MethodUsageVisitor",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method uses multiple isinstance checks, indicating that adding new types would require modifying this method.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py",
+        "severity": "warning",
+        "message": "Method '_register_self_like_names' has high cyclomatic complexity and uses isinstance().",
+        "source": "llm",
+        "class_name": "_MethodUsageVisitor",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method's complexity and type checks suggest that it may need modification to accommodate new types.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\import_graph_adapter.py",
+        "severity": "warning",
+        "message": "Method '_resolve_tier_map' uses isinstance() for type checking, indicating potential OCP violation.",
+        "source": "llm",
+        "class_name": "ImportGraphAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has mixed type-dispatch which may require modification when new types are introduced.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\import_graph_adapter.py",
+        "severity": "warning",
+        "message": "Method '_get_interface_layer_names' uses isinstance() for type checking, indicating potential OCP violation.",
+        "source": "llm",
+        "class_name": "ImportGraphAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has mixed type-dispatch which may require modification when new types are introduced.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\import_graph_adapter.py",
+        "severity": "warning",
+        "message": "Method '_normalize_layer_config' uses isinstance() for type checking, indicating potential OCP violation.",
+        "source": "llm",
+        "class_name": "ImportGraphAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has mixed type-dispatch which may require modification when new types are introduced.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\radon_adapter.py",
+        "severity": "warning",
+        "message": "Method 'run' uses isinstance() for type checking, indicating mixed type-dispatch which complicates extension.",
+        "source": "llm",
+        "class_name": "RadonAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The use of isinstance() within the run method introduces a need for modification of this method whenever new types are introduced, violating the Open/Closed Principle.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
+        "severity": "warning",
+        "message": "Method '_validate_finding' uses isinstance() for type dispatch, increasing complexity and requiring modification for new types.",
+        "source": "llm",
+        "class_name": "LlmSolidAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity of 20 and relies on isinstance checks, indicating a need for modification when new types are introduced.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      },
+      {
+        "rule": "OCP-LLM-001",
+        "file": "C:\\pet_projects\\solid_verifier\\solid_dashboard\\llm\\llm_client\\llm_adapter.py",
+        "severity": "warning",
+        "message": "Method '_build_prompt_and_options' uses isinstance() for type dispatch, increasing complexity and requiring modification for new types.",
+        "source": "llm",
+        "class_name": "LlmSolidAdapter",
+        "line": null,
+        "details": {
+          "principle": "OCP",
+          "explanation": "The method has cyclomatic complexity of 14 and relies on isinstance checks, indicating a need for modification when new types are introduced.",
+          "suggestion": null,
+          "analyzed_with": null,
+          "heuristic_corroboration": true,
+          "method_name": null
+        }
+      }
+    ],
     "metadata": {
-      "candidates_processed": 15,
-      "candidates_skipped": 0,
-      "tokens_used": 28916,
+      "candidates_processed": 7,
+      "candidates_skipped": 8,
+      "tokens_used": 33250,
       "cache_hits": 0,
       "parse_failures": 0,
       "parse_partials": 0,

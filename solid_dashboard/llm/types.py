@@ -133,6 +133,9 @@ class LlmAnalysisInput:
     """
     project_map: ProjectMap
     candidates: list[LlmCandidate]
+    # эвристические находки из HeuristicsAdapter для обогащения LLM-контекста;
+    # опциональны — существующие вызовы без этого аргумента получают пустой список
+    heuristic_findings: list[Finding] = field(default_factory=list)
 
 
 @dataclass

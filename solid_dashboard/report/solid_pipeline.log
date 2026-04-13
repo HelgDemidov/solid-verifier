@@ -740,3 +740,143 @@ solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 10
 2026-04-13 18:58:52,777 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
 2026-04-13 18:58:53,383 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
 2026-04-13 18:58:53,479 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=813
+2026-04-13 20:41:21,588 [INFO] solid_dashboard.pipeline: Pipeline: Starting analysis. Target root set to: C:\pet_projects\solid_verifier\solid_dashboard
+2026-04-13 20:41:21,588 [INFO] solid_dashboard.pipeline: Running static adapter radon
+2026-04-13 20:41:24,280 [INFO] solid_dashboard.pipeline: Running static adapter cohesion
+2026-04-13 20:41:24,507 [INFO] solid_dashboard.pipeline: Running static adapter import_graph
+2026-04-13 20:41:24,544 [INFO] grimp.adaptors.caching: Used cache meta file .grimp_cache\solid_dashboard.meta.json.
+2026-04-13 20:41:24,568 [INFO] grimp.adaptors.caching: Used cache data file .grimp_cache\e1ca3e7f42a8a83cd177b033e4fd8084d4abc563.data.json.
+2026-04-13 20:41:24,580 [INFO] grimp.adaptors.caching: Wrote data cache file .grimp_cache\e1ca3e7f42a8a83cd177b033e4fd8084d4abc563.data.json.
+2026-04-13 20:41:24,583 [INFO] grimp.adaptors.caching: Wrote meta cache file .grimp_cache\solid_dashboard.meta.json.
+2026-04-13 20:41:24,592 [INFO] solid_dashboard.pipeline: Running static adapter import_linter
+2026-04-13 20:41:25,244 [INFO] solid_dashboard.pipeline: Running static adapter pyan3
+2026-04-13 20:41:26,495 [INFO] solid_dashboard.pipeline: Running static adapter heuristics
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: ProjectMap built with 62 classes, 3 interfaces; 15 OCPLSP candidates identified
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: analysis_root=C:\pet_projects\solid_verifier\solid_dashboard, ignore_dirs=['.git', '.venv', '__pycache__', '.mypy_cache', '.pytest_cache', '.idea', '.vscode', 'tests', 'report', 'build', 'dist', '.solid-cache'], input_paths_count=41
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: sample input_paths=['C:\\pet_projects\\solid_verifier\\solid_dashboard\\config.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\defaults.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\pipeline.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\report_aggregator.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\schema.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\__init__.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\__main__.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\class_classifier.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\cohesion_adapter.py', 'C:\\pet_projects\\solid_verifier\\solid_dashboard\\adapters\\heuristics_adapter.py']
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: ProjectMap classes=62 interfaces=3
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: findings=20 candidates=15
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: sample classes=['RadonFunctionMetrics', 'MaintainabilityFileMetrics', 'MaintainabilityResult', 'RadonResult', 'CohesionClassMetrics', 'CohesionResult', 'ComplexitySummary', 'MaintainabilitySummary', 'CohesionSummary', 'ImportsSummary', 'DeadCodeSummary', 'AggregatedSummary', 'FileMetrics', 'ClassMetrics', 'FunctionMetrics']
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: sample candidates=['CohesionAdapter', '_MethodUsageVisitor', 'ImportGraphAdapter', 'RadonAdapter', 'LlmSolidAdapter', 'HeuristicsAdapter', 'ImportLinterAdapter', 'Pyan3Adapter', 'OpenRouterProvider', 'LlmError']
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.adapters.heuristics_adapter: HeuristicsAdapter: context['heuristics'] prepared with keys=['project_map', 'project_map_summary', 'candidates', 'findings', 'warning']
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.pipeline: Pipeline: aggregated_report built — violations=68, adapters_succeeded=['radon', 'cohesion', 'import_graph', 'import_linter', 'pyan3']
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.pipeline: LLM analysis is enabled. Initializing LLM layer...
+2026-04-13 20:41:27,229 [INFO] solid_dashboard.pipeline: Pipeline LLM precheck: heuristics_present=True, project_map_present=True, classes=62, interfaces=3, candidates_present=True, candidates_count=15
+2026-04-13 20:41:27,243 [INFO] solid_dashboard.pipeline: Pipeline LLM candidates sample: ['CohesionAdapter', '_MethodUsageVisitor', 'ImportGraphAdapter', 'RadonAdapter', 'LlmSolidAdapter', 'HeuristicsAdapter', 'ImportLinterAdapter', 'Pyan3Adapter', 'OpenRouterProvider', 'LlmError']
+2026-04-13 20:41:27,968 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouterProvider initialized with endpoint=https://openrouter.ai/api/v1/chat/completions, has_api_key=True
+2026-04-13 20:41:27,990 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=2a43111ce7f7e57be532550100bbf042ea9c47540b144775da34a3880ba013a7
+2026-04-13 20:41:27,990 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:41:29,176 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:41:46,782 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=6331
+2026-04-13 20:41:46,820 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=6bea0ad7685d08977ac2be0b9a19aa4e3c982a950c9d50c6438d4c80bc08ce4c
+2026-04-13 20:41:46,825 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:41:47,746 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:41:51,055 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=2243
+2026-04-13 20:41:51,069 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=251fcc3bf0df28279fe3b23e9ac4557dc9c58b5fafb149d8edd1a46774dbad4a
+2026-04-13 20:41:51,070 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:41:52,909 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:42:00,000 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=2468
+2026-04-13 20:42:00,015 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=4e472faacd41551ee463822945ab56c6323a8d92845147e50540ade3637fd590
+2026-04-13 20:42:00,015 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:42:01,167 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:42:02,011 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=1392
+2026-04-13 20:42:02,016 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=3bf2d3d1d7a87ec4396373777b19326830925729175ca89b1a1c06b4bfc55cfd
+2026-04-13 20:42:02,017 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:42:03,302 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:42:05,122 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=1969
+2026-04-13 20:42:05,141 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=f39e35f28c76bc84ad0a0e094073f303f1d3508ffca5ff502e8681cf47cdf4db
+2026-04-13 20:42:05,142 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:42:05,742 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:42:05,853 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=812
+2026-04-13 20:42:05,853 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=4fcc92998e221dbdc255797c395c8c747b05b933128ce41ec994ce0e202ec585
+2026-04-13 20:42:05,853 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter request: POST https://openrouter.ai/api/v1/chat/completions
+2026-04-13 20:42:07,556 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-13 20:42:08,057 [INFO] solid_dashboard.llm.llm_client.provider: OpenRouter response: status=200, length=854
+2026-04-13 20:42:08,057 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=f57d1aa09bc6bc0f2f4adb60c52dfa2f41e1715299c1863c06d63dbf5db1f357
+2026-04-13 20:42:08,057 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,074 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,075 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'Pyan3Adapter': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,086 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=a0b01ae79560fd58038a81e325502d360f5f3b8af996ff077ba63dd10529db96
+2026-04-13 20:42:08,087 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,087 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,088 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'OpenRouterProvider': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,096 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=2c4d056af5f1597be17adea749b0ea77535abd30d43ff9f30c19a3d67ba24a2b
+2026-04-13 20:42:08,096 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,097 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,098 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'LlmError': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,113 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=1643ae0ff38483ad15963cab60531da78fd94222e9c5799a9349ff8b5a431631
+2026-04-13 20:42:08,113 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,114 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,114 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'RetryableError': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,132 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=b96c10b0a9c02a9e92192bb560b319c0577a54df09997947445dbbc602e35d0a
+2026-04-13 20:42:08,132 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,134 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,136 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'NonRetryableError': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,147 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=705b0bec33698df7db87a39e79e88f407ba8d38152e33cd495f2989e7d143cf7
+2026-04-13 20:42:08,147 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,153 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,155 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'BudgetExhaustedError': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,175 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=15840a47db07528f4a26d7662a05187350101f8e6c09d6fa9ca7dc6bedd2d1e7
+2026-04-13 20:42:08,178 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,179 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,181 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'LlmUnavailableError': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.
+2026-04-13 20:42:08,194 [INFO] solid_dashboard.llm.llm_client.gateway: LLM cache miss for key=ebe63816d4cb95287c9e17e538f105f136308b79fddcf0f6976dd53b4b2be44c
+2026-04-13 20:42:08,194 [WARNING] solid_dashboard.llm.llm_client.budget: LLM budget exhausted: used 33250 / 30000 tokens
+2026-04-13 20:42:08,196 [INFO] solid_dashboard.llm.llm_client.gateway: LLM budget exhausted before call: used 33250 / 30000 tokens
+2026-04-13 20:42:08,197 [ERROR] solid_dashboard.llm.llm_client.llm_adapter: Unexpected error in LlmSolidAdapter for candidate 'ClassRole': Token budget exhausted: used 33250 out of 30000 allowed.
+Traceback (most recent call last):
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\llm_adapter.py", line 69, in analyze
+    response = self.gateway.analyze(messages, options)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pet_projects\solid_verifier\solid_dashboard\llm\llm_client\gateway.py", line 85, in analyze
+    raise BudgetExhaustedError(
+solid_dashboard.llm.errors.BudgetExhaustedError: Token budget exhausted: used 33250 out of 30000 allowed.

@@ -59,7 +59,12 @@ class LlmSolidAdapter:
 
         for candidate in candidates:
             try:
-                context = self._build_context(project_map, candidate)
+                # передаём полный список heuristic_findings; фильтрация по candidate — внутри метода
+                context = self._build_context(
+                    project_map,
+                    candidate,
+                    analysis_input.heuristic_findings,
+                )
                 messages, options = self._build_prompt_and_options(context, candidate)
                 response = self.gateway.analyze(messages, options)
 
@@ -126,45 +131,43 @@ class LlmSolidAdapter:
 
     # --- Context Assembler (минимальная версия, будет расширена на Шаге 5.x) ---
 
-    def _build_context(self, project_map: ProjectMap, candidate: LlmCandidate) -> dict:
+    def _build_context(
+        self,
+        project_map: ProjectMap,
+        candidate: LlmCandidate,
+        heuristic_findings: list[Finding],
+    ) -> dict:
         """
-        Минимальный контекст: только фокус-класс.
-        Поля соответствуют LlmCandidate в types.py: class_name, file_path,
-        source_code, candidate_type.
-
-        Дефект A — поле "findings" добавлено как пустая строка для совместимости
-                   с {findings} в user_base.md; также передаётся в _build_prompt_and_options
-                   через context для подстановки в шаблон.
-        Дефект B — source_code обрезается до SOURCE_CODE_MAX_LINES строк
-                   перед вставкой в промпт, предотвращая BudgetExhaustedError.
+        Контекст для одного кандидата: данные класса + эвристические сигналы.
+        project_map зарезервирован для расширения на Шаге 5.x (родители, интерфейсы, соседи).
+        heuristic_findings — полный список Finding из HeuristicsAdapter; здесь фильтруется
+        по class_name текущего кандидата.
         """
-        SOURCE_CODE_MAX_LINES = 200  # жёсткий лимит: Вариант 2
+        # фильтруем findings только для текущего кандидата;
+        # class_name может быть None (статические findings), поэтому используем getattr
+        candidate_findings = [
+            f for f in heuristic_findings
+            if getattr(f, "class_name", None) == candidate.class_name
+        ]
 
-        # project_map принимается для совместимости с будущими шагами расширения
-        raw_source = candidate.source_code or ""
-        lines = raw_source.splitlines()
-
-        if len(lines) > SOURCE_CODE_MAX_LINES:
-            trimmed = lines[:SOURCE_CODE_MAX_LINES]
-            trimmed.append(
-                f"# ... [truncated: показаны {SOURCE_CODE_MAX_LINES} из {len(lines)} строк]"
-            )
-            source_code = "\n".join(trimmed)
-            logger.debug(
-                "source_code for '%s' truncated: %d → %d lines.",
-                candidate.class_name,
-                len(lines),
-                SOURCE_CODE_MAX_LINES,
-            )
+        # форматируем отфильтрованные findings в текст для подстановки в промпт;
+        # fallback-строка гарантирует, что {findings} в шаблоне никогда не останется пустым
+        if candidate_findings:
+            lines = []
+            for f in candidate_findings:
+                detail = getattr(f, "details", None)
+                principle = getattr(detail, "principle", "?") if detail else "?"
+                lines.append(f"- [{principle}] {f.message} (rule: {f.rule})")
+            findings_text = "\n".join(lines)
         else:
-            source_code = raw_source
+            findings_text = "No static heuristic signals found for this class."
 
         return {
             "class_name": candidate.class_name,
             "file_path": candidate.file_path,
-            "source_code": source_code,         # обрезанный вариант (Дефект B)
+            "source_code": candidate.source_code,
             "candidate_type": candidate.candidate_type,
-            "findings": "",                     # заглушка для {findings} в шаблоне (Дефект A)
+            "findings": findings_text,  # подставляется как {findings} в user_base.md
         }
 
     def _build_prompt_and_options(
@@ -272,11 +275,11 @@ class LlmSolidAdapter:
 
         try:
             base_user_text = user_template.format(
-                candidate_type=context["candidate_type"],
-                class_name=context["class_name"],
-                file_path=context["file_path"],
-                source_code=context["source_code"],   # Дефект B: теперь обрезанная версия
-                findings=context["findings"],          # Дефект A: устраняет KeyError
+                candidate_type=candidate.candidate_type,
+                class_name=candidate.class_name,
+                file_path=candidate.file_path,
+                source_code=candidate.source_code,
+                findings=context.get("findings", "No static signals."),
             )
         except KeyError as exc:
             logger.error(

@@ -113,6 +113,8 @@ def run_pipeline(target_dir: str, config: Dict[str, Any], adapters: List[IAnalyz
         heuristics_result = context.get("heuristics", {})
         project_map = heuristics_result.get("project_map")
         candidates = heuristics_result.get("candidates", [])
+        # извлекаем эвристические находки для передачи в LLM-контекст
+        heuristic_findings = heuristics_result.get("findings", [])
 
         # -------------------------------------------------------------------
         # Временный расширенный precheck-лог для дебага LLM-шага
@@ -192,8 +194,9 @@ def run_pipeline(target_dir: str, config: Dict[str, Any], adapters: List[IAnalyz
                 # Предполагается, что heuristics_result уже содержит
                 # инстансы ProjectMap и List[LlmCandidate], а не сырые dict.
                 llm_input = LlmAnalysisInput(
-                    project_map=project_map,
-                    candidates=candidates,
+                project_map=project_map,
+                candidates=candidates,
+                heuristic_findings=heuristic_findings,  # статический контекст для промпта
                 )
 
                 # собираем LLM-стек через фабрику (Gateway + Provider + Cache + Budget)
