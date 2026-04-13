@@ -1,6 +1,5 @@
 # Скрипт для формирования файла-маски проекта (скелет структуры без логики реализации)
-# Запуск из корня репозитория solid-verifier (PowerShell):
-#   python solid_dashboard/report/export_skeleton.py
+# Запуск из корня репозитория solid-verifier (PowerShell): python solid_dashboard/report/export_skeleton.py
 
 import ast
 from pathlib import Path
