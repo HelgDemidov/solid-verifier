@@ -1,48 +1,53 @@
 # Скрипт для формирования текстовой схемы-дерева директорий проекта
+# Запуск из корня репозитория solid-verifier (PowerShell):
+#   python solid_dashboard/report/solid_project_tree.py
 
 from pathlib import Path
 
-# директории и файлы, которые не нужно показывать в дереве
-IGNORE_DIRS = {".git", ".venv", "__pycache__", ".idea", ".mypy_cache",
-               ".pytest_cache", ".solid-cache", ".grimp_cache", ".tmp_heuristics_tests"}
-IGNORE_FILES = {".DS_Store", ".win-amd64"}
+# Директории, которые не нужно показывать в дереве
+IGNORE_DIRS = {
+    ".git", ".venv", "__pycache__", ".mypy_cache", ".pytest_cache",
+    ".idea", ".vscode", ".solid-cache", ".grimp_cache",
+    ".tmp_heuristics_tests", "build", "dist",
+}
+
+# Файлы, которые не нужно показывать в дереве
+IGNORE_FILES = {".DS_Store"}
+
 
 def print_tree(root: Path, file_obj, prefix: str = "") -> None:
-    # собираем директории и файлы по отдельности
-    entries = [p for p in root.iterdir() if p.name not in IGNORE_FILES]
+    """Рекурсивно обходит директорию root и записывает дерево в file_obj."""
+    # Собираем записи: пропускаем скрытые/служебные директории и игнорируемые файлы
     entries = [
-        p for p in entries
-        if (p.is_dir() and p.name not in IGNORE_DIRS) or p.is_file()
+        p for p in root.iterdir()
+        if p.name not in IGNORE_FILES
+        and not (p.is_dir() and p.name in IGNORE_DIRS)
     ]
-    # сначала директории, потом файлы, по имени
-    entries.sort(key=lambda p: (p.is_file(), p.name))
+    # Сначала директории, потом файлы; внутри каждой группы — по имени
+    entries.sort(key=lambda p: (p.is_file(), p.name.lower()))
 
     for index, path in enumerate(entries):
         is_last = index == len(entries) - 1
         connector = "└── " if is_last else "├── "
-        # пишем сразу в файл, чтобы обойти кодировку консоли Windows
+        # Пишем сразу в файл, чтобы обойти проблему кодировки консоли Windows
         file_obj.write(f"{prefix}{connector}{path.name}\n")
-        
+
         if path.is_dir():
             extension = "    " if is_last else "│   "
             print_tree(path, file_obj, prefix + extension)
 
+
 if __name__ == "__main__":
-    # определяем пути
-    # Этот скрипт лежит в tools/solid_verifier/solid_dashboard/report/
+    # Скрипт лежит в solid_dashboard/report/ — поднимаемся до корня репозитория
+    # report -> solid_dashboard -> <repo_root>
+    repo_root = Path(__file__).resolve().parents[2]
     report_dir = Path(__file__).resolve().parent
-    
-    # Поднимаемся на 3 уровня вверх до директории tools
-    # report -> solid_dashboard -> solid_verifier -> tools
-    tools_dir = report_dir.parents[2]
-    
-    # Формируем путь для выходного файла в папке report
-    output_file = report_dir / "project_tree.txt"
 
-    # открываем файл с явной кодировкой utf-8
+    output_file = report_dir / "solid_project_tree.txt"
+
+    # Открываем файл с явной кодировкой utf-8, чтобы корректно записать символы дерева
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write(f"{tools_dir.name}/\n")
-        print_tree(tools_dir, f)
-        
-    print(f"Project tree for '{tools_dir}' has been saved to: {output_file}")
+        f.write(f"{repo_root.name}/\n")
+        print_tree(repo_root, f)
 
+    print(f"Project tree for '{repo_root.name}' saved to: {output_file}")
