@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.egg-info/
 .venv/
 venv/
 
@@ -15,9 +14,28 @@ venv/
 htmlcov/
 .tmp_heuristics_tests/
 
+# Mypy cache
+.mypy_cache/
+
+# Ruff cache
+.ruff_cache/
+
+# Build artifacts (setuptools)
+dist/
+build/
+*.egg-info/       # уже есть как *.egg-info/, но build/ и dist/ — нет
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # SOLID Verifier specific artifacts
 .solid-cache/
 report.html
 report.json
 cohesion_debug.log
-solid_config.json
+

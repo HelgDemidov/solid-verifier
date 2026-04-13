@@ -12,6 +12,11 @@ if __name__ == "__main__":
     target_dir = project_root
     config_path = project_root / "solid_config.json"
 
+    # проверка существования конфига перед запуском, чтобы ошибка была читаемой
+    if not config_path.exists():
+        print(f"Config not found: {config_path}", file=sys.stderr)
+        raise SystemExit(1)
+
     # solid_dashboard лежит прямо в корне (не в tools/solid_verifier)
     verifier_dir = project_root / "solid_dashboard"
 

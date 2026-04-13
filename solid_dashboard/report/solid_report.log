@@ -1498,7 +1498,7 @@
     ],
     "maintainability": {
       "total_files": 45,
-      "mean_mi": 75.5,
+      "mean_mi": 75.42,
       "low_mi_count": 1,
       "files": [
         {
@@ -1658,7 +1658,7 @@
         },
         {
           "filepath": "C:\\pet_projects\\solid_verifier\\run_solid_dashboard.py",
-          "mi": 95.31,
+          "mi": 91.71,
           "rank": "A"
         },
         {
@@ -6579,7 +6579,7 @@
   },
   "heuristics": {
     "project_map_summary": {
-      "classes": 62,
+      "classes": 63,
       "interfaces": 3
     },
     "heuristic_findings": [
@@ -7076,7 +7076,7 @@
   },
   "aggregated_report": {
     "meta": {
-      "generated_at": "2026-04-13T14:40:25.768968+00:00",
+      "generated_at": "2026-04-13T16:09:12.718071+00:00",
       "adapter_versions_available": [
         "radon",
         "cohesion",
@@ -7112,7 +7112,7 @@
       },
       "maintainability": {
         "total_files": 45,
-        "mean_mi": 75.5,
+        "mean_mi": 75.42,
         "low_mi_count": 1,
         "rank_distribution": {
           "A": 44,
@@ -7148,7 +7148,7 @@
         {
           "file_id": "C:\\pet_projects\\solid_verifier\\run_solid_dashboard.py",
           "filepath": "C:\\pet_projects\\solid_verifier\\run_solid_dashboard.py",
-          "mi": 95.31,
+          "mi": 91.71,
           "mi_rank": "A",
           "function_count": 0,
           "mean_cc": 0.0,
@@ -11783,11 +11783,11 @@
     "metadata": {
       "candidates_processed": 0,
       "candidates_skipped": 15,
-      "tokens_used": 0,
+      "tokens_used": 7460,
       "cache_hits": 0,
-      "parse_failures": 0,
+      "parse_failures": 1,
       "parse_partials": 0,
-      "parse_warnings": 0
+      "parse_warnings": 1
     }
   }
 }

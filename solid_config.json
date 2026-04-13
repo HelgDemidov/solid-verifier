@@ -1,0 +1,64 @@
+{
+  "package_root": "app",
+
+  "layers": {
+    "routers": ["routers"],
+    "services": ["services"],
+    "infrastructure": ["infrastructure"],
+    "interfaces": ["interfaces"],
+    "models": ["models"]
+  },
+
+  "utility_layers": {
+    "core": ["core"],
+    "schemas": ["schemas"]
+  },
+
+  "layer_order": [
+    "routers",
+    "services",
+    "infrastructure",
+    "interfaces",
+    "models"
+  ],
+
+  "interface_layers": [
+    "interfaces"
+  ],
+
+  "sdp_tolerance": 0.10,
+
+  "allowed_dependency_exceptions": [
+    {
+      "source": "models",
+      "target": "db_libs",
+      "reason": "ORM models intentionally inherit SQLAlchemy Base — pending domain/persistence separation"
+    }
+  ],
+
+  "ignore_dirs": [
+    ".git", ".venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".idea",
+    ".vscode", "tests", "tools", "alembic", "scripts", "build", "dist"
+  ],
+
+  "external_layers": {
+    "db_libs": ["sqlalchemy"],
+    "web_libs": ["fastapi", "starlette"]
+  },
+
+  "pyan3": {
+    "collision_rate_threshold": 0.35,
+    "abort_on_high_collision": false
+  },
+
+  "llm": {
+    "enabled": true,
+    "provider": "openrouter",
+    "model": "openai/gpt-4o-mini",
+    "api_key": null,
+    "endpoint": null,
+    "max_tokens_per_run": 3000,
+    "cache_dir": ".solid-cache/llm",
+    "prompts_dir": "prompts"
+  }
+}
