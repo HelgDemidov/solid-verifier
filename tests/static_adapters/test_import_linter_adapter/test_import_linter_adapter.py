@@ -37,7 +37,7 @@ class TestParseViolations:
 
     def test_all_kept_output_returns_empty(self):
         # Вывод с KEPT-контрактами — violations не собираются
-        output = "Scopus API layered architecture KEPT\nContracts: 1 kept, 0 broken."
+        output = "Layered architecture KEPT\nContracts: 1 kept, 0 broken."
         violations, details = ImportLinterAdapter._parse_violations(output)
         assert violations == []
         assert details == []
@@ -45,15 +45,15 @@ class TestParseViolations:
     def test_single_broken_contract_with_imports(self):
         # Один нарушенный контракт с двумя broken_imports
         output = textwrap.dedent("""\
-            Scopus API layered architecture BROKEN
+            Layered architecture BROKEN
                 app.routers.search -> app.models.paper
                 app.routers.auth -> app.models.user
             Contracts: 0 kept, 1 broken.
         """)
         violations, details = ImportLinterAdapter._parse_violations(output)
-        assert violations == ["Scopus API layered architecture"]
+        assert violations == ["Layered architecture"]
         assert len(details) == 1
-        assert details[0]["contract_name"] == "Scopus API layered architecture"
+        assert details[0]["contract_name"] == "Layered architecture"
         assert details[0]["status"] == "BROKEN"
         assert details[0]["broken_imports"] == [
             {"importer": "app.routers.search", "imported": "app.models.paper"},

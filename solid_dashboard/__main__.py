@@ -83,7 +83,7 @@ def main() -> None:
     base_dir = Path(__file__).resolve().parent
     report_dir = base_dir / "report"
     report_dir.mkdir(exist_ok=True)
-    log_path = report_dir / "solid_pipeline.log"
+    log_path = report_dir / "solid_debug.log"
 
     logging.basicConfig(
         level=logging.INFO,  # WARNING и выше точно попадут
@@ -163,13 +163,13 @@ def main() -> None:
     print(report_text)
 
     # -------------------------------------------------------------------
-    # Сохраняем результат в файл report/solid_report.log
+    # Сохраняем результат в файл report/solid_pipeline_report.log
     # -------------------------------------------------------------------
     base_dir = Path(__file__).resolve().parent
     report_dir = base_dir / "report"
     report_dir.mkdir(exist_ok=True)
 
-    report_path = report_dir / "solid_report.log"
+    report_path = report_dir / "solid_pipeline_report.log"
     with report_path.open("w", encoding="utf-8") as f:
         f.write(report_text)
 

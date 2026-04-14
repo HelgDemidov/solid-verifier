@@ -10,7 +10,15 @@ That is how the concept of the SOLID Verifier emerged. For object-oriented Pytho
 
 ***
 
-`solid_dashboard` is a config-driven CLI tool that analyzes Python projects for adherence to SOLID principles and layered architecture. It runs a pipeline of static analyzers, computes metrics, checks architectural contracts, and — optionally — deepens OCP/LSP analysis with an LLM layer. Results from all static adapters are aggregated by `report_aggregator.py` into a single structured report (`aggregated_report`) and written into the machine-readable file `solid_report.log` (JSON format).
+> [!NOTE]
+> **Project status: on hold (~65% complete)**
+> The project is temporarily paused and will hopefully resume in the coming weeks. There are two main reasons: 
+- first, the static adapter system requires a significant refactoring — in the current implementation, **Import Graph Adapter** heavily dominates violation output, and precise cross-adapter calibration has become the top priority. 
+- second, the final report [`solid_pipeline_report.log`] needs to be reworked: reduced in volume and aggregated at a deeper level.
+
+***
+
+`solid_dashboard` is a config-driven CLI tool that analyzes Python projects for adherence to SOLID principles and layered architecture. It runs a pipeline of static analyzers, computes metrics, checks architectural contracts, and — optionally — deepens OCP/LSP analysis with an LLM layer. Results from all static adapters are aggregated by `report_aggregator.py` into a single structured report (`aggregated_report`) and written into the machine-readable file `solid_pipeline_report.log` (JSON format).
 
 The tool is project-agnostic: it can be reused across different Python codebases.
 
@@ -37,7 +45,7 @@ The tool is project-agnostic: it can be reused across different Python codebases
   - Heuristic signals from `HeuristicsAdapter` are forwarded into the LLM prompt via the `{findings}` placeholder in `user_base.md`: for each candidate, only the signals belonging to that specific class are included; when no signals exist for a class, an explicit fallback text is substituted. The LLM receives them as supplementary context and may override them.
 - **Extensible pipeline** through a clear `IAnalyzer` interface explicitly implemented by all static adapters.
 - **Result aggregation and deduplication** via `report_aggregator.py`: results from all five static adapters are normalized into a unified schema (Pydantic models in `schema.py`), enriched with cross-adapter metrics, deduplicated by event ID with severity upgraded to the maximum, and stored in `results["aggregated_report"]` and `context["aggregated_report"]`. Existing context keys are not overwritten (backward compatibility). Aggregator failure is isolated: the pipeline continues and returns `{"error": ...}` in the `aggregated_report` field.
-- **Machine-readable report** in `solid_report.log` (JSON) and planned visual HTML dashboards.
+- **Machine-readable report** in `solid_pipeline_report.log` (JSON) and planned visual HTML dashboards.
 
 ***
 
@@ -196,7 +204,7 @@ This level starts only after Level 1 completes and only if LLM analysis is enabl
 - **LlmGateway**: sends the request to the provider (OpenRouter/OpenAI) while handling caching, token budget control, and retries.
 - **Response Parser (ACL-B)**: safely validates the model output and converts it into typed `Finding` objects.
 
-At the end, the **Report Aggregator** merges the flat stream of static metrics with heuristic and LLM findings into one consolidated report (`solid_report.log` / HTML).
+At the end, the **Report Aggregator** merges the flat stream of static metrics with heuristic and LLM findings into one consolidated report (`solid_pipeline_report.log` / HTML).
 
 ```text
 LEVEL 1: Base independent adapters
@@ -215,7 +223,7 @@ LEVEL 1: Base independent adapters
         │                  │          └────────────────┬───────────────┘
         ▼                  ▼                           ▼
      =======================================================
-            Report Aggregator → solid_report.log / HTML
+            Report Aggregator → solid_pipeline_report.log / HTML
 ```
 
 #### Anti-Corruption Layer: Two Levels of Protection
@@ -535,7 +543,7 @@ This will:
 1. Load `solid_config.json` from the project root.
 2. Run all static adapters in sequence (Radon, Cohesion, ImportGraph, ImportLinter, Pyan3).
 3. If `llm.enabled: true` and OCP/LSP candidates are found, perform LLM analysis via OpenRouter.
-4. Print a JSON report to stdout and save it into `solid_verifier/solid_dashboard/report/solid_report.log`.
+4. Print a JSON report to stdout and save it into `solid_verifier/solid_dashboard/report/solid_pipeline_report.log`.
 
 ### 2. Through the wrapper script
 

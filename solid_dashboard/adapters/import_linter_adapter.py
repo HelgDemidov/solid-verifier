@@ -212,20 +212,20 @@ class ImportLinterAdapter(IAnalyzer):
 
         violations: List[str]
             Плоский список имен нарушенных контрактов — для обратной совместимости
-            существующего JSON-отчета. Пример: ["Scopus API layered architecture"]
+            существующего JSON-отчета. Пример: ["Layered architecture"]
 
         violation_details: List[Dict]
             Структурированный список нарушений вида:
             [
               {
-                "contract_name": "Scopus API layered architecture",
+                "contract_name": "Layered architecture",
                 "status": "BROKEN",
                 "broken_imports": [
                   {"importer": "app.routers.search", "imported": "app.models.paper"}
                 ]
               }
             ]
-            Используется для кросс-адаптерной агрегации (будущий report_aggregator).
+            Используется для кросс-адаптерной агрегации (report_aggregator).
             При отсутствии строк с '->' broken_imports остается пустым списком —
             это корректное состояние: факт нарушения подтвержден returncode, детали недоступны.
         """

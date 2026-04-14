@@ -95,7 +95,7 @@ def _graph_context(edges=None, violations=None,
 
 
 def _linter_context(broken_imports: list | None = None,
-                    contract_name: str = "Scopus API layered architecture") -> dict:
+                    contract_name: str = "Layered architecture") -> dict:
     """Минимальный валидный ImportLinterAdapter output."""
     broken = broken_imports or []
     return {
@@ -544,9 +544,9 @@ def test_t9_is_success_false_without_error_key_is_not_adapter_failure():
             "contracts_checked": 1,
             "broken_contracts": 1,
             "kept_contracts": 0,
-            "violations": ["Scopus API layered architecture"],
+            "violations": ["Layered architecture"],
             "violation_details": [{
-                "contract_name": "Scopus API layered architecture",
+                "contract_name": "Layered architecture",
                 "status": "BROKEN",
                 "broken_imports": [
                     {"importer": "app.routers.search", "imported": "app.models.paper"}
