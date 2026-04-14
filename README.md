@@ -10,6 +10,12 @@ That is how the concept of the SOLID Verifier emerged. For object-oriented Pytho
 
 ***
 
+`solid_dashboard` is a config-driven CLI tool that analyzes Python projects for adherence to SOLID principles and layered architecture. It runs a pipeline of static analyzers, computes metrics, checks architectural contracts, and — optionally — deepens OCP/LSP analysis with an LLM layer. Results from all static adapters are aggregated by `report_aggregator.py` into a single structured report (`aggregated_report`) and written into the machine-readable file `solid_pipeline_report.log` (JSON format).
+
+The tool is project-agnostic: it can be reused across different Python codebases.
+
+***
+
 > [!NOTE]
 > **Project status: on hold (~65% complete)**
 > The project is temporarily paused and will hopefully resume in the coming weeks. There are two main reasons: 
@@ -17,10 +23,6 @@ That is how the concept of the SOLID Verifier emerged. For object-oriented Pytho
 - second, the final report [`solid_pipeline_report.log`] needs to be reworked: reduced in volume and aggregated at a deeper level.
 
 ***
-
-`solid_dashboard` is a config-driven CLI tool that analyzes Python projects for adherence to SOLID principles and layered architecture. It runs a pipeline of static analyzers, computes metrics, checks architectural contracts, and — optionally — deepens OCP/LSP analysis with an LLM layer. Results from all static adapters are aggregated by `report_aggregator.py` into a single structured report (`aggregated_report`) and written into the machine-readable file `solid_pipeline_report.log` (JSON format).
-
-The tool is project-agnostic: it can be reused across different Python codebases.
 
 ## Key Features
 
